@@ -23,3 +23,8 @@ const labels: Record<CategoryKey, string> = {
 };
 
 export const categories = categoryKeys.map((key) => ({ key, label: labels[key] }));
+
+// 카테고리 키를 사용자에게 보여줄 라벨로 변환 (내부 키 노출 방지)
+export function getCategoryLabel(key: string): string {
+  return labels[key as CategoryKey] ?? key;
+}

@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { categories } from '../lib/categories';
+import { categories, getCategoryLabel } from '../lib/categories';
 
 const allArticles = await getCollection('articles', ({ data }) => !data.draft);
 const recentPosts = allArticles
@@ -43,15 +43,19 @@ const popularTags = Object.entries(tagCount)
 
   <section class="mb-10">
     <h2 class="text-lg font-semibold mb-3">🔥 Recent Posts</h2>
-    <ul class="space-y-2">
+    <ul class="space-y-3">
       {recentPosts.map((post) => (
         <li>
-          <a href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`} class="hover:underline">
+          <a href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`} class="hover:underline font-medium">
             {post.data.title}
           </a>
-          <span class="text-xs text-gray-400 ml-2">
-            {post.data.date.toISOString().slice(0, 10)}
-          </span>
+          <div class="flex flex-wrap gap-2 text-xs text-gray-400 mt-1">
+            <span>{getCategoryLabel(post.data.category)}</span>
+            <span>·</span>
+            <span>{post.data.type}</span>
+            <span>·</span>
+            <span>{post.data.date.toISOString().slice(0, 10)}</span>
+          </div>
         </li>
       ))}
     </ul>
