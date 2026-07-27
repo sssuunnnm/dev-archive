@@ -1,0 +1,98 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { categories as categoryList } from '../../lib/categories';
+
+const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const sorted = allArticles.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const categories = [{ key: 'all', label: '전체' }, ...categoryList];
+---
+
+<BaseLayout title="Articles" description="전체 글 목록">
+  <h1 class="text-2xl font-bold mb-6">Articles</h1>
+
+  <!-- 카테고리 필터 -->
+  <div id="filter-bar" class="flex flex-wrap gap-2 mb-8">
+    {categories.map((c) => (
+      <button
+        type="button"
+        data-category={c.key}
+        class="filter-btn text-sm border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+      >
+        {c.label}
+      </button>
+    ))}
+  </div>
+
+  <!-- 글 목록 -->
+  <ul id="article-list" class="space-y-4">
+    {sorted.map((post) => (
+      <li
+        class="article-item border-b pb-4 dark:border-gray-800"
+        data-category={post.data.category}
+      >
+        <a
+          href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
+          class="text-lg font-medium hover:underline"
+        >
+          {post.data.title}
+        </a>
+        <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+          <span>{post.data.category}</span>
+          <span>·</span>
+          <span>{post.data.type}</span>
+          <span>·</span>
+          <span>{post.data.date.toISOString().slice(0, 10)}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <p id="empty-msg" class="text-gray-400 text-sm hidden">해당 카테고리에 글이 없습니다.</p>
+</BaseLayout>
+
+<script>
+  // URL의 ?category= 값을 읽어서 초기 필터 적용, 버튼 클릭 시 새로고침 없이 필터링
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const items = document.querySelectorAll<HTMLLIElement>('.article-item');
+  const emptyMsg = document.getElementById('empty-msg');
+
+  function applyFilter(category: string) {
+    let visibleCount = 0;
+    items.forEach((item) => {
+      const match = category === 'all' || item.dataset.category === category;
+      item.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
+    });
+    emptyMsg?.classList.toggle('hidden', visibleCount > 0);
+
+    buttons.forEach((btn) => {
+      btn.classList.toggle('bg-gray-900', btn.dataset.category === category);
+      btn.classList.toggle('text-white', btn.dataset.category === category);
+      btn.classList.toggle('dark:bg-gray-100', btn.dataset.category === category);
+      btn.classList.toggle('dark:text-gray-900', btn.dataset.category === category);
+    });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const category = btn.dataset.category ?? 'all';
+      const url = new URL(window.location.href);
+      if (category === 'all') {
+        url.searchParams.delete('category');
+      } else {
+        url.searchParams.set('category', category);
+      }
+      history.replaceState({}, '', url);
+      applyFilter(category);
+    });
+  });
+
+  const requested = new URLSearchParams(window.location.search).get('category') ?? 'all';
+  const initial = Array.from(buttons).some((btn) => btn.dataset.category === requested)
+    ? requested
+    : 'all';
+  applyFilter(initial);
+</script>
