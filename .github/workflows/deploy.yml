@@ -3,20 +3,22 @@ on:
   push:
     branches: [main]
 permissions:
-  contents: read   # workflow 전체는 read만
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false   # checkout 자격증명이 이후 action에 남지 않도록
+          persist-credentials: false
       - uses: withastro/action@v3
+        with:
+          node-version: 22
   deploy:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      pages: write        # 배포 권한은 deploy job에만
+      pages: write
       id-token: write
     environment:
       name: github-pages
