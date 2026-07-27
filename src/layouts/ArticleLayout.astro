@@ -43,7 +43,12 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
 
       <div class="flex flex-wrap gap-2">
         {tags.map((t: string) => (
-          <a href={`/tags/${t}`} class="text-xs text-blue-600 hover:underline">#{t}</a>
+          <a
+            href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(t)}`}
+            class="text-xs text-blue-600 hover:underline"
+          >
+            #{t}
+          </a>
         ))}
       </div>
     </header>
@@ -73,7 +78,9 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
         <ul class="space-y-1">
           {related.map((r: string) => (
             <li>
-              <a href={`/${category}/${r}`} class="text-blue-600 hover:underline">{r}</a>
+              <a href={`${import.meta.env.BASE_URL}${category}/${r}`} class="text-blue-600 hover:underline">
+                {r}
+              </a>
             </li>
           ))}
         </ul>

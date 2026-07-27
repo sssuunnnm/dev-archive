@@ -40,7 +40,7 @@ const popularTags = Object.entries(tagCount)
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
       {categories.map((c) => (
         <a
-          href={`/articles?category=${c.key}`}
+          href={`${import.meta.env.BASE_URL}articles?category=${c.key}`}
           class="border rounded-lg px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
         >
           {c.label}
@@ -54,7 +54,7 @@ const popularTags = Object.entries(tagCount)
     <ul class="space-y-2">
       {recentPosts.map((post) => (
         <li>
-          <a href={`/${post.data.category}/${post.id}`} class="hover:underline">
+          <a href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`} class="hover:underline">
             {post.data.title}
           </a>
           <span class="text-xs text-gray-400 ml-2">
@@ -70,7 +70,7 @@ const popularTags = Object.entries(tagCount)
     <div class="flex flex-wrap gap-2">
       {popularTags.map((tag) => (
         <a
-          href={`/tags/${tag}`}
+          href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}`}
           class="text-xs border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
         >
           #{tag}
