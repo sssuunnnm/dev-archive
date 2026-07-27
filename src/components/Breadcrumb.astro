@@ -20,7 +20,7 @@ const { items } = Astro.props;
             {item.label}
           </a>
         ) : (
-          <span class="text-gray-600 dark:text-gray-300">{item.label}</span>
+          <span aria-current="page" class="text-gray-600 dark:text-gray-300">{item.label}</span>
         )}
         {i < items.length - 1 && <span class="mx-1">/</span>}
       </li>
