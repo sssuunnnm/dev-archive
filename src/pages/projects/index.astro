@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf()
+);
+
+const statusLabel: Record<string, string> = {
+  'in-progress': '진행중',
+  done: '완료',
+  archived: '보관',
+};
+---
+
+<BaseLayout title="Projects" description="진행한 프로젝트 목록">
+  <h1 class="text-2xl font-bold mb-6">Projects</h1>
+
+  {projects.length === 0 ? (
+    <p class="text-gray-400 text-sm">아직 등록된 프로젝트가 없습니다.</p>
+  ) : (
+    <ul class="space-y-6">
+      {projects.map((project) => (
+        <li class="border rounded-lg p-4 dark:border-gray-700">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <a
+              href={`${import.meta.env.BASE_URL}projects/${project.id}`}
+              class="text-lg font-medium hover:underline"
+            >
+              {project.data.title}
+            </a>
+            <span class="text-xs border rounded px-2 py-0.5 text-gray-500 dark:border-gray-700">
+              {statusLabel[project.data.status] ?? project.data.status}
+            </span>
+          </div>
+          <p class="text-sm text-gray-500 mb-2">{project.data.summary}</p>
+          <div class="flex flex-wrap gap-2">
+            {project.data.stack.map((s: string) => (
+              <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{s}</span>
+            ))}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
