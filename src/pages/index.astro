@@ -1,17 +1,81 @@
 ---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
+const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const recentPosts = allArticles
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 5);
+
+const categories = [
+  { key: 'development', label: '💻 Development' },
+  { key: 'infra', label: '☁️ Infra' },
+  { key: 'cs', label: '📖 CS' },
+  { key: 'ai', label: '🤖 AI' },
+  { key: 'study', label: '📔 Study' },
+  { key: 'certificates', label: '🏆 Certificates' },
+];
+
+// 태그 빈도 집계 (상위 8개)
+const tagCount: Record<string, number> = {};
+for (const post of allArticles) {
+  for (const tag of post.data.tags) {
+    tagCount[tag] = (tagCount[tag] ?? 0) + 1;
+  }
+}
+const popularTags = Object.entries(tagCount)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 8)
+  .map(([tag]) => tag);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="My Dev Wiki" description="개발과 공부를 기록하는 공간">
+  <section class="mb-10">
+    <h1 class="text-2xl font-bold mb-2">안녕하세요.</h1>
+    <p class="text-gray-500">개발과 공부를 기록하는 공간입니다.</p>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-lg font-semibold mb-3">📚 Categories</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {categories.map((c) => (
+        <a
+          href={`${import.meta.env.BASE_URL}articles?category=${c.key}`}
+          class="border rounded-lg px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+        >
+          {c.label}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-10">
+    <h2 class="text-lg font-semibold mb-3">🔥 Recent Posts</h2>
+    <ul class="space-y-2">
+      {recentPosts.map((post) => (
+        <li>
+          <a href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`} class="hover:underline">
+            {post.data.title}
+          </a>
+          <span class="text-xs text-gray-400 ml-2">
+            {post.data.date.toISOString().slice(0, 10)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="text-lg font-semibold mb-3">🏷 Popular Tags</h2>
+    <div class="flex flex-wrap gap-2">
+      {popularTags.map((tag) => (
+        <a
+          href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}`}
+          class="text-xs border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+        >
+          #{tag}
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
