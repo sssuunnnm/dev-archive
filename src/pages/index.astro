@@ -97,6 +97,17 @@ const categories = [
     });
   });
 
-  const initial = new URLSearchParams(window.location.search).get('category') ?? 'all';
+  // Validate initial category against actual category values
+  const validCategories = Array.from(buttons).map(btn => btn.dataset.category).filter((c): c is string => !!c);
+  const urlCategory = new URLSearchParams(window.location.search).get('category');
+  const initial = urlCategory && validCategories.includes(urlCategory) ? urlCategory : 'all';
+
+  // Clean up URL if category was invalid
+  if (urlCategory && !validCategories.includes(urlCategory)) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('category');
+    history.replaceState({}, '', url);
+  }
+
   applyFilter(initial);
 </script>
