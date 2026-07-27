@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
+import { categoryKeys } from './lib/categories';
 
 // 공통: Technology Dictionary (CONVENTIONS.md 2-2 원칙 반영)
 // 새 기술 추가 시 반드시 여기 먼저 등록 후 사용
@@ -32,9 +33,7 @@ const articles = defineCollection({
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
 
-    category: z.enum([
-      'development', 'infra', 'cs', 'ai', 'study', 'certificates',
-    ]),
+    category: z.enum(categoryKeys),
     technology: z.array(technologyEnum),
     tags: z.array(z.string()),
     type: z.enum([
