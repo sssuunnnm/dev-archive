@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
-import { categories } from '../lib/categories';
+import { categories, getCategoryLabel } from '../lib/categories';
 import { getRelatedPosts, getSeriesNav } from '../lib/related';
 
 interface Props {
@@ -58,7 +58,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
         {tags.map((t: string) => (
           <a
             href={`${base}tags/${encodeURIComponent(t)}`}
-            class="text-xs text-accent hover:underline"
+            class="text-xs text-accent dark:text-accent-dark hover:underline"
           >
             #{t}
           </a>
@@ -111,11 +111,11 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
           {related.map((post) => (
             <li class="flex items-center gap-2">
               <span class="text-xs text-gray-400 border rounded px-1.5 py-0.5 dark:border-gray-700">
-                {post.data.category}
+                {getCategoryLabel(post.data.category)}
               </span>
               <a
                 href={`${base}${post.data.category}/${post.id}`}
-                class="text-accent hover:underline"
+                class="text-accent dark:text-accent-dark hover:underline"
               >
                 {post.data.title}
               </a>

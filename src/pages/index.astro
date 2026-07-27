@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { categories } from '../lib/categories';
+import { categories, getCategoryLabel } from '../lib/categories';
 
 const allArticles = await getCollection('articles', ({ data }) => !data.draft);
 const recentPosts = allArticles
@@ -50,7 +50,7 @@ const popularTags = Object.entries(tagCount)
             {post.data.title}
           </a>
           <div class="flex flex-wrap gap-2 text-xs text-gray-400 mt-1">
-            <span>{post.data.category}</span>
+            <span>{getCategoryLabel(post.data.category)}</span>
             <span>·</span>
             <span>{post.data.type}</span>
             <span>·</span>
