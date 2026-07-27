@@ -1,0 +1,29 @@
+---
+interface Item {
+  label: string;
+  href?: string; // 없으면 현재 페이지(링크 없이 텍스트만)
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav aria-label="breadcrumb" class="text-sm text-gray-400 mb-6">
+  <ol class="flex flex-wrap items-center gap-1">
+    {items.map((item, i) => (
+      <li class="flex items-center gap-1">
+        {item.href ? (
+          <a href={item.href} class="hover:underline hover:text-gray-600 dark:hover:text-gray-300">
+            {item.label}
+          </a>
+        ) : (
+          <span class="text-gray-600 dark:text-gray-300">{item.label}</span>
+        )}
+        {i < items.length - 1 && <span class="mx-1">/</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
