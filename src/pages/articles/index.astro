@@ -18,6 +18,7 @@ const categories = [{ key: 'all', label: '전체' }, ...categoryList];
       <button
         type="button"
         data-category={c.key}
+        aria-pressed="false"
         class="filter-btn text-sm border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
       >
         {c.label}
@@ -69,10 +70,12 @@ const categories = [{ key: 'all', label: '전체' }, ...categoryList];
     emptyMsg?.classList.toggle('hidden', visibleCount > 0);
 
     buttons.forEach((btn) => {
-      btn.classList.toggle('bg-gray-900', btn.dataset.category === category);
-      btn.classList.toggle('text-white', btn.dataset.category === category);
-      btn.classList.toggle('dark:bg-gray-100', btn.dataset.category === category);
-      btn.classList.toggle('dark:text-gray-900', btn.dataset.category === category);
+      const selected = btn.dataset.category === category;
+      btn.setAttribute('aria-pressed', String(selected));
+      btn.classList.toggle('bg-gray-900', selected);
+      btn.classList.toggle('text-white', selected);
+      btn.classList.toggle('dark:bg-gray-100', selected);
+      btn.classList.toggle('dark:text-gray-900', selected);
     });
   }
 
