@@ -1,0 +1,83 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  entry: any; // CollectionEntry<'articles'>
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const { entry, headings } = Astro.props;
+const {
+  title, description, date, updated,
+  category, technology, tags, type,
+  related,
+} = entry.data;
+
+// 읽는 시간 계산 (본문 글자 수 기반 대략치)
+const wordCount = entry.body?.length ?? 0;
+const readingTime = Math.max(1, Math.round(wordCount / 400));
+---
+
+<BaseLayout title={title} description={description}>
+  <article>
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">{title}</h1>
+      <p class="text-gray-500 mb-3">{description}</p>
+
+      <div class="flex flex-wrap gap-2 text-xs text-gray-400 mb-3">
+        <span>{category}</span>
+        <span>·</span>
+        <span>{type}</span>
+        <span>·</span>
+        <span>{readingTime} min read</span>
+        <span>·</span>
+        <span>{date.toISOString().slice(0, 10)}</span>
+        {updated && <span>(Updated {updated.toISOString().slice(0, 10)})</span>}
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-2">
+        {technology.map((t: string) => (
+          <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{t}</span>
+        ))}
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        {tags.map((t: string) => (
+          <a href={`/tags/${t}`} class="text-xs text-blue-600 hover:underline">#{t}</a>
+        ))}
+      </div>
+    </header>
+
+    {headings.length > 0 && (
+      <nav class="mb-8 border rounded-lg p-4 text-sm dark:border-gray-700">
+        <p class="font-semibold mb-2">목차</p>
+        <ul class="space-y-1">
+          {headings.filter((h) => h.depth <= 3).map((h) => (
+            <li style={`margin-left: ${(h.depth - 2) * 12}px`}>
+              <a href={`#${h.slug}`} class="text-gray-600 hover:underline dark:text-gray-400">
+                {h.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    <div class="leading-relaxed">
+      <slot />
+    </div>
+
+    {related && related.length > 0 && (
+      <footer class="mt-12 pt-6 border-t dark:border-gray-700">
+        <p class="font-semibold mb-2">관련 글</p>
+        <ul class="space-y-1">
+          {related.map((r: string) => (
+            <li>
+              <a href={`/${category}/${r}`} class="text-blue-600 hover:underline">{r}</a>
+            </li>
+          ))}
+        </ul>
+      </footer>
+    )}
+  </article>
+</BaseLayout>

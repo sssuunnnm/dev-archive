@@ -20,7 +20,12 @@ const technologyEnum = z.enum([
 
 // Articles
 const articles = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/articles' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/articles',
+    // folder/index.md → 폴더명 자체를 id(slug)로 고정
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, '').replace(/\.md$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -52,7 +57,11 @@ const articles = defineCollection({
 
 // Projects
 const projects = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/projects',
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, '').replace(/\.md$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
     summary: z.string(),
@@ -66,7 +75,11 @@ const projects = defineCollection({
 
 // Reference (계속 갱신되는 문서)
 const references = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/references' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/references',
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, '').replace(/\.md$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
     technology: z.array(technologyEnum).optional(),  // 개념 문서는 생략 가능
@@ -78,7 +91,11 @@ const references = defineCollection({
 
 // Snippets (짧은 코드/명령어 조각)
 const snippets = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/snippets' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/snippets',
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, '').replace(/\.md$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
     command: z.string(),
