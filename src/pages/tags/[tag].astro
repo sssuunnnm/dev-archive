@@ -1,0 +1,52 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+
+  // 등장하는 모든 태그를 수집 (중복 제거)
+  const tagSet = new Set<string>();
+  for (const post of allArticles) {
+    for (const tag of post.data.tags) {
+      tagSet.add(tag);
+    }
+  }
+
+  return Array.from(tagSet).map((tag) => {
+    const posts = allArticles
+      .filter((post) => post.data.tags.includes(tag))
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+    return { params: { tag }, props: { tag, posts } };
+  });
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`#${tag}`} description={`#${tag} 태그가 달린 글 목록`}>
+  <h1 class="text-2xl font-bold mb-2">#{tag}</h1>
+  <p class="text-sm text-gray-400 mb-8">{posts.length}개의 글</p>
+
+  <ul class="space-y-4">
+    {posts.map((post) => (
+      <li class="border-b pb-4 dark:border-gray-800">
+        <a
+          href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
+          class="text-lg font-medium hover:underline"
+        >
+          {post.data.title}
+        </a>
+        <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+          <span>{post.data.category}</span>
+          <span>·</span>
+          <span>{post.data.type}</span>
+          <span>·</span>
+          <span>{post.data.date.toISOString().slice(0, 10)}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
