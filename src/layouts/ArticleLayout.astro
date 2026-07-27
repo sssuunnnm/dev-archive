@@ -1,5 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { categories } from '../lib/categories';
+import { getRelatedPosts, getSeriesNav } from '../lib/related';
 
 interface Props {
   entry: any; // CollectionEntry<'articles'>
@@ -10,8 +14,14 @@ const { entry, headings } = Astro.props;
 const {
   title, description, date, updated,
   category, technology, tags, type,
-  related,
 } = entry.data;
+
+const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const related = getRelatedPosts(entry, allArticles);
+const seriesNav = getSeriesNav(entry, allArticles);
+
+const categoryLabel = categories.find((c) => c.key === category)?.label ?? category;
+const base = import.meta.env.BASE_URL;
 
 // 읽는 시간 계산 (본문 글자 수 기반 대략치)
 const wordCount = entry.body?.length ?? 0;
@@ -19,6 +29,14 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
 ---
 
 <BaseLayout title={title} description={description}>
+  <Breadcrumb
+    items={[
+      { label: 'Home', href: base },
+      { label: categoryLabel, href: `${base}${category}` },
+      { label: title },
+    ]}
+  />
+
   <article>
     <header class="mb-8">
       <h1 class="text-3xl font-bold mb-2">{title}</h1>
@@ -44,7 +62,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
       <div class="flex flex-wrap gap-2">
         {tags.map((t: string) => (
           <a
-            href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(t)}`}
+            href={`${base}tags/${encodeURIComponent(t)}`}
             class="text-xs text-blue-600 hover:underline"
           >
             #{t}
@@ -72,14 +90,36 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
       <slot />
     </div>
 
-    {related && related.length > 0 && (
-      <footer class="mt-12 pt-6 border-t dark:border-gray-700">
+    {seriesNav && (
+      <nav class="mt-12 pt-6 border-t dark:border-gray-700 flex justify-between text-sm">
+        <div>
+          {seriesNav.prev && (
+            <a href={`${base}${seriesNav.prev.data.category}/${seriesNav.prev.id}`} class="hover:underline">
+              ← {seriesNav.prev.data.title}
+            </a>
+          )}
+        </div>
+        <div>
+          {seriesNav.next && (
+            <a href={`${base}${seriesNav.next.data.category}/${seriesNav.next.id}`} class="hover:underline">
+              {seriesNav.next.data.title} →
+            </a>
+          )}
+        </div>
+      </nav>
+    )}
+
+    {related.length > 0 && (
+      <footer class="mt-8 pt-6 border-t dark:border-gray-700">
         <p class="font-semibold mb-2">관련 글</p>
         <ul class="space-y-1">
-          {related.map((r: string) => (
+          {related.map((post) => (
             <li>
-              <a href={`${import.meta.env.BASE_URL}${category}/${r}`} class="text-blue-600 hover:underline">
-                {r}
+              <a
+                href={`${base}${post.data.category}/${post.id}`}
+                class="text-blue-600 hover:underline"
+              >
+                {post.data.title}
               </a>
             </li>
           ))}
