@@ -1,0 +1,39 @@
+---
+const base = import.meta.env.BASE_URL;
+---
+
+<link href={`${base}pagefind/pagefind-ui.css`} rel="stylesheet" />
+<script is:inline src={`${base}pagefind/pagefind-ui.js`}></script>
+
+<div id="search"></div>
+
+<script is:inline define:vars={{ base }}>
+  window.addEventListener('DOMContentLoaded', () => {
+    new PagefindUI({
+      element: '#search',
+      showSubResults: true,
+      showImages: false,
+      bundlePath: `${base}pagefind/`,
+    });
+  });
+</script>
+
+<style is:global>
+  /* 우리 accent 컬러 + .dark 클래스 전략에 맞춰 Pagefind 기본 UI 색상 override */
+  :root {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: #466b8f;
+    --pagefind-ui-text: #374151;
+    --pagefind-ui-background: #ffffff;
+    --pagefind-ui-border: #e5e7eb;
+    --pagefind-ui-tag: #f3f4f6;
+  }
+
+  .dark {
+    --pagefind-ui-primary: #8fadc7;
+    --pagefind-ui-text: #e5e7eb;
+    --pagefind-ui-background: #111827;
+    --pagefind-ui-border: #374151;
+    --pagefind-ui-tag: #1f2937;
+  }
+</style>

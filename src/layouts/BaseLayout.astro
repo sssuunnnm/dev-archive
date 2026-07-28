@@ -73,11 +73,20 @@ function isActive(href: string) {
           </a>
         ))}
 
+        <a
+          href={`${base}search`}
+          aria-current={currentPath === `${base}search` ? 'page' : undefined}
+          class="ml-auto text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+          aria-label="검색"
+        >
+          🔍
+        </a>
+
         <button
           id="theme-toggle"
           type="button"
           aria-label="다크모드 전환"
-          class="ml-auto text-base leading-none"
+          class="text-base leading-none"
         >
           <span class="dark:hidden">🌙</span>
           <span class="hidden dark:inline">☀️</span>
@@ -85,7 +94,7 @@ function isActive(href: string) {
       </nav>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 py-8">
+    <main class="max-w-3xl mx-auto px-4 py-8" data-pagefind-body>
       <slot />
     </main>
 
