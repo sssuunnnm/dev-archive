@@ -9,15 +9,16 @@ const snippets = (await getCollection('snippets')).sort((a, b) =>
 
 <BaseLayout title="Snippets" description="자주 쓰는 명령어/코드 조각 모음">
   <h1 class="text-2xl font-bold mb-6">Snippets</h1>
-  <p class="text-sm text-gray-400 mb-6">30초 안에 찾아 쓰는 명령어 모음입니다.</p>
+  <p class="text-gray-600 dark:text-gray-400 text-sm mb-6">30초 안에 찾아 쓰는 명령어 모음입니다.</p>
 
   {snippets.length === 0 ? (
-    <p class="text-gray-400 text-sm">아직 등록된 snippet이 없습니다.</p>
+    <p class="text-gray-600 dark:text-gray-400 text-sm">아직 등록된 snippet이 없습니다.</p>
   ) : (
     <ul class="space-y-3">
       {snippets.map((s) => (
         <li class="border rounded-lg p-4 dark:border-gray-700">
           <a href={`${import.meta.env.BASE_URL}snippets/${s.id}`} class="hover:underline">
+            <h2 class="font-medium mb-1">{s.data.title}</h2>
             <code class="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
               {s.data.command}
             </code>
