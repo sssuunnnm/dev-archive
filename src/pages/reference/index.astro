@@ -7,7 +7,7 @@ const references = (await getCollection('references')).sort(
 );
 ---
 
-<BaseLayout title="Reference" description="계속 갱신되는 참고 문서 목록">
+<BaseLayout title="Reference" description="계속 갱신되는 참고 문서 목록" ogType="website">
   <h1 class="text-2xl font-bold mb-6">Reference</h1>
 
   {references.length === 0 ? (

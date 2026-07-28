@@ -19,7 +19,7 @@ const current = categories.find((c) => c.key === category);
 const label = current?.label ?? category;
 ---
 
-<BaseLayout title={`${label} | Category`} description={`${label} 카테고리 글 목록`}>
+<BaseLayout title={`${label} | Category`} description={`${label} 카테고리 글 목록`} ogType="website">
   <h1 class="text-2xl font-bold mb-2">{label}</h1>
   <p class="text-sm text-gray-400 mb-8">{posts.length}개의 글</p>
 
