@@ -20,6 +20,11 @@ const allArticles = await getCollection('articles', ({ data }) => !data.draft);
 const related = getRelatedPosts(entry, allArticles);
 const seriesNav = getSeriesNav(entry, allArticles);
 
+// DESIGN_RULES 4-2: 이 글이 속한 프로젝트 배너 (양방향 연결)
+const linkedProjects = entry.data.projects?.length
+  ? (await getCollection('projects')).filter((p) => entry.data.projects.includes(p.id))
+  : [];
+
 const categoryLabel = categories.find((c) => c.key === category)?.label ?? category;
 // breadcrumb용 라벨은 이모지 없이 텍스트만 사용
 const categoryPlainLabel = categoryLabel.replace(/^\S+\s/, '');
@@ -65,6 +70,21 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
         ))}
       </div>
     </header>
+
+    {linkedProjects.length > 0 && (
+      <p class="mb-6 text-sm text-gray-500 border-l-2 border-accent dark:border-accent-dark pl-3">
+        이 글은{' '}
+        {linkedProjects.map((p, i) => (
+          <>
+            <a href={`${base}projects/${p.id}`} class="text-accent dark:text-accent-dark hover:underline">
+              {p.data.title}
+            </a>
+            {i < linkedProjects.length - 1 ? ', ' : ' '}
+          </>
+        ))}
+        프로젝트에서 작성되었습니다.
+      </p>
+    )}
 
     {headings.length > 0 && (
       <details class="mb-8 border rounded-lg p-4 text-sm dark:border-gray-700">
