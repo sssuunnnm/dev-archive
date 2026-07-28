@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://sssuunnnm.github.io/dev-archive/sitemap-index.xml

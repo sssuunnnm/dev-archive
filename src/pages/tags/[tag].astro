@@ -25,7 +25,7 @@ export async function getStaticPaths() {
 const { tag, posts } = Astro.props;
 ---
 
-<BaseLayout title={`#${tag}`} description={`#${tag} 태그가 달린 글 목록`}>
+<BaseLayout title={`#${tag}`} description={`#${tag} 태그가 달린 글 목록`} ogType="website">
   <h1 class="text-2xl font-bold mb-2">#{tag}</h1>
   <p class="text-sm text-gray-400 mb-8">{posts.length}개의 글</p>
 

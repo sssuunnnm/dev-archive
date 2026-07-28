@@ -9,7 +9,7 @@ const sorted = allArticles.sort((a, b) => b.data.date.valueOf() - a.data.date.va
 const categories = [{ key: 'all', label: '전체' }, ...categoryList];
 ---
 
-<BaseLayout title="Articles" description="전체 글 목록">
+<BaseLayout title="Articles" description="전체 글 목록" ogType="website">
   <h1 class="text-2xl font-bold mb-6">Articles</h1>
 
   <!-- 카테고리 필터 -->
