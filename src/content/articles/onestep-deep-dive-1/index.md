@@ -49,8 +49,10 @@ dependencies {
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 ```
 
-- `ACCESS_FINE_LOCATION`: GPS 기반 정밀 위치
-- `ACCESS_COARSE_LOCATION`: 네트워크 기반 대략적 위치 (정밀 위치 없이도 최소한의 위치는 필요할 때)
+- `ACCESS_FINE_LOCATION`: 정밀 위치 접근 권한. 단, Android 12(API 31)부터는 이 권한을 요청해도 사용자가 시스템 다이얼로그에서 **"정확한 위치" 대신 "대략적 위치"만 허용**할 수 있다. 즉 FINE 권한을 요청했다고 해서 항상 정밀한 좌표를 받는다는 보장은 없다.
+- `ACCESS_COARSE_LOCATION`: 대략적 위치(반경 약 3km 이내) 접근 권한. "네트워크 기반 위치"라는 뜻이 아니라, 내부적으로 어떤 신호(GPS 포함)를 쓰든 **결과 정밀도를 대략적 수준으로 낮춰서 반환**한다는 의미다.
+
+> 이후 코드에서 `hasLocationPermission()`이 `FINE || COARSE` 둘 중 하나만 있어도 `true`를 반환하는데, 이건 "위치 기능 자체를 켤 수 있는지"만 확인하는 것이지 **`PRIORITY_HIGH_ACCURACY`로 요청한다고 정밀 위치가 보장되는 건 아니다**. 사용자가 "대략적 위치"만 허용했다면 `PRIORITY_HIGH_ACCURACY`를 요청해도 결과는 대략적 위치 수준으로 온다. 도착 판정처럼 정확도가 중요한 로직이라면, 실제로 반환된 `location.accuracy` 값을 확인하거나(뒤 편에서 다룰 임계값 가드가 이 역할을 한다), 정밀 위치가 꼭 필요하면 사용자에게 "정확한 위치" 허용을 별도로 안내해야 한다.
 
 ### 3. 런타임 권한 요청
 
@@ -144,17 +146,30 @@ fun stopLocationUpdates() {
 | 방식 | 언제 쓰나 |
 |---|---|
 | `LocationCallback` (이 글에서 쓴 방식) | 포그라운드에서 연속 추적, 구현이 비교적 간단 |
-| `PendingIntent` 기반 요청 | 앱 프로세스가 죽어도 시스템이 인텐트로 위치를 전달해줘야 하는 백그라운드 추적 |
+| `PendingIntent` 기반 요청 | 앱 프로세스가 죽어도 시스템이 인텐트로 위치를 전달해주길 원할 때. 단, 이것만으로 백그라운드 추적이 되는 건 아니다(아래 참고) |
 | `getCurrentLocation()` | 연속 추적이 아니라 지금 위치 딱 한 번만 필요할 때 |
 | `com.google.android.gms.location.LocationListener` | 가용성 변경 감지나 배치 수신 없이, 단순한 위치 콜백만 필요할 때 (안드로이드 프레임워크의 `android.location.LocationListener`와는 다른 클래스이니 주의) |
 
 산책처럼 오래 지속되는 추적이라면 `LocationCallback`으로 충분하지만, 앱이 백그라운드로 밀려나거나
 종료된 상태에서도 위치를 계속 받아야 한다면 `PendingIntent` 기반 요청을 검토해야 한다.
 
+**주의**: `PendingIntent`는 어디까지나 "위치 결과를 어떻게 전달받을지"에 대한 수단일 뿐, 그 자체로 백그라운드
+추적을 가능하게 해주는 건 아니다. 실제로 앱이 백그라운드(포그라운드 서비스 없이)에서 위치에 접근하려면:
+
+- `ACCESS_BACKGROUND_LOCATION` 권한을 **별도로** 요청해야 한다 (FINE/COARSE와는 다른 권한이며, Android 10+부터 필요).
+- Android 11(API 30)부터는 이 권한을 앱 내 다이얼로그로 한 번에 요청할 수 없고, 사용자가 **시스템 설정 화면에서 직접 "항상 허용"을 선택**해야 한다.
+- 백그라운드 상태에서는 시스템이 위치 업데이트 빈도를 자체적으로 제한한다 — 포그라운드에서 설정한 주기보다 훨씬 뜸하게 올 수 있다.
+
+즉 산책처럼 화면을 보고 있는 동안의 추적은 이번 편 방식으로 충분하고, 진짜 "앱을 꺼도 계속 추적"이 필요하다면
+`ACCESS_BACKGROUND_LOCATION` 권한 처리와 포그라운드 서비스까지 별도로 설계해야 한다. 이 시리즈에서는
+다루지 않는다.
+
 ## 예제
 
 Compose 화면에서 위치를 받아 화면에 표시하는 최소 예제. 앞서 정의한 `hasLocationPermission()`으로
-권한을 확인한 뒤에만 요청을 시작해, 권한 없이 호출해 `SecurityException`이 나는 상황을 막는다.
+현재 권한 상태를 확인하고, 없으면 권한을 요청한 뒤 **grant된 시점에** 위치 요청이 시작되도록 구성한다.
+단순히 최초 1회만 체크하면, 앱 실행 중 사용자가 권한을 나중에 허용했을 때 위치 요청이 시작되지 않는
+문제가 생긴다.
 
 ```kotlin
 @SuppressLint("MissingPermission")
@@ -162,18 +177,39 @@ Compose 화면에서 위치를 받아 화면에 표시하는 최소 예제. 앞�
 fun WalkScreen(fusedLocationClient: FusedLocationProviderClient) {
     val context = LocalContext.current
     var currentLocation by remember { mutableStateOf<Location?>(null) }
+    var permissionGranted by remember { mutableStateOf(hasLocationPermission(context)) }
 
-    DisposableEffect(fusedLocationClient) {
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissionGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+    }
+
+    LaunchedEffect(Unit) {
+        if (!permissionGranted) {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    // permissionGranted가 false → true로 바뀌는 순간 이 effect가 재실행되어 위치 요청이 시작된다.
+    DisposableEffect(permissionGranted) {
+        if (!permissionGranted) {
+            return@DisposableEffect onDispose {}
+        }
+
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 currentLocation = result.lastLocation
             }
         }
         val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000L).build()
-
-        if (hasLocationPermission(context)) {
-            fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
-        }
+        fusedLocationClient.requestLocationUpdates(request, callback, Looper.getMainLooper())
 
         onDispose {
             fusedLocationClient.removeLocationUpdates(callback)
@@ -185,7 +221,8 @@ fun WalkScreen(fusedLocationClient: FusedLocationProviderClient) {
 ```
 
 `@SuppressLint("MissingPermission")`는 함수 시그니처에 붙여 lint 경고만 억제하고, 실제 크래시 방지는
-`hasLocationPermission(context)` 체크가 담당한다. `DisposableEffect`로 감싸서, 화면이 사라질 때
+`permissionGranted` 체크가 담당한다. `DisposableEffect(permissionGranted)`로 감싸서, 권한이 없는 동안은
+아무 것도 하지 않다가 `permissionGranted`가 `true`로 바뀌는 순간 위치 요청이 시작되고, 화면이 사라질 때
 (`onDispose`) 위치 업데이트를 자동으로 정리한다.
 
 ## 주의사항
