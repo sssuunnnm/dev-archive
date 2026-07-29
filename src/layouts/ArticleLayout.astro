@@ -4,6 +4,7 @@ import BaseLayout from './BaseLayout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 import { categories, getCategoryLabel } from '../lib/categories';
 import { getRelatedPosts, getSeriesNav } from '../lib/related';
+import { isVisible } from '../lib/content-visibility';
 
 interface Props {
   entry: any; // CollectionEntry<'articles'>
@@ -16,7 +17,7 @@ const {
   category, technology, tags, type,
 } = entry.data;
 
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const related = getRelatedPosts(entry, allArticles);
 const seriesNav = getSeriesNav(entry, allArticles);
 

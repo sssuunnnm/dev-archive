@@ -11,7 +11,9 @@ const technologyEnum = z.enum([
   'react', 'next-js', 'vue', 'astro',
   'docker', 'kubernetes', 'nginx', 'github-actions', 'jenkins',
   'aws', 'linux', 'git',
-  'mysql', 'redis', 'mongodb',
+  'mysql', 'redis', 'mongodb', 'postgresql', 'chromadb',
+  'android', 'kotlin', 'mapbox', 'fcm',
+  'kafka', 'websocket', 'fastapi', 'langchain', 'openai', 'gemini',
   // 새 기술 추가 시 이 목록에 먼저 등록할 것
 ]);
 
@@ -69,6 +71,7 @@ const projects = defineCollection({
     status: z.enum(['in-progress', 'done', 'archived']),
     startDate: z.coerce.date(),
     endDate: z.coerce.date().optional(),
+    draft: z.boolean().default(false),
   }),
 });
 

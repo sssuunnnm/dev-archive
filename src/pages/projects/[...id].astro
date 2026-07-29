@@ -2,9 +2,10 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCategoryLabel } from '../../lib/categories';
+import { isVisible } from '../../lib/content-visibility';
 
 export async function getStaticPaths() {
-  const projects = await getCollection('projects');
+  const projects = await getCollection('projects', ({ data }) => isVisible(data.draft));
   return projects.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
 }
 
@@ -14,7 +15,7 @@ const { Content } = await render(entry);
 const base = import.meta.env.BASE_URL;
 
 // DESIGN_RULES 4-2: projects 필드로 Article ↔ Project 양방향 연결
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const relatedArticles = allArticles.filter((post) => post.data.projects?.includes(entry.id));
 
 const statusLabel: Record<string, string> = {

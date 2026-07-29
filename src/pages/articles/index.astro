@@ -2,8 +2,9 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { categories as categoryList } from '../../lib/categories';
+import { isVisible } from '../../lib/content-visibility';
 
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const sorted = allArticles.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const categories = [{ key: 'all', label: '전체' }, ...categoryList];

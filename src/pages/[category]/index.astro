@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { categories } from '../../lib/categories';
+import { isVisible } from '../../lib/content-visibility';
 
 export async function getStaticPaths() {
   // 카테고리 6개 전부 고정 생성 (글이 없어도 페이지는 존재)
@@ -10,7 +11,7 @@ export async function getStaticPaths() {
 
 const { category } = Astro.params;
 
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const posts = allArticles
   .filter((post) => post.data.category === category)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
