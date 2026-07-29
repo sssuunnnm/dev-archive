@@ -1,8 +1,9 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
+import { isVisible } from '../lib/content-visibility';
 
 export async function GET(context) {
-  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
   const sorted = articles.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
   const base = import.meta.env.BASE_URL;
 

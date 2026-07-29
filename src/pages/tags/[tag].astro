@@ -1,9 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isVisible } from '../../lib/content-visibility';
 
 export async function getStaticPaths() {
-  const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+  const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 
   // 등장하는 모든 태그를 수집 (중복 제거)
   const tagSet = new Set<string>();

@@ -1,8 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isVisible } from '../../lib/content-visibility';
 
-const projects = (await getCollection('projects')).sort(
+const projects = (await getCollection('projects', ({ data }) => isVisible(data.draft))).sort(
   (a, b) => b.data.startDate.valueOf() - a.data.startDate.valueOf()
 );
 

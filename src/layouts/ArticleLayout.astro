@@ -4,6 +4,7 @@ import BaseLayout from './BaseLayout.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
 import { categories, getCategoryLabel } from '../lib/categories';
 import { getRelatedPosts, getSeriesNav } from '../lib/related';
+import { isVisible } from '../lib/content-visibility';
 
 interface Props {
   entry: any; // CollectionEntry<'articles'>
@@ -16,13 +17,15 @@ const {
   category, technology, tags, type,
 } = entry.data;
 
-const allArticles = await getCollection('articles', ({ data }) => !data.draft);
+const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const related = getRelatedPosts(entry, allArticles);
 const seriesNav = getSeriesNav(entry, allArticles);
 
 // DESIGN_RULES 4-2: 이 글이 속한 프로젝트 배너 (양방향 연결)
 const linkedProjects = entry.data.projects?.length
-  ? (await getCollection('projects')).filter((p) => entry.data.projects.includes(p.id))
+  ? (await getCollection('projects', ({ data }) => isVisible(data.draft))).filter((p) =>
+      entry.data.projects.includes(p.id)
+    )
   : [];
 
 const categoryLabel = categories.find((c) => c.key === category)?.label ?? category;
