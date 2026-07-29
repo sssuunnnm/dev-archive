@@ -33,7 +33,7 @@ const articles = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
+    updated: z.coerce.date().nullish(),
 
     category: z.enum(categoryKeys),
     technology: z.array(technologyEnum),
@@ -46,11 +46,11 @@ const articles = defineCollection({
     series: z.object({
       name: z.string(),
       order: z.number(),
-    }).optional(),
+    }).nullish(),
 
-    projects: z.array(z.string()).optional(),   // 연관 프로젝트 id(slug)
-    related: z.array(z.string()).optional(),    // 수동 지정 관련 글 id(slug)
-    aliases: z.array(z.string()).optional(),     // 과거 URL 목록
+    projects: z.array(z.string()).nullish(),   // 연관 프로젝트 id(slug)
+    related: z.array(z.string()).nullish(),    // 수동 지정 관련 글 id(slug)
+    aliases: z.array(z.string()).nullish(),     // 과거 URL 목록
 
     draft: z.boolean().default(false),
   }),
@@ -67,10 +67,10 @@ const projects = defineCollection({
     title: z.string(),
     summary: z.string(),
     stack: z.array(technologyEnum),
-    github: z.string().url().optional(),
+    github: z.string().url().nullish(),
     status: z.enum(['in-progress', 'done', 'archived']),
     startDate: z.coerce.date(),
-    endDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().nullish(),
     draft: z.boolean().default(false),
   }),
 });
@@ -84,10 +84,10 @@ const references = defineCollection({
   }),
   schema: z.object({
     title: z.string(),
-    technology: z.array(technologyEnum).optional(),  // 개념 문서는 생략 가능
+    technology: z.array(technologyEnum).nullish(),  // 개념 문서는 생략 가능
     tags: z.array(z.string()),
     updated: z.coerce.date(),
-    aliases: z.array(z.string()).optional(),
+    aliases: z.array(z.string()).nullish(),
   }),
 });
 
