@@ -23,7 +23,9 @@ const seriesNav = getSeriesNav(entry, allArticles);
 
 // DESIGN_RULES 4-2: 이 글이 속한 프로젝트 배너 (양방향 연결)
 const linkedProjects = entry.data.projects?.length
-  ? (await getCollection('projects')).filter((p) => entry.data.projects.includes(p.id))
+  ? (await getCollection('projects', ({ data }) => isVisible(data.draft))).filter((p) =>
+      entry.data.projects.includes(p.id)
+    )
   : [];
 
 const categoryLabel = categories.find((c) => c.key === category)?.label ?? category;
