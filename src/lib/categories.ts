@@ -14,12 +14,12 @@ export const categoryKeys = [
 export type CategoryKey = (typeof categoryKeys)[number];
 
 const labels: Record<CategoryKey, string> = {
-  development: '💻 Development',
-  infra: '☁️ Infra',
-  cs: '📖 CS',
-  ai: '🤖 AI',
-  study: '📔 Study',
-  certificates: '🏆 Certificates',
+  development: 'Development',
+  infra: 'Infra',
+  cs: 'CS',
+  ai: 'AI',
+  study: 'Study',
+  certificates: 'Certificates',
 };
 
 export const categories = categoryKeys.map((key) => ({ key, label: labels[key] }));

@@ -29,8 +29,6 @@ const linkedProjects = entry.data.projects?.length
   : [];
 
 const categoryLabel = categories.find((c) => c.key === category)?.label ?? category;
-// breadcrumb용 라벨은 이모지 없이 텍스트만 사용
-const categoryPlainLabel = categoryLabel.replace(/^\S+\s/, '');
 const base = import.meta.env.BASE_URL;
 
 // 읽는 시간 계산 (본문 글자 수 기반 대략치)
@@ -42,7 +40,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
   <Breadcrumb
     items={[
       { label: 'Home', href: base },
-      { label: categoryPlainLabel, href: `${base}${category}` },
+      { label: categoryLabel, href: `${base}${category}` },
     ]}
   />
 
