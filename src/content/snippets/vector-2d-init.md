@@ -37,4 +37,4 @@ vector<vector<bool>> visited(n, vector<bool>(m, false));
 
 ## 주의사항
 
-`vector<vector<int>> board(3, vector<int>(4))`처럼 안쪽 벡터 하나를 복사해서 채우는 방식이라, 안쪽 벡터가 포인터나 참조를 담고 있지 않은 이상 각 행이 독립적으로 복사된다. 즉 `board[0][0]`을 바꿔도 `board[1][0]`은 영향받지 않는다 (걱정 안 해도 됨).
+`vector<vector<int>> board(3, vector<int>(4))`처럼 안쪽 벡터 하나를 복사해서 채우는 방식이라, 각 행(안쪽 `vector`)은 서로 독립적인 별개의 객체다. 즉 `board[0][0]`을 바꿔도 `board[1][0]`은 영향받지 않는다. 다만 안쪽 원소 타입이 포인터라면(`vector<vector<int*>>` 등) 복사되는 건 포인터 값(주소)이라, 여러 행의 포인터가 같은 대상 객체를 가리켜 그 객체를 공유하게 될 수 있다는 점은 별개로 주의해야 한다.
