@@ -54,9 +54,9 @@ updated: 2026-07-29
 | `git remote add origin {url}` | 원격 저장소 연결 | 로컬 저장소를 원격에 처음 연결할 때 |
 | `git push -u origin {branch}` | 브랜치 최초 push (이후 upstream 추적) | 새 브랜치 처음 push할 때 |
 | `git push` | 현재 브랜치 push | 이미 upstream 연결된 브랜치 갱신 |
-| `git push --force-with-lease` | 안전장치 있는 강제 push | amend/rebase 후 원격 갱신할 때 (권장) |
+| `git push --force-with-lease` | 위험을 줄인 강제 push | amend/rebase 후 원격 갱신할 때 (권장) |
 | `git push --force` | 강제 push (원격 이력 덮어씀) | 혼자 쓰는 브랜치에서만, 협업 브랜치는 지양 |
-| `git pull` | 원격 변경사항 가져오기 + 병합 | 혼자 작업할 때 간단히 |
+| `git pull` | 원격 변경사항을 가져와 현재 브랜치에 통합 (설정에 따라 merge/rebase/fast-forward) | 혼자 작업할 때 간단히 |
 | `git fetch` | 원격 변경사항만 가져오기 (병합 X) | merge/rebase 전에 최신 상태 확인 |
 
 ## merge / rebase
@@ -73,7 +73,8 @@ updated: 2026-07-29
 
 | 명령어 | 설명 | 언제 쓰나 |
 |---|---|---|
-| `git stash` | 현재 변경사항 임시 저장 | 급하게 브랜치 전환해야 할 때 |
+| `git stash` | 현재 변경사항 임시 저장 (추적 중인 파일만, untracked 파일은 제외) | 급하게 브랜치 전환해야 할 때 |
+| `git stash -u` | untracked 파일까지 포함해서 임시 저장 | 새로 만든 파일도 같이 저장하고 싶을 때 |
 | `git stash list` | 저장된 stash 목록 확인 | 뭘 저장해뒀는지 헷갈릴 때 |
 | `git stash pop` | 가장 최근 stash 적용 + 목록에서 제거 | 원래 작업으로 돌아왔을 때 |
 | `git stash apply` | stash 적용 (목록에는 유지) | 같은 stash를 여러 브랜치에 적용할 때 |
@@ -88,7 +89,7 @@ updated: 2026-07-29
 | `git restore --source={commit} {file}` | 특정 커밋 시점의 파일 내용으로 복구 | 예전 버전 파일 하나만 되돌리고 싶을 때 |
 | `git reset --soft HEAD~1` | 직전 커밋 취소, 변경사항은 스테이징 상태로 유지 | 커밋만 다시 하고 싶을 때 |
 | `git reset --mixed HEAD~1` | 직전 커밋 취소, 변경사항은 워킹 디렉토리로 (기본값) | 스테이징부터 다시 정리하고 싶을 때 |
-| `git reset --hard HEAD~1` | 직전 커밋 + 변경사항 전부 삭제 (주의) | 완전히 처음부터 다시 할 때 |
+| `git reset --hard HEAD~1` | 직전 커밋 취소 + 추적 중인 파일의 변경사항 폐기 (untracked 파일은 안 지워짐) | 완전히 처음부터 다시 할 때 |
 | `git revert {commit}` | 특정 커밋을 취소하는 새 커밋 생성 (이력 보존) | 이미 push된 커밋을 안전하게 되돌릴 때 |
 
 ## 자주 쓰는 워크플로우
@@ -121,7 +122,7 @@ git push --force-with-lease       # rebase로 이력이 바뀌었으므로 강�
 ### 작업 중 급하게 브랜치 전환해야 할 때
 
 ```bash
-git stash              # 현재 변경사항 임시 저장
+git stash              # 현재 변경사항 임시 저장 (untracked 파일까지 저장하려면 git stash -u)
 git switch main
 # ... 급한 작업 처리 ...
 git switch feature/login
@@ -137,10 +138,10 @@ git reset --hard {commit}   # 해당 시점으로 강제 복구
 
 ## 주의사항
 
-- `git reset --hard`는 워킹 디렉토리 변경사항을 복구 불가능하게 삭제한다.
+- `git reset --hard`는 추적 중인 파일의 워킹 디렉토리 변경사항을 복구 불가능하게 폐기한다 (untracked 파일은 지우지 않는다).
 - `git rebase`는 이미 원격에 push된 공유 브랜치에서는 지양한다 (이력 충돌 유발).
 - `git commit --amend`는 push 이전에만 사용한다. push 후 amend하면 강제 push가 필요해 협업 시 위험하다.
-- 강제 push는 가능하면 `--force`보다 `--force-with-lease`를 사용한다 (남이 그 사이 push했으면 실패해서 덮어쓰기를 막아줌).
+- 강제 push는 가능하면 `--force`보다 `--force-with-lease`를 사용한다 (일반 강제 push보다 안전하지만, 백그라운드 fetch 등으로 로컬 remote-tracking ref가 최신화되면 남의 변경을 덮어쓸 가능성이 완전히 없어지는 건 아니다 — "방지"가 아니라 "위험을 줄이는" 수준으로 이해한다).
 
 ## 참고자료
 
