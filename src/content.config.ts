@@ -7,7 +7,7 @@ import { categoryKeys } from './lib/categories';
 // 새 기술 추가 시 반드시 여기 먼저 등록 후 사용
 const technologyEnum = z.enum([
   'java', 'spring', 'spring-boot',
-  'python', 'javascript', 'typescript',
+  'python', 'javascript', 'typescript', 'cpp',
   'react', 'next-js', 'vue', 'astro',
   'docker', 'kubernetes', 'nginx', 'github-actions', 'jenkins',
   'aws', 'linux', 'git',
