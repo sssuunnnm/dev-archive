@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import { isVisible } from '../lib/content-visibility';
+
+const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const year = today.getFullYear();
+const month = today.getMonth(); // 0-indexed
+
+// 이번 달에 글 쓴 날짜(day of month)만 Set으로 집계
+const postedDays = new Set<number>();
+for (const post of articles) {
+  const d = post.data.date;
+  if (d.getFullYear() === year && d.getMonth() === month) {
+    postedDays.add(d.getDate());
+  }
+}
+
+const firstDay = new Date(year, month, 1);
+const lastDay = new Date(year, month + 1, 0);
+const daysInMonth = lastDay.getDate();
+const startWeekday = firstDay.getDay(); // 0 = 일요일
+
+type Cell = { day: number; hasPost: boolean; isToday: boolean } | null;
+const cells: Cell[] = [
+  ...Array.from({ length: startWeekday }, () => null),
+  ...Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    return {
+      day,
+      hasPost: postedDays.has(day),
+      isToday: day === today.getDate(),
+    };
+  }),
+];
+
+const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+const monthLabel = `${year}년 ${month + 1}월`;
+---
+
+<div class="border rounded-lg p-4 dark:border-gray-700">
+  <p class="text-sm font-semibold mb-3">{monthLabel}</p>
+
+  <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
+    {weekdayLabels.map((w) => (
+      <span>{w}</span>
+    ))}
+  </div>
+
+  <div class="grid grid-cols-7 justify-items-center gap-1">
+    {cells.map((cell) =>
+      cell ? (
+        <div
+          class={`w-4 h-4 rounded-sm
+            ${cell.hasPost ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-100 dark:bg-gray-800'}
+            ${cell.isToday ? 'ring-2 ring-offset-1 ring-accent dark:ring-accent-dark dark:ring-offset-gray-900' : ''}`}
+        />
+      ) : (
+        <div class="w-4 h-4" />
+      )
+    )}
+  </div>
+</div>
