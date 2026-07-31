@@ -13,7 +13,7 @@ projects:
 related:
   - sort-comparator
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
