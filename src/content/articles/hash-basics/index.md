@@ -13,7 +13,7 @@ projects:
 related:
   - map-unordered-map-basics
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
@@ -60,6 +60,8 @@ for (auto& [key, value] : cnt) {
     }
 }
 ```
+
+`cnt[s]`는 key `s`가 없으면 값 0으로 새로 만든 뒤, 그 값(mapped value)의 **참조**를 반환한다. `cnt[s]++`는 그 참조가 가리키는 값을 1 증가시키는 것이라, "없으면 0으로 시작해서 셀 때마다 1씩 증가"가 이 한 줄로 자연스럽게 동작한다.
 
 ### 패턴 2. 두 배열 비교 (차집합)
 
@@ -115,10 +117,6 @@ answer -= 1; // 아무것도 안 입는 경우 제외
 
 ## 주의사항
 
-- `cnt[key]`로 존재 여부를 확인하면, 없던 key가 값 0으로 새로 생성돼버린다. 존재만 확인하려면 `count()`나 `find()`를 쓴다 (스니펫 [map/unordered_map 기본 사용법] 참고).
+- `cnt[key]`로 존재 여부를 확인하면, 없던 key가 값 0으로 새로 생성돼버린다. 존재만 확인하려면 `count()`나 `find()`를 쓴다.
 - key가 문자열일 때 `unordered_map`이 `map`보다 항상 빠른 건 아니다. 다만 코테 범위에서는 체감 차이가 거의 없어서 기본값으로 `unordered_map`을 써도 된다.
 - 빈도수를 `-1`로 빼는 패턴(패턴 2)에서 값이 음수가 될 수도 있다는 걸 잊고 조건문에서 `!= 0`이 아니라 `> 0`으로만 체크하면 의도한 답이 안 나올 수 있다 — 문제 조건에 따라 정확히 뭘 찾는지 확인한다.
-
-## 참고자료
-
-- [map/unordered_map 기본 사용법](../../snippets/map-unordered-map-basics/) — API 사용법 스니펫

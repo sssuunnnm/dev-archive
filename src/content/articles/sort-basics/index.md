@@ -13,7 +13,7 @@ projects:
 related:
   - sort-comparator
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
@@ -118,7 +118,4 @@ string solution(vector<string> participant, vector<string> completion) {
 - comparator에서 `<=`, `>=` 같은 비엄격 비교를 쓰면 정렬 중 정의되지 않은 동작이 날 수 있다. 항상 엄격한 비교(`<`, `>`)로 짠다.
 - 문자열을 이어붙여 비교하는 패턴(패턴 2)에서 `a+b > b+a`를 반대로 쓰면 오름차순/내림차순이 뒤집힌다. 헷갈리면 예시 숫자 2개로 직접 검산한다.
 - 정렬 후 원래 인덱스가 필요한 문제(예: "정렬 전 순서를 출력하라")라면, 값만 정렬하지 말고 `pair<값, 원래인덱스>`로 묶어서 정렬해야 한다.
-
-## 참고자료
-
-- [sort 커스텀 comparator](../../snippets/sort-comparator/) — comparator 문법 스니펫
+- 이 문서의 예제 comparator는 매개변수를 `pair<int,string>&`처럼 비-const 참조로 받는다. `std::sort`의 comparator는 원칙적으로 `const`인 원소도 비교할 수 있어야 하므로, 정석대로라면 `const pair<int,string>&`처럼 const 참조로 받는 게 맞다. 코테 환경에서는 대부분 문제없이 컴파일되지만, 정확하게 짜고 싶다면 매개변수 앞에 `const`를 붙인다.
