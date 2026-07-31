@@ -49,8 +49,8 @@ int solution(vector<int> nums) {
 
 ## 주의사항
 
-- `unordered_set(nums.begin(), nums.end())`는 각 원소를 복사해서 넣는 깊은 복사다. 원본 `nums`를 나중에 바꿔도 `poc`엔 영향 없다.
-- `size()`는 `size_t`(부호 없는 정수)라서 `int`로 반환할 때 암묵적 축소 변환이 일어난다. 코테 범위에서는 문제되지 않지만 엄밀히는 `static_cast<int>`가 안전하다.
+- `unordered_set(nums.begin(), nums.end())`는 각 원소를 복사해서 넣는다. `int`는 값 자체가 복사되므로 원본 `nums`를 나중에 바꿔도 `poc`엔 영향 없다.
+- `size()`는 `size_t`(부호 없는 정수)라서 `int`로 반환할 때 암묵적 축소 변환이 일어난다. 코테 범위(`size_t` 값이 `int` 최댓값을 넘지 않는 경우)에서는 문제되지 않지만, `static_cast<int>`를 붙이면 이 변환이 의도된 것임을 명시해 컴파일러 경고를 줄일 수 있다 (다만 이것도 범위 자체를 검사해주진 않는다 — 값이 `int` 범위를 넘는 경우엔 별도로 검사해야 한다).
 
 ## 참고자료
 

@@ -84,9 +84,9 @@ vector<int> solution(vector<string> genres, vector<int> plays) {
 
 - 답에는 재생수가 아니라 **인덱스**(`songs[i].second`)를 넣어야 한다. 재생수를 넣는 실수를 하기 쉽다.
 - pair는 값이 2개이고 정렬 편의성이 필요할 때 유리하고, 구조체는 값이 3개 이상이거나 이름이 명확해야 읽기 편할 때 유리하다 — 상황에 따라 골라 쓴다.
+- 위 comparator들은 `auto&`, `pair<int,int>&`처럼 비-const 참조로 받는다. `std::sort`의 comparator는 원칙적으로 `const` 원소도 비교 가능해야 하므로, 정석대로면 `const auto&`, `const pair<int,int>&`로 받는 게 맞다. 코테에서는 대부분 문제없이 동작하지만 알아두면 좋다.
 
 ## 참고자료
 
 - [해시 개념과 문제 패턴](../hash-basics/) — 빈도수 세기(장르별 총 재생수 집계)
 - [정렬 개념과 문제 패턴](../sort-basics/) — 다중 조건 정렬 패턴
-- [pair / tuple 다루기](../../snippets/pair-tuple-basics/) — pair 기본 비교 연산자

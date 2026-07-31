@@ -19,7 +19,7 @@ draft: false
 
 ## 한 줄 요약
 
-각 번호의 모든 접두어가 다른 번호와 겹치는지, 해시(set)로 O(1) 존재 확인하며 검사한다.
+각 번호의 모든 접두어가 다른 번호와 겹치는지, 해시(set)로 평균 O(1) 존재 확인하며 검사한다.
 
 ## 왜 (배경/문제 상황)
 
@@ -66,4 +66,3 @@ bool solution(vector<string> phone_book) {
 ## 참고자료
 
 - [해시 개념과 문제 패턴](../hash-basics/) — 존재 여부 체크 패턴 원본
-- [문자열 split](../../snippets/string-split-cpp/) — substr/sstream 관련 스니펫
