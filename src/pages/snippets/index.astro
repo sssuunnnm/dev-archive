@@ -2,9 +2,36 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const snippets = (await getCollection('snippets')).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title)
-);
+const snippets = await getCollection('snippets');
+
+// 기술 값 → 화면에 보여줄 라벨 (표기가 특이한 것만 매핑, 나머진 첫 글자만 대문자로)
+const techLabels: Record<string, string> = {
+  cpp: 'C++',
+  mysql: 'MySQL',
+  'next-js': 'Next.js',
+  'github-actions': 'GitHub Actions',
+};
+
+function labelFor(tech: string) {
+  return techLabels[tech] ?? tech.charAt(0).toUpperCase() + tech.slice(1);
+}
+
+// 첫 번째 technology 값 기준으로 그룹핑
+const groups = new Map<string, typeof snippets>();
+for (const s of snippets) {
+  const key = s.data.technology[0] ?? 'etc';
+  if (!groups.has(key)) groups.set(key, []);
+  groups.get(key)!.push(s);
+}
+
+// 각 그룹 내부는 제목순, 그룹 자체는 스니펫 많은 순 → 이름순
+const sortedGroups = Array.from(groups.entries())
+  .map(([tech, items]) => ({
+    tech,
+    label: labelFor(tech),
+    items: items.sort((a, b) => a.data.title.localeCompare(b.data.title)),
+  }))
+  .sort((a, b) => b.items.length - a.items.length || a.label.localeCompare(b.label));
 ---
 
 <BaseLayout title="Snippets" description="자주 쓰는 명령어/코드 조각 모음" ogType="website">
@@ -14,23 +41,36 @@ const snippets = (await getCollection('snippets')).sort((a, b) =>
   {snippets.length === 0 ? (
     <p class="text-gray-600 dark:text-gray-400 text-sm">아직 등록된 snippet이 없습니다.</p>
   ) : (
-    <ul class="space-y-3">
-      {snippets.map((s) => (
-        <li class="border rounded-lg p-4 dark:border-gray-700">
-          <a href={`${import.meta.env.BASE_URL}snippets/${s.id}`} class="hover:underline">
-            <h2 class="font-medium mb-1">{s.data.title}</h2>
-            <code class="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-              {s.data.command}
-            </code>
-          </a>
-          <p class="text-sm text-gray-500 mt-2">{s.data.description}</p>
-          <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
-            {s.data.technology.map((t: string) => (
-              <span>{t}</span>
+    <div class="space-y-3">
+      {sortedGroups.map((group, i) => (
+        <details open={i === 0} class="border rounded-lg dark:border-gray-700">
+          <summary class="cursor-pointer select-none px-4 py-3 font-medium flex items-center gap-2">
+            <span class="dark:hidden">📁</span>
+            <span class="hidden dark:inline">📂</span>
+            {group.label}
+            <span class="text-xs text-gray-400 font-normal">({group.items.length})</span>
+          </summary>
+
+          <ul class="space-y-3 px-4 pb-4">
+            {group.items.map((s) => (
+              <li class="border rounded-lg p-4 dark:border-gray-700">
+                <a href={`${import.meta.env.BASE_URL}snippets/${s.id}`} class="hover:underline">
+                  <h2 class="font-medium mb-1">{s.data.title}</h2>
+                  <code class="text-sm bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                    {s.data.command}
+                  </code>
+                </a>
+                <p class="text-sm text-gray-500 mt-2">{s.data.description}</p>
+                <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+                  {s.data.technology.map((t: string) => (
+                    <span>{t}</span>
+                  ))}
+                </div>
+              </li>
             ))}
-          </div>
-        </li>
+          </ul>
+        </details>
       ))}
-    </ul>
+    </div>
   )}
 </BaseLayout>
