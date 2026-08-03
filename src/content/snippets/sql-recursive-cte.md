@@ -26,4 +26,4 @@ GROUP BY h.hour
 ORDER BY h.hour;
 ```
 
-MySQL 8.0부터 `WITH RECURSIVE`를 지원한다. 종료 조건(`WHERE hour < 23`)을 빼먹으면 무한 루프에 걸리니 주의.
+MySQL 8.0부터 `WITH RECURSIVE`를 지원한다. 종료 조건(`WHERE hour < 23`)을 빼먹으면 브라우저/앱이 멈추는 무한 루프가 아니라, MySQL의 `cte_max_recursion_depth` 설정(기본값 1000)에 걸려서 **재귀 깊이 초과 에러**로 중단된다. 그래도 의도한 결과가 안 나오는 건 마찬가지니 종료 조건은 항상 명시적으로 넣는다.
