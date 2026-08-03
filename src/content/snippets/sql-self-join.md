@@ -2,7 +2,7 @@
 title: 같은 테이블끼리 조인하기 (Self Join)
 command: SELECT a.*, b.* FROM t a JOIN t b ON a.parent_id = b.id
 description: 계층 구조나 짝 관계처럼 같은 테이블 내부 행끼리 비교할 때 사용
-technology: [sql]
+technology: [mysql]
 tags: [join, self-join]
 ---
 

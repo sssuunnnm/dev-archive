@@ -2,7 +2,7 @@
 title: 재귀 쿼리로 없는 데이터 채우기 (WITH RECURSIVE)
 command: WITH RECURSIVE seq AS (SELECT 0 AS n UNION ALL SELECT n + 1 FROM seq WHERE n < 23) SELECT * FROM seq
 description: 0~23시처럼 원본 테이블에 존재하지 않는 값까지 포함해서 조회할 때 사용
-technology: [sql]
+technology: [mysql]
 tags: [recursive, cte]
 ---
 

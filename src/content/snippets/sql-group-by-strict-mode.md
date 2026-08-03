@@ -2,7 +2,7 @@
 title: GROUP BY에 없는 컬럼을 SELECT하면 생기는 문제 (ONLY_FULL_GROUP_BY)
 command: SELECT col1, MAX(col2) FROM t GROUP BY col1
 description: GROUP BY 기준에 없는 컬럼을 그대로 SELECT하면 설정에 따라 에러 또는 예측 불가한 값이 나옴
-technology: [sql]
+technology: [mysql]
 tags: [group-by]
 ---
 

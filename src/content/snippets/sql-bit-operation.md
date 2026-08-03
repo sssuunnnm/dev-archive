@@ -2,7 +2,7 @@
 title: 비트 연산으로 플래그 조건 다루기
 command: column & 1 = 1
 description: 이진 상태값(플래그)을 비트 연산자로 필터링
-technology: [sql]
+technology: [mysql]
 tags: [bit-operation]
 ---
 

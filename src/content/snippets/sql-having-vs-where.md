@@ -2,7 +2,7 @@
 title: WHERE와 HAVING의 차이
 command: SELECT col, COUNT(*) FROM t GROUP BY col HAVING COUNT(*) > 1
 description: WHERE는 집계 전 행 필터, HAVING은 집계 후 그룹 필터
-technology: [sql]
+technology: [mysql]
 tags: [having, group-by]
 ---
 

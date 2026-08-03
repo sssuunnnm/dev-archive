@@ -2,7 +2,7 @@
 title: 서브쿼리 안에서 LIMIT 우회하기
 command: WHERE id = (SELECT id FROM (SELECT id FROM t ORDER BY x LIMIT 1) AS tmp)
 description: MySQL은 IN/=/ANY 서브쿼리 안에 LIMIT를 직접 못 씀 — derived table로 한 번 더 감싸서 우회
-technology: [sql]
+technology: [mysql]
 tags: [subquery]
 ---
 

@@ -2,7 +2,7 @@
 title: CASE WHEN으로 행을 열로 피벗하기
 command: SUM(CASE WHEN col = 'A' THEN 1 ELSE 0 END) AS a_count
 description: GROUP BY 결과를 카테고리별 열로 펼쳐서 출력할 때 사용
-technology: [sql]
+technology: [mysql]
 tags: [case, pivot]
 ---
 

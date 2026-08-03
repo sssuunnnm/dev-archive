@@ -2,7 +2,7 @@
 title: NULL 값 처리 (IFNULL, COALESCE)
 command: IFNULL(column, 0)
 description: NULL을 기본값으로 치환하거나 조건에서 제외할 때 사용
-technology: [sql]
+technology: [mysql]
 tags: [null]
 ---
 

@@ -2,7 +2,7 @@
 title: 문자열 함수 모음 (SUBSTRING, CONCAT, REPLACE)
 command: SUBSTRING(str, 1, 2)
 description: 문자열 자르기, 합치기, 치환
-technology: [sql]
+technology: [mysql]
 tags: [string]
 ---
 

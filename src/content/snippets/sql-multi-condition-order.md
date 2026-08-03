@@ -2,7 +2,7 @@
 title: 다중 조건 정렬 (동점 처리)
 command: ORDER BY col1 DESC, col2 ASC
 description: 1차 정렬 기준이 같을 때 2차 기준으로 순서를 확정
-technology: [sql]
+technology: [mysql]
 tags: [order-by]
 ---
 

@@ -2,7 +2,7 @@
 title: 윈도우 함수로 그룹별 순위 매기기
 command: RANK() OVER (PARTITION BY col ORDER BY val DESC)
 description: GROUP BY 없이 원본 행을 유지한 채 그룹별 순위/누적값 계산
-technology: [sql]
+technology: [mysql]
 tags: [window-function]
 ---
 

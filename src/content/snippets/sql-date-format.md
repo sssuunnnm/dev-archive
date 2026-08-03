@@ -2,7 +2,7 @@
 title: 날짜/시간 포맷과 차이 계산
 command: DATE_FORMAT(date_col, '%Y-%m-%d'), TIMESTAMPDIFF(HOUR, a, b)
 description: 날짜 출력 형식 변경과 두 시각 사이의 차이 계산
-technology: [sql]
+technology: [mysql]
 tags: [date-time]
 ---
 

@@ -2,7 +2,7 @@
 title: 그룹별 상위 N개 뽑기 (Top-N per Group)
 command: SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY g ORDER BY v DESC) AS rn FROM t) x WHERE rn <= N
 description: 장르/카테고리별로 상위 N개만 추출할 때 사용
-technology: [sql]
+technology: [mysql]
 tags: [group-by, top-n]
 ---
 
