@@ -1,7 +1,7 @@
 ---
 title: 윈도우 함수(Window Function)와 PARTITION BY
 description: PARTITION BY 동작 원리와 ROW_NUMBER/RANK/DENSE_RANK 차이, WHERE에서 못 쓰는 이유를 정리한다
-date: 2026-08-03
+date: 2026-08-04
 updated:
 category: cs
 technology: [mysql]

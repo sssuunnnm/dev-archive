@@ -1,7 +1,7 @@
 ---
 title: 재귀 쿼리(Recursive CTE)로 없는 데이터 채우기
 description: WITH RECURSIVE의 초기값-재귀-종료조건 구조와 없는 데이터를 채우는 패턴을 정리한다
-date: 2026-08-03
+date: 2026-08-04
 updated:
 category: cs
 technology: [mysql]
