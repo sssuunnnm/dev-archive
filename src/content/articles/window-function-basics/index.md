@@ -71,13 +71,13 @@ FROM songs;
 ## 주의사항
 
 - `OVER()` 없이 `RANK()`, `ROW_NUMBER()`를 단독으로 쓰면 에러가 난다.
-- **`WHERE` 절에서 윈도우 함수 결과를 바로 조건으로 못 쓴다.** SQL 실행 순서상 `WHERE`가 윈도우 함수 계산보다 먼저 처리되기 때문이다. 윈도우 함수로 매긴 순위를 조건으로 걸러야 하면, 서브쿼리로 한 번 감싼 뒤 바깥에서 `WHERE`로 필터링해야 한다.
+- **`WHERE` 절에서 윈도우 함수를 직접 못 쓴다.** MySQL은 `WHERE`에 윈도우 함수 호출 자체를 넣는 걸 허용하지 않는다. 윈도우 함수로 매긴 순위를 조건으로 걸러야 하면, 서브쿼리로 한 번 감싼 뒤 바깥에서 `WHERE`로 필터링해야 한다.
 
 ```sql
--- 에러: WHERE에서 윈도우 함수 결과를 바로 못 씀
-SELECT genre, song, RANK() OVER (PARTITION BY genre ORDER BY play_count DESC) AS rnk
+-- 에러: WHERE 절에 윈도우 함수를 직접 쓸 수 없음
+SELECT genre, song
 FROM songs
-WHERE rnk = 1;
+WHERE RANK() OVER (PARTITION BY genre ORDER BY play_count DESC) = 1;
 
 -- 올바른 방법: 서브쿼리로 감싼 뒤 바깥에서 필터링
 SELECT genre, song, rnk
@@ -86,4 +86,6 @@ FROM (
   FROM songs
 ) ranked
 WHERE rnk = 1;
-```s
+```
+
+참고로 `SELECT`에서 만든 별칭(`rnk`)은 같은 `SELECT`의 `WHERE`에서 바로 못 쓰는 것도 별개의 제약이다 (SQL 실행 순서상 `WHERE`가 `SELECT`보다 먼저 처리되기 때문). 위 예제가 막히는 이유는 이 별칭 문제가 아니라 애초에 윈도우 함수 자체를 `WHERE`에 못 쓰기 때문이라는 점에 주의한다.
