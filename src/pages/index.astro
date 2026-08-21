@@ -37,7 +37,7 @@ const popularTags = Object.entries(tagCount)
           <li>
             <a
               href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
-              class={`block -mx-3 rounded-lg border-l-2 border-transparent px-3 py-2 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
+              class={`block -mx-3 rounded-lg px-3 py-2 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
             >
               <span class="font-medium">{post.data.title}</span>
               <div class="flex flex-wrap gap-2 text-xs text-gray-400 mt-1">

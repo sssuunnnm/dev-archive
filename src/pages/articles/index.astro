@@ -33,7 +33,7 @@ const categories = [{ key: 'all', label: '전체' }, ...categoryList];
       <li class="article-item" data-category={post.data.category}>
         <a
           href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
-          class={`block -mx-3 rounded-lg border-l-2 border-transparent px-3 py-3 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
+          class={`block -mx-3 rounded-lg px-3 py-3 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
         >
           <span class="text-lg font-medium">{post.data.title}</span>
           <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>

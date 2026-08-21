@@ -59,18 +59,14 @@ export function getCategoryPillClass(key: string): string {
   return pillClasses[key as CategoryKey] ?? '';
 }
 
-// 글 목록 카드 hover 시 카테고리 컬러로 살짝 tint + 왼쪽 accent bar
+// 글 목록 카드 hover 시 카테고리 컬러로 살짝 배경 tint (왼쪽 accent bar는 제거)
 const listItemHoverClasses: Record<CategoryKey, string> = {
-  development:
-    'hover:bg-cat-development/8 hover:border-cat-development dark:hover:bg-cat-development-dark/15 dark:hover:border-cat-development-dark',
-  infra:
-    'hover:bg-cat-infra/8 hover:border-cat-infra dark:hover:bg-cat-infra-dark/15 dark:hover:border-cat-infra-dark',
-  cs: 'hover:bg-cat-cs/8 hover:border-cat-cs dark:hover:bg-cat-cs-dark/15 dark:hover:border-cat-cs-dark',
-  ai: 'hover:bg-cat-ai/8 hover:border-cat-ai dark:hover:bg-cat-ai-dark/15 dark:hover:border-cat-ai-dark',
-  study:
-    'hover:bg-cat-study/8 hover:border-cat-study dark:hover:bg-cat-study-dark/15 dark:hover:border-cat-study-dark',
-  certificates:
-    'hover:bg-cat-certificates/8 hover:border-cat-certificates dark:hover:bg-cat-certificates-dark/15 dark:hover:border-cat-certificates-dark',
+  development: 'hover:bg-cat-development/8 dark:hover:bg-cat-development-dark/15',
+  infra: 'hover:bg-cat-infra/8 dark:hover:bg-cat-infra-dark/15',
+  cs: 'hover:bg-cat-cs/8 dark:hover:bg-cat-cs-dark/15',
+  ai: 'hover:bg-cat-ai/8 dark:hover:bg-cat-ai-dark/15',
+  study: 'hover:bg-cat-study/8 dark:hover:bg-cat-study-dark/15',
+  certificates: 'hover:bg-cat-certificates/8 dark:hover:bg-cat-certificates-dark/15',
 };
 
 export function getCategoryListItemHoverClass(key: string): string {
