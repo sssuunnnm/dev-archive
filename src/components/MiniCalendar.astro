@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { isVisible } from '../lib/content-visibility';
+import { ChevronLeft, ChevronRight } from '@lucide/astro';
 
 interface Props {
   class?: string;
@@ -15,6 +16,9 @@ const articles = await getCollection('articles', ({ data }) => isVisible(data.dr
 // 글 날짜만 KST 기준 YYYY-MM-DD 문자열로 뽑아 client에 데이터로 넘긴다.
 const postedDates = articles.map((post) => post.data.date.toISOString().slice(0, 10));
 
+// < > 로 넘겨볼 달은 "글이 실제로 있는 달"로만 제한한다 (빈 달을 보여줘도 의미가 없어서).
+const activeMonths = [...new Set(postedDates.map((d) => d.slice(0, 7)))].sort();
+
 const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 ---
 
@@ -22,8 +26,27 @@ const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
   class:list={[className]}
   id="mini-calendar"
   data-posted-dates={JSON.stringify(postedDates)}
+  data-active-months={JSON.stringify(activeMonths)}
 >
-  <p class="text-lg font-semibold mb-3" id="mini-calendar-month">&nbsp;</p>
+  <div class="flex items-center justify-between mb-3">
+    <button
+      type="button"
+      id="mini-calendar-prev"
+      aria-label="이전 달"
+      class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:pointer-events-none"
+    >
+      <ChevronLeft size={16} />
+    </button>
+    <p class="text-lg font-semibold" id="mini-calendar-month">&nbsp;</p>
+    <button
+      type="button"
+      id="mini-calendar-next"
+      aria-label="다음 달"
+      class="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 disabled:pointer-events-none"
+    >
+      <ChevronRight size={16} />
+    </button>
+  </div>
 
   <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
     {weekdayLabels.map((w) => (
@@ -38,55 +61,83 @@ const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
   const root = document.getElementById('mini-calendar');
   const monthLabelEl = document.getElementById('mini-calendar-month');
   const gridEl = document.getElementById('mini-calendar-grid');
-  if (!root || !monthLabelEl || !gridEl) throw new Error('MiniCalendar: expected elements not found');
+  const prevBtn = document.getElementById('mini-calendar-prev') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('mini-calendar-next') as HTMLButtonElement | null;
+  if (!root || !monthLabelEl || !gridEl || !prevBtn || !nextBtn) {
+    throw new Error('MiniCalendar: expected elements not found');
+  }
 
   const postedDates: Set<string> = new Set(JSON.parse(root.dataset.postedDates ?? '[]'));
+  const activeMonths: string[] = JSON.parse(root.dataset.activeMonths ?? '[]'); // "YYYY-MM", 오름차순
 
   // 방문자의 실제 기기 시간이 아니라, 블로그 글 날짜 기준(KST)으로 "오늘"을 계산한다.
   // (frontmatter의 date는 KST 기준으로 기록되므로 여기서도 KST로 맞춰야 어긋나지 않음)
-  const kstParts = new Intl.DateTimeFormat('en-CA', {
+  const todayStr = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
 
-  const [yearStr, monthStr] = kstParts.split('-');
-  const year = Number(yearStr);
-  const month = Number(monthStr) - 1; // 0-indexed
-  const todayStr = kstParts;
-
   const pad = (n: number) => String(n).padStart(2, '0');
   const dateStr = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
+  const monthKey = (y: number, m: number) => `${y}-${pad(m + 1)}`;
 
-  const startWeekday = new Date(Date.UTC(year, month, 1)).getUTCDay(); // 0 = 일요일
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  function render(year: number, month: number) {
+    const startWeekday = new Date(Date.UTC(year, month, 1)).getUTCDay(); // 0 = 일요일
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 
-  monthLabelEl.textContent = `${year}년 ${month + 1}월`;
+    monthLabelEl!.textContent = `${year}년 ${month + 1}월`;
+    gridEl!.replaceChildren();
 
-  const frag = document.createDocumentFragment();
+    const frag = document.createDocumentFragment();
 
-  for (let i = 0; i < startWeekday; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'w-4 h-4';
-    frag.appendChild(empty);
+    for (let i = 0; i < startWeekday; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'w-4 h-4';
+      frag.appendChild(empty);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cellDate = dateStr(year, month, day);
+      const hasPost = postedDates.has(cellDate);
+      const isToday = cellDate === todayStr;
+
+      const cell = document.createElement('div');
+      cell.className = [
+        'w-4 h-4 rounded-sm',
+        hasPost ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-100 dark:bg-gray-800',
+        isToday ? 'ring-2 ring-offset-1 ring-accent dark:ring-accent-dark dark:ring-offset-gray-900' : '',
+      ]
+        .filter(Boolean)
+        .join(' ');
+      frag.appendChild(cell);
+    }
+
+    gridEl!.appendChild(frag);
+
+    const currentKey = monthKey(year, month);
+    const prevTarget = activeMonths.filter((m) => m < currentKey).at(-1);
+    const nextTarget = activeMonths.filter((m) => m > currentKey).at(0);
+
+    prevBtn!.disabled = !prevTarget;
+    nextBtn!.disabled = !nextTarget;
+
+    prevBtn!.onclick = prevTarget
+      ? () => {
+          const [y, m] = prevTarget.split('-').map(Number);
+          render(y, m - 1);
+        }
+      : null;
+
+    nextBtn!.onclick = nextTarget
+      ? () => {
+          const [y, m] = nextTarget.split('-').map(Number);
+          render(y, m - 1);
+        }
+      : null;
   }
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const cellDate = dateStr(year, month, day);
-    const hasPost = postedDates.has(cellDate);
-    const isToday = cellDate === todayStr;
-
-    const cell = document.createElement('div');
-    cell.className = [
-      'w-4 h-4 rounded-sm',
-      hasPost ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-100 dark:bg-gray-800',
-      isToday ? 'ring-2 ring-offset-1 ring-accent dark:ring-accent-dark dark:ring-offset-gray-900' : '',
-    ]
-      .filter(Boolean)
-      .join(' ');
-    frag.appendChild(cell);
-  }
-
-  gridEl.appendChild(frag);
+  const [todayYear, todayMonth] = todayStr.split('-').map(Number);
+  render(todayYear, todayMonth - 1);
 </script>
