@@ -53,11 +53,11 @@ const popularTags = Object.entries(tagCount)
 
     <section class="home-categories">
       <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><LayoutGrid size={18} /> Categories</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <div class="flex flex-wrap gap-2">
         {categories.map((c) => (
           <a
             href={`${import.meta.env.BASE_URL}${c.key}`}
-            class="border rounded-lg px-3 py-2 text-sm text-center hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+            class="text-xs border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
           >
             {c.label}
           </a>

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { isVisible } from '../lib/content-visibility';
+import { CalendarDays } from '@lucide/astro';
 
 interface Props {
   class?: string;
@@ -19,11 +20,14 @@ const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 ---
 
 <div
-  class:list={['border rounded-lg p-4 dark:border-gray-700', className]}
+  class:list={[className]}
   id="mini-calendar"
   data-posted-dates={JSON.stringify(postedDates)}
 >
-  <p class="text-sm font-semibold mb-3" id="mini-calendar-month">&nbsp;</p>
+  <p class="text-lg font-semibold mb-3 flex items-center gap-1.5">
+    <CalendarDays size={18} />
+    <span id="mini-calendar-month">&nbsp;</span>
+  </p>
 
   <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
     {weekdayLabels.map((w) => (
