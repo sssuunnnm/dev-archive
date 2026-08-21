@@ -20,7 +20,7 @@
 2. **데이터는 사람이 읽기 쉬워야 한다.**
    Frontmatter만 봐도 5초 안에 "이 글이 뭔지" 파악 가능해야 한다.
 3. **자동화 가능한 것은 전부 자동화한다.**
-   읽는 시간, 마지막 수정일, Related Posts, TOC, Sitemap, RSS, OG 이미지, Canonical URL은 사람이 직접 입력하지 않는다.
+   읽는 시간, Related Posts, TOC, Sitemap, RSS, OG 이미지, Canonical URL은 사람이 직접 입력하지 않는다. (`updated`는 예외 — 발행 후 수정 시 직접 채운다, CONVENTIONS 2-2 참고)
 4. **폴더는 저장을 위한 구조, 메타데이터는 탐색을 위한 구조다.**
    폴더 구조는 최대한 단순하게 유지하고, 사용자가 보는 분류(카테고리/기술/태그)는 Frontmatter로 생성한다.
 
@@ -28,7 +28,7 @@
 
 ## 1. 사이트 구조 (IA)
 
-```
+```text
 Home
 ├── Articles
 ├── Projects
@@ -43,7 +43,7 @@ Home
 ```
 
 ### 상단 메뉴 (심플하게 유지, 항목 추가 지양)
-```
+```text
 Articles / Projects / Reference / Snippets / About
 ```
 
@@ -68,7 +68,7 @@ Articles / Projects / Reference / Snippets / About
 
 ### 2-1. Category (고정, 이 목록 외 추가 지양)
 
-```
+```text
 development       # 코드/구현 관련
 infra             # 인프라, 배포, 서버, CI/CD
 cs                # 전공지식 (OS, Network, DB, Algorithm)
@@ -122,7 +122,7 @@ tags:
 
 ## 3. Content Type (글 유형)
 
-글 유형은 `type` 필드로 관리하며, 아래 6종으로 고정한다.
+Articles의 `type` 필드는 아래 5종으로 고정한다 (Reference/Snippet/Project는 `type` 필드 자체가 없다 — 5장 스키마 참고).
 
 | type | 설명 | 예시 |
 |---|---|---|
@@ -131,9 +131,8 @@ tags:
 | `troubleshooting` | 에러 해결 기록 | Spring Boot Bean 에러 해결 |
 | `review` | 회고, 후기 | SQLD 합격 후기 |
 | `tips` | 생산성, 단축키, 꿀팁 | IntelliJ 단축키 모음 |
-| `reference` | 계속 갱신하는 참고 문서 (별도 collection) | Linux 명령어 치트시트 |
 
-> `reference` 타입은 Articles가 아니라 **별도 Collection(references)** 으로 분리 관리한다 (4장 참고).
+Article의 5가지 type과 별개로, "계속 갱신하는 참고 문서"(예: Linux 명령어 치트시트) 성격의 글은 애초에 Articles가 아니라 **별도 Collection인 Reference**로 분리 관리한다 (4장 참고). Reference 자체는 `type` 필드를 갖지 않는다 — Collection이 다르다는 것 자체가 이미 "참고 문서"라는 분류다.
 
 ---
 
@@ -141,7 +140,7 @@ tags:
 
 Articles, Projects, Reference, Snippets는 **성격이 다르므로 별도 Collection으로 분리**한다.
 
-```
+```text
 content/
 ├── articles/       # 일반 글 (study, tutorial, troubleshooting, review, tips) — category 하위 폴더 없이 평평하게 저장
 │   ├── spring-security/
@@ -159,7 +158,7 @@ content/
 
 이미지는 `assets/` 같은 전역 폴더에 모으지 않는다. **글과 같은 폴더에 둔다.**
 
-```
+```text
 content/articles/docker-compose/
 ├── index.md
 └── image/
@@ -207,7 +206,7 @@ title: string                # 필수
 # slug 없음 — 폴더명이 곧 id(slug) 역할 (5-1-1 참고)
 description: string          # 필수 (SEO 겸용)
 date: date                   # 작성일
-updated: date                # 마지막 수정일 (자동/수동)
+updated: date                # 마지막 수정일, 수동으로 채움 (자동화 안 함 — CONVENTIONS 2-2 참고)
 category: enum               # 2-1 참고, 단일값
 technology: string[]         # 2-2 참고, 배열
 tags: string[]                # 2-3 참고, 배열, 기술명 금지
@@ -224,11 +223,12 @@ draft: boolean                # true면 빌드에서 제외 (dev 서버에서는
 
 #### 5-1-1. slug(id) 규칙
 
-> **참고**: Astro Content Collections에서 `slug`는 예약어라 스키마 필드로 사용할 수 없다. 대신 Astro가 **폴더명 기반으로 자동 생성하는 `id`**를 slug로 사용한다. 우리 컨벤션(폴더명 = slug)과 그대로 맞아떨어지므로 실질적인 차이는 없다.
+> **참고**: Astro의 기본 glob loader는 frontmatter의 `slug` 필드로 자동 생성 id를 덮어쓸 수 있게 지원한다 — 즉 Astro 자체가 `slug`를 막는 건 아니다. 다만 **이 프로젝트의 `generateId`는 폴더 경로(`entry`)만으로 id를 만들고 frontmatter의 `slug` 값은 아예 참조하지 않는다** (`content.config.ts` 참고). 그래서 이 레포에서는 frontmatter에 `slug`를 넣어도 무시되고, 폴더명이 곧 id로 고정된다 — 이건 Astro의 제약이 아니라 우리 프로젝트가 "폴더명 = slug"를 강제하기 위해 의도적으로 정한 규칙이다.
 
 - 폴더명(=파일 경로)이 곧 slug(`id`) 역할을 한다. 제목을 나중에 바꿔도 폴더명을 유지하면 URL은 그대로 유지된다.
   - 예: `content/articles/spring-security/` 폴더 안 글의 `title`을 `Spring Security란` → `Spring Security + JWT 정리`로 수정해도 URL(`/development/spring-security`)은 그대로 유지
 - 폴더명 자체가 URL 경로가 되므로, 폴더명은 CONVENTIONS.md의 slug 작성 규칙(kebab-case, 3~5단어 이내)을 그대로 따른다.
+- frontmatter에 `slug` 필드를 별도로 추가하지 않는다 (넣어도 `generateId`가 무시하므로 혼란만 생김).
 
 #### 5-1-2. related (수동 연관 글)
 
@@ -322,7 +322,7 @@ tags: [hash, level-1]   # 주제 태그 + 레벨 태그를 함께 붙인다
 
 **절대 `/post/123` 같은 ID 기반 URL을 쓰지 않는다.** 사람이 읽을 수 있는 경로를 사용한다.
 
-```
+```text
 /development/spring-security
 /infra/docker-compose
 /projects/ngras
@@ -369,7 +369,6 @@ aliases:
 ## 11. 자동화 대상 (사람이 직접 입력하지 않는 것)
 
 - 읽는 시간 (readingTime)
-- 마지막 수정일 (파일 mtime 또는 git log 기반)
 - Related Posts (category/technology/tags 겹침 기반 로직)
 - 목차(TOC)
 - Sitemap / RSS

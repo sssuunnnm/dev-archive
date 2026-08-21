@@ -11,7 +11,7 @@
 - 표기법: 소문자 + 하이픈(kebab-case) 고정. 언더스코어(`_`), 카멜케이스 금지.
 - 한글 폴더/파일명 금지 (영문 slug만 사용).
 
-```
+```text
 ✅ content/articles/spring-security-jwt/index.md
 ❌ content/articles/Spring_Security_JWT/index.md
 ❌ content/articles/스프링시큐리티/index.md
@@ -19,12 +19,12 @@
 
 ### 1-1. slug(폴더명) 작성 규칙
 
-> Astro에서 `slug`는 예약어라 frontmatter 필드로 쓰지 않는다. **폴더명 자체가 slug(id) 역할**을 한다.
+> 이 프로젝트의 `generateId`(`content.config.ts`)는 폴더 경로만으로 id를 만들고 frontmatter의 `slug` 값은 참조하지 않는다 (Astro 자체가 `slug`를 막는 건 아니고, 이 프로젝트가 "폴더명 = slug"를 강제하기 위해 그렇게 만든 것). 그래서 frontmatter에 `slug`를 넣지 않고, **폴더명 자체가 slug(id) 역할**을 한다.
 
 - 제목을 그대로 번역하지 말고 **핵심 키워드만** 남긴다.
 - 너무 길게 쓰지 않는다 (3~5단어 이내 권장).
 
-```
+```text
 title: Spring Security와 JWT로 인증 구현하기
 
 content/articles/spring-security-jwt/   ✅   (폴더명 = slug)
@@ -81,7 +81,7 @@ draft:
 - 1문장, 50~120자 내외.
 - 제목을 반복하지 않는다. "무엇을 다루는 글인지"를 요약한다.
 
-```
+```yaml
 title: Docker Compose란
 description: Docker Compose가 하는 일과 기본 문법을 실습 예제로 정리한다.   ✅
 description: Docker Compose에 대한 글입니다.   ❌ (내용 없음)
@@ -168,7 +168,7 @@ description: Docker Compose에 대한 글입니다.   ❌ (내용 없음)
 
 ## 4. Git 커밋 컨벤션
 
-```
+```text
 <type>: <설명>
 
 예)
@@ -202,7 +202,7 @@ docs: 설계 규칙 문서 수정
 
 커밋 컨벤션의 `type`과 동일한 접두어를 사용한다.
 
-```
+```text
 <type>/<설명>
 
 예)
