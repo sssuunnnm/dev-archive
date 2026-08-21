@@ -16,6 +16,8 @@ jobs:
           node-version: 22
         env:
           TZ: Asia/Seoul
+          PUBLIC_GOATCOUNTER_CODE: ${{ vars.PUBLIC_GOATCOUNTER_CODE }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
   deploy:
     needs: build
     runs-on: ubuntu-latest

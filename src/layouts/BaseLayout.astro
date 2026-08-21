@@ -40,6 +40,10 @@ function isActive(href: string) {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
 
+    {import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION && (
+      <meta name="google-site-verification" content={import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION} />
+    )}
+
     <meta property="og:type" content={ogType} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -60,6 +64,13 @@ function isActive(href: string) {
         document.documentElement.classList.toggle('dark', isDark);
       })();
     </script>
+    {import.meta.env.PROD && import.meta.env.PUBLIC_GOATCOUNTER_CODE && (
+      <script
+        data-goatcounter={`https://${import.meta.env.PUBLIC_GOATCOUNTER_CODE}.goatcounter.com/count`}
+        async
+        src="//gc.zgo.at/count.js"
+      />
+    )}
   </head>
   <body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
     <header class="border-b border-gray-200 dark:border-gray-800">

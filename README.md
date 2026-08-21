@@ -39,7 +39,8 @@
 - **Archive vs Portfolio 패턴**: 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본 자료)와 `{slug}`(공개용 정리본)로 분리
 - **검색**: [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색
 - **다크모드**: 시스템 설정 감지 + 수동 토글, `localStorage`에 저장
-- **SEO**: Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성
+- **SEO**: Sitemap, RSS, robots.txt, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동
+- **방문자 분석**: [GoatCounter](https://goatcounter.com) 연동 (선택, 무료)
 - **draft 워크플로우**: `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외
 
 ---
@@ -76,3 +77,25 @@ templates/               # 새 글/프로젝트/레퍼런스/스니펫 작성 �
 ```
 
 > 글 폴더는 `category`별로 나누지 않고 **평평하게(flat)** 유지합니다. 분류는 오직 frontmatter 메타데이터로만 처리합니다.
+
+---
+
+## 📈 SEO / 방문자 분석 설정
+
+둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 아예 렌더링되지 않습니다.
+
+1. **Google Search Console** (어떤 검색어로 유입되는지, 노출·클릭·순위 확인)
+   - [Search Console](https://search.google.com/search-console)에서 속성 추가 → URL 접두어 방식으로 `https://sssuunnnm.github.io/dev-archive/` 등록
+   - 소유권 확인은 "HTML 태그" 방식 선택 → `content="..."` 값만 복사
+   - 등록 후 Sitemaps 메뉴에서 `sitemap-index.xml` 제출 (사이트는 이미 sitemap을 자동 생성함)
+2. **GoatCounter** (방문자 수 · 유입 경로, 서버/DB 불필요, 무료)
+   - [goatcounter.com](https://goatcounter.com)에서 가입 후 사이트 코드 확인 (예: `mycode.goatcounter.com`이면 `mycode`)
+
+두 값 모두 GitHub repo → **Settings → Secrets and variables → Actions → Variables** 탭에 아래 이름으로 등록하면 다음 배포부터 자동 반영됩니다.
+
+| Variable | 값 |
+| --- | --- |
+| `PUBLIC_GOATCOUNTER_CODE` | GoatCounter 사이트 코드 |
+| `PUBLIC_GOOGLE_SITE_VERIFICATION` | GSC HTML 태그의 `content` 값 |
+
+로컬에서 테스트하려면 `.env.example`을 `.env`로 복사해서 값을 채우세요 (둘 다 공개 페이지에 노출되는 값이라 `PUBLIC_` 접두어가 붙습니다 — 비밀번호/API 키가 아님).
