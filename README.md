@@ -22,8 +22,6 @@
 <img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="800" />
 </div>
 
-> 홈 화면 스크린샷(또는 GIF)을 `.github/assets/preview.png`로 추가하면 이 자리에 표시됩니다.
-
 ---
 
 ## 🧭 소개
@@ -46,18 +44,18 @@
 
 ## ✨ 주요 기능
 
-|  | 기능 | 설명 |
-| :---: | --- | --- |
-| 📄 | 4개 콘텐츠 타입 | Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드) |
-| 🏷️ | Category / Tag 정적 페이지 | 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨 |
-| 🔗 | Related Posts 자동 추천 | category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능) |
-| 🔀 | Project ↔ Article 양방향 연결 | `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결 |
-| 🗂️ | Archive vs Portfolio 패턴 | 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본)와 `{slug}`(공개용 정리본)로 분리 |
-| 🔍 | 검색 | [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색 |
-| 🌗 | 다크모드 | 시스템 설정 감지 + 수동 토글, `localStorage`에 저장 |
-| 📈 | SEO | Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동 |
-| 📊 | 방문자 분석 | [GoatCounter](https://goatcounter.com) 연동 (선택, 무료) |
-| ✍️ | draft 워크플로우 | `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외 |
+| 기능 | 설명 |
+| --- | --- |
+| 4개 콘텐츠 타입 | Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드) |
+| Category / Tag 정적 페이지 | 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨 |
+| Related Posts 자동 추천 | category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능) |
+| Project ↔ Article 양방향 연결 | `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결 |
+| Archive vs Portfolio 패턴 | 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본)와 `{slug}`(공개용 정리본)로 분리 |
+| 검색 | [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색 |
+| 다크모드 | 시스템 설정 감지 + 수동 토글, `localStorage`에 저장 |
+| SEO | Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동 |
+| 방문자 분석 | [GoatCounter](https://goatcounter.com) 연동 (선택, 무료) |
+| draft 워크플로우 | `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외 |
 
 ---
 
