@@ -222,10 +222,17 @@ git commit -m "feat: Spring Security JWT 글 추가"
 git push -u origin feat/spring-security-jwt
 ```
 
-1. GitHub에서 PR 생성 — **PR 제목도 변경 내용을 구체적으로 드러내도록 작성** (예: "feat: Spring Security JWT 글 추가", 커밋 메시지와 동일한 수준의 구체성)
-2. CodeRabbit 자동 리뷰 확인
-3. 리뷰 반영 후 `main`에 Merge
-4. Merge 완료 후 브랜치 정리
+1. **로컬에서 변경 확인** (다른 세션/기기에서 작업했거나, PR 브랜치를 로컬에서 직접 띄워볼 때)
+   ```bash
+   git fetch origin <브랜치명>
+   git checkout <브랜치명>
+   npm install   # package.json 변경 없었으면 생략 가능
+   npm run dev
+   ```
+2. GitHub에서 PR 생성 — **PR 제목도 변경 내용을 구체적으로 드러내도록 작성** (예: "feat: Spring Security JWT 글 추가", 커밋 메시지와 동일한 수준의 구체성)
+3. CodeRabbit 자동 리뷰 확인
+4. 리뷰 반영 후 `main`에 Merge
+5. Merge 완료 후 브랜치 정리
 
 ```bash
 git checkout main
