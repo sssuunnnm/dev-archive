@@ -151,5 +151,5 @@ class WalkLocationManager(
 
 ## 참고자료
 
-- [Location data - Android Developers](https://developer.android.com/develop/sensors-and-location/location/data/location-data)
+- [Location - Android Developers 레퍼런스](https://developer.android.com/reference/android/location/Location) (`getAccuracy()` 항목에 68% 신뢰구간 정의가 나와 있다)
 - [Location.distanceTo - Android Developers 레퍼런스](https://developer.android.com/reference/android/location/Location#distanceTo(android.location.Location))
