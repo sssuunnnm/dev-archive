@@ -14,6 +14,8 @@ jobs:
       - uses: withastro/action@v3
         with:
           node-version: 22
+        env:
+          TZ: Asia/Seoul
   deploy:
     needs: build
     runs-on: ubuntu-latest
