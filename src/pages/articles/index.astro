@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { categories as categoryList, getCategoryLabel, getCategoryColorClass } from '../../lib/categories';
+import { categories as categoryList, getCategoryLabel, getCategoryColorClass, getCategoryListItemHoverClass } from '../../lib/categories';
 import { isVisible } from '../../lib/content-visibility';
 
 const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
@@ -28,26 +28,23 @@ const categories = [{ key: 'all', label: '전체' }, ...categoryList];
   </div>
 
   <!-- 글 목록 -->
-  <ul id="article-list" class="space-y-4">
+  <ul id="article-list" class="space-y-1">
     {sorted.map((post) => (
-      <li
-        class="article-item border-b pb-4 dark:border-gray-800"
-        data-category={post.data.category}
-      >
+      <li class="article-item" data-category={post.data.category}>
         <a
           href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
-          class="text-lg font-medium hover:underline"
+          class={`block -mx-3 rounded-lg border-l-2 border-transparent px-3 py-3 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
         >
-          {post.data.title}
+          <span class="text-lg font-medium">{post.data.title}</span>
+          <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+          <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+            <span class={`font-medium ${getCategoryColorClass(post.data.category)}`}>{getCategoryLabel(post.data.category)}</span>
+            <span>·</span>
+            <span>{post.data.type}</span>
+            <span>·</span>
+            <span>{post.data.date.toISOString().slice(0, 10)}</span>
+          </div>
         </a>
-        <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
-        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
-          <span class={`font-medium ${getCategoryColorClass(post.data.category)}`}>{getCategoryLabel(post.data.category)}</span>
-          <span>·</span>
-          <span>{post.data.type}</span>
-          <span>·</span>
-          <span>{post.data.date.toISOString().slice(0, 10)}</span>
-        </div>
       </li>
     ))}
   </ul>

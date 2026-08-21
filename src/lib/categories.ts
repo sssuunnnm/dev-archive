@@ -58,3 +58,21 @@ export function getCategoryColorClass(key: string): string {
 export function getCategoryPillClass(key: string): string {
   return pillClasses[key as CategoryKey] ?? '';
 }
+
+// 글 목록 카드 hover 시 카테고리 컬러로 살짝 tint + 왼쪽 accent bar
+const listItemHoverClasses: Record<CategoryKey, string> = {
+  development:
+    'hover:bg-cat-development/8 hover:border-cat-development dark:hover:bg-cat-development-dark/15 dark:hover:border-cat-development-dark',
+  infra:
+    'hover:bg-cat-infra/8 hover:border-cat-infra dark:hover:bg-cat-infra-dark/15 dark:hover:border-cat-infra-dark',
+  cs: 'hover:bg-cat-cs/8 hover:border-cat-cs dark:hover:bg-cat-cs-dark/15 dark:hover:border-cat-cs-dark',
+  ai: 'hover:bg-cat-ai/8 hover:border-cat-ai dark:hover:bg-cat-ai-dark/15 dark:hover:border-cat-ai-dark',
+  study:
+    'hover:bg-cat-study/8 hover:border-cat-study dark:hover:bg-cat-study-dark/15 dark:hover:border-cat-study-dark',
+  certificates:
+    'hover:bg-cat-certificates/8 hover:border-cat-certificates dark:hover:bg-cat-certificates-dark/15 dark:hover:border-cat-certificates-dark',
+};
+
+export function getCategoryListItemHoverClass(key: string): string {
+  return listItemHoverClasses[key as CategoryKey] ?? 'hover:bg-gray-50 dark:hover:bg-gray-800/60';
+}

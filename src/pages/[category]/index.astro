@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { categories, getCategoryColorClass } from '../../lib/categories';
+import { categories, getCategoryColorClass, getCategoryListItemHoverClass } from '../../lib/categories';
 import { isVisible } from '../../lib/content-visibility';
 
 export async function getStaticPaths() {
@@ -27,21 +27,21 @@ const label = current?.label ?? category;
   {posts.length === 0 ? (
     <p class="text-gray-400 text-sm">아직 이 카테고리에 작성된 글이 없습니다.</p>
   ) : (
-    <ul class="space-y-4">
+    <ul class="space-y-1">
       {posts.map((post) => (
-        <li class="border-b pb-4 dark:border-gray-800">
+        <li>
           <a
             href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
-            class="text-lg font-medium hover:underline"
+            class={`block -mx-3 rounded-lg border-l-2 border-transparent px-3 py-3 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
           >
-            {post.data.title}
+            <span class="text-lg font-medium">{post.data.title}</span>
+            <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+            <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+              <span>{post.data.type}</span>
+              <span>·</span>
+              <span>{post.data.date.toISOString().slice(0, 10)}</span>
+            </div>
           </a>
-          <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
-          <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
-            <span>{post.data.type}</span>
-            <span>·</span>
-            <span>{post.data.date.toISOString().slice(0, 10)}</span>
-          </div>
         </li>
       ))}
     </ul>
