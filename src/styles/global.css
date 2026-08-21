@@ -5,11 +5,31 @@
 /* class="dark"가 있는 요소(및 그 하위)에 dark: 유틸리티가 적용되도록 설정 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Paperlogy — 강조용 폰트 (제목/포인트 텍스트 전용, 본문엔 안 씀).
+   OFL 라이선스, 폰트 단독 판매만 금지, 브랜드 제약 없음.
+   강조용으로만 쓰므로 Bold/ExtraBold 두 굵기만 로드 (성능) */
+@font-face {
+  font-family: Paperlogy;
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Paperlogy;
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* 포인트 컬러 — Tailwind v4 CSS 테마 토큰. text-accent, bg-accent, border-accent 등으로 사용 가능 */
 @theme {
   --color-accent: #466b8f; /* 라이트모드용 (흰 배경 대비 확보) */
   --color-accent-dark: #8fadc7; /* 다크모드용 (어두운 배경에서 더 밝게) */
-  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-sans: 'Pretendard', -apple-system, blinkmacsystemfont, system-ui, sans-serif;
+  --font-accent: 'Paperlogy', 'Pretendard', -apple-system, blinkmacsystemfont, system-ui, sans-serif;
 }
 
 body {
