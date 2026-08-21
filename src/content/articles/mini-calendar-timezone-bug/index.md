@@ -91,13 +91,16 @@ const postedDates = articles.map((post) => post.data.date.toISOString().slice(0,
   const postedDates = new Set(JSON.parse(root!.dataset.postedDates ?? '[]'));
 
   // 방문자의 기기 시간이 아니라, 블로그 글 날짜 기준(KST)으로 "오늘"을 계산한다
-  const todayStr = new Intl.DateTimeFormat('en-CA', {
+  const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(new Date());
-  // en-CA 로케일은 YYYY-MM-DD 형식으로 포맷해준다
+  }).formatToParts(new Date());
+  // format()이 반환하는 문자열의 순서/구분자는 로케일 "표시" 형식일 뿐 고정된 계약이 아니므로,
+  // formatToParts()로 연/월/일 값을 각각 뽑아 YYYY-MM-DD로 직접 조립한다
+  const part = (type: string) => parts.find((p) => p.type === type)!.value;
+  const todayStr = `${part('year')}-${part('month')}-${part('day')}`;
 
   // 이후 todayStr 기준으로 그리드를 그린다
 </script>
@@ -106,6 +109,8 @@ const postedDates = articles.map((post) => post.data.date.toISOString().slice(0,
 여기서 두 가지를 신경 썼다.
 
 **타임존을 브라우저 로컬이 아니라 KST로 고정했다.** 방문자의 기기 타임존을 그대로 쓰면, 예를 들어 미국에서 접속한 사람에게는 "오늘"이 하루 다르게 보일 수 있다. 이 블로그의 글 날짜는 애초에 한국 시간 기준으로 기록되는 것이므로, 캘린더도 방문자 위치와 무관하게 항상 KST 기준으로 동작해야 frontmatter의 `date`와 어긋나지 않는다. `Intl.DateTimeFormat`의 `timeZone` 옵션을 명시하면 실행 환경(브라우저든 Node든)의 로컬 설정과 무관하게 원하는 타임존으로 고정할 수 있다.
+
+**날짜 문자열은 `format()`이 아니라 `formatToParts()`로 조립했다.** `format()`이 반환하는 문자열은 사람이 읽기 좋은 "표시용" 형식이라, 특정 로케일(`en-CA`)을 쓰면 우연히 `YYYY-MM-DD` 순서로 나오긴 하지만 이건 그 로케일의 표시 관례일 뿐 코드가 기대도 되는 고정된 계약은 아니다. 날짜를 특정 형식의 문자열 키로 써야 한다면 `formatToParts()`로 연/월/일 값을 각각 뽑아 원하는 형식으로 직접 조립하는 편이 더 안전하다.
 
 **요일·일수 계산은 UTC 기반 Date로만 했다.** `new Date(Date.UTC(year, month, 1)).getUTCDay()`처럼 UTC 생성자와 UTC getter를 짝지어 쓰면, 특정 연-월-일의 요일이 실행 환경 타임존에 전혀 영향받지 않는다. 로컬 생성자(`new Date(year, month, 1)`)와 로컬 getter를 쓰면 실행 환경 타임존에 따라 결과가 달라질 여지가 남는다.
 

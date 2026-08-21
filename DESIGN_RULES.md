@@ -54,6 +54,12 @@ Articles / Projects / Reference / Snippets / About
 - Popular Tags
 - Monthly Archive
 
+> 위 순서는 모바일(1단) 기준이다. 데스크탑은 2단 레이아웃이라 순서가 다르다:
+> 1행 왼쪽에 인사말+Categories, 오른쪽에 Monthly Archive(미니 캘린더)가 나란히 오고,
+> 2행에 Recent Posts가 전체 너비로 이어진다. Categories/Calendar가 카드 UI로 부피가 커서
+> 모바일에서 Recent Posts보다 먼저 보이면 스크롤이 과해지는 문제 때문에, 모바일에서만
+> Recent Posts를 앞으로 당겼다 (`src/pages/index.astro`의 `grid-template-areas` 참고).
+
 ---
 
 ## 2. 분류 체계 (Category → Technology → Tags)
