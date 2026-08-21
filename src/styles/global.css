@@ -32,6 +32,17 @@
   --font-accent: 'Paperlogy', 'Pretendard', -apple-system, blinkmacsystemfont, system-ui, sans-serif;
 }
 
+/* 스크롤바/폼 컨트롤 등 브라우저 기본 UI를 다크모드에 맞춤.
+   다크모드는 시스템 설정이 아니라 .dark 클래스(수동 토글 + localStorage)로 결정되므로
+   "light dark" 자동 대신 클래스 상태에 맞춰 명시적으로 지정 */
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
 body {
   font-family: var(--font-sans);
 }

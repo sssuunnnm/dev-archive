@@ -4,45 +4,20 @@ import { isVisible } from '../lib/content-visibility';
 
 const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const year = today.getFullYear();
-const month = today.getMonth(); // 0-indexed
-
-// 이번 달에 글 쓴 날짜(day of month)만 Set으로 집계
-const postedDays = new Set<number>();
-for (const post of articles) {
-  const d = post.data.date;
-  if (d.getFullYear() === year && d.getMonth() === month) {
-    postedDays.add(d.getDate());
-  }
-}
-
-const firstDay = new Date(year, month, 1);
-const lastDay = new Date(year, month + 1, 0);
-const daysInMonth = lastDay.getDate();
-const startWeekday = firstDay.getDay(); // 0 = 일요일
-
-type Cell = { day: number; hasPost: boolean; isToday: boolean } | null;
-const cells: Cell[] = [
-  ...Array.from({ length: startWeekday }, () => null),
-  ...Array.from({ length: daysInMonth }, (_, i) => {
-    const day = i + 1;
-    return {
-      day,
-      hasPost: postedDays.has(day),
-      isToday: day === today.getDate(),
-    };
-  }),
-];
+// "오늘"/"이번 달" 판단은 방문자 브라우저에서 계산한다 (아래 script 참고).
+// 정적 배포라 서버(빌드 시점)에서 계산하면 다음 배포 전까지 "오늘"이 그대로 굳어버림.
+// 글 날짜만 KST 기준 YYYY-MM-DD 문자열로 뽑아 client에 데이터로 넘긴다.
+const postedDates = articles.map((post) => post.data.date.toISOString().slice(0, 10));
 
 const weekdayLabels = ['일', '월', '화', '수', '목', '금', '토'];
-const monthLabel = `${year}년 ${month + 1}월`;
 ---
 
-<div class="border rounded-lg p-4 dark:border-gray-700">
-  <p class="text-sm font-semibold mb-3">{monthLabel}</p>
+<div
+  class="border rounded-lg p-4 dark:border-gray-700"
+  id="mini-calendar"
+  data-posted-dates={JSON.stringify(postedDates)}
+>
+  <p class="text-sm font-semibold mb-3" id="mini-calendar-month">&nbsp;</p>
 
   <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
     {weekdayLabels.map((w) => (
@@ -50,17 +25,62 @@ const monthLabel = `${year}년 ${month + 1}월`;
     ))}
   </div>
 
-  <div class="grid grid-cols-7 justify-items-center gap-1">
-    {cells.map((cell) =>
-      cell ? (
-        <div
-          class={`w-4 h-4 rounded-sm
-            ${cell.hasPost ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-100 dark:bg-gray-800'}
-            ${cell.isToday ? 'ring-2 ring-offset-1 ring-accent dark:ring-accent-dark dark:ring-offset-gray-900' : ''}`}
-        />
-      ) : (
-        <div class="w-4 h-4" />
-      )
-    )}
-  </div>
+  <div class="grid grid-cols-7 justify-items-center gap-1" id="mini-calendar-grid"></div>
 </div>
+
+<script>
+  const root = document.getElementById('mini-calendar');
+  const monthLabelEl = document.getElementById('mini-calendar-month');
+  const gridEl = document.getElementById('mini-calendar-grid');
+  if (!root || !monthLabelEl || !gridEl) throw new Error('MiniCalendar: expected elements not found');
+
+  const postedDates: Set<string> = new Set(JSON.parse(root.dataset.postedDates ?? '[]'));
+
+  // 방문자의 실제 기기 시간이 아니라, 블로그 글 날짜 기준(KST)으로 "오늘"을 계산한다.
+  // (frontmatter의 date는 KST 기준으로 기록되므로 여기서도 KST로 맞춰야 어긋나지 않음)
+  const kstParts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
+  const [yearStr, monthStr] = kstParts.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr) - 1; // 0-indexed
+  const todayStr = kstParts;
+
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const dateStr = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
+
+  const startWeekday = new Date(Date.UTC(year, month, 1)).getUTCDay(); // 0 = 일요일
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
+  monthLabelEl.textContent = `${year}년 ${month + 1}월`;
+
+  const frag = document.createDocumentFragment();
+
+  for (let i = 0; i < startWeekday; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'w-4 h-4';
+    frag.appendChild(empty);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const cellDate = dateStr(year, month, day);
+    const hasPost = postedDates.has(cellDate);
+    const isToday = cellDate === todayStr;
+
+    const cell = document.createElement('div');
+    cell.className = [
+      'w-4 h-4 rounded-sm',
+      hasPost ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-100 dark:bg-gray-800',
+      isToday ? 'ring-2 ring-offset-1 ring-accent dark:ring-accent-dark dark:ring-offset-gray-900' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    frag.appendChild(cell);
+  }
+
+  gridEl.appendChild(frag);
+</script>
