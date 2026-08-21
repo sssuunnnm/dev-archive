@@ -5,6 +5,7 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import { categories, getCategoryLabel, getCategoryColorClass } from '../lib/categories';
 import { getRelatedPosts, getSeriesNav } from '../lib/related';
 import { isVisible } from '../lib/content-visibility';
+import { formatTagLabel } from '../lib/difficulty';
 
 interface Props {
   entry: any; // CollectionEntry<'articles'>
@@ -64,9 +65,10 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
         {tags.map((t: string) => (
           <a
             href={`${base}tags/${encodeURIComponent(t)}`}
+            title={t}
             class="text-xs text-accent dark:text-accent-dark hover:underline"
           >
-            #{t}
+            {formatTagLabel(t)}
           </a>
         ))}
       </div>

@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isVisible } from '../../lib/content-visibility';
+import { formatTagLabel } from '../../lib/difficulty';
 
 export async function getStaticPaths() {
   const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
@@ -27,7 +28,7 @@ const { tag, posts } = Astro.props;
 ---
 
 <BaseLayout title={`#${tag}`} description={`#${tag} 태그가 달린 글 목록`} ogType="website">
-  <h1 class="text-2xl font-bold mb-2">#{tag}</h1>
+  <h1 class="text-2xl font-bold mb-2" title={tag}>{formatTagLabel(tag)}</h1>
   <p class="text-sm text-gray-400 mb-8">{posts.length}개의 글</p>
 
   <ul class="space-y-4">

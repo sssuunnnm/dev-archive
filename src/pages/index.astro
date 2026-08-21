@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MiniCalendar from '../components/MiniCalendar.astro';
 import { categories, getCategoryLabel, getCategoryColorClass, getCategoryPillClass, getCategoryListItemHoverClass } from '../lib/categories';
 import { isVisible } from '../lib/content-visibility';
+import { formatTagLabel } from '../lib/difficulty';
 
 const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const recentPosts = allArticles
@@ -87,9 +88,10 @@ const popularTags = Object.entries(tagCount)
       {popularTags.map((tag) => (
         <a
           href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}`}
+          title={tag}
           class="text-xs rounded-full px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
-          #{tag}
+          {formatTagLabel(tag)}
         </a>
       ))}
     </div>
