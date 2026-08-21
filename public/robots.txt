@@ -1,0 +1,9 @@
+# GitHub Pages 프로젝트 사이트(username.github.io/dev-archive/)는 호스트 루트에
+# robots.txt를 별도로 둘 수 없어, Google은 이 파일을 읽지 않습니다
+# (Google이 보는 경로는 https://sssuunnnm.github.io/robots.txt이며 이 레포가 소유한 경로가 아님).
+# 경로 기반 robots.txt를 지원하는 일부 크롤러를 위한 best-effort 파일이고,
+# Google에는 Search Console에서 sitemap을 직접 제출해서 대응합니다 (README 참고).
+User-agent: *
+Allow: /
+
+Sitemap: https://sssuunnnm.github.io/dev-archive/sitemap-index.xml
