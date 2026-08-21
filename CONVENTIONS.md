@@ -226,6 +226,7 @@ git push -u origin feat/spring-security-jwt
    ```bash
    git fetch origin <브랜치명>
    git checkout <브랜치명>
+   git pull --ff-only origin <브랜치명>   # 로컬에 이미 있던 브랜치라면 원격 최신 커밋 반영
    npm install   # package.json 변경 없었으면 생략 가능
    npm run dev
    ```

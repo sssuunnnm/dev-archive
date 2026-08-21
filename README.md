@@ -20,8 +20,8 @@
 - [소개](#-소개)
 - [주요 기능](#-주요-기능)
 - [기술 스택](#-기술-스택)
-- [폴더 구조](#-폴더-구조)
-- [SEO / 방문자 분석 설정](#-seo--방문자-분석-설정)
+- [폴더 구조](#folder-structure)
+- [SEO / 방문자 분석 설정](#seo-analytics-setup)
 
 ---
 
@@ -87,7 +87,7 @@
 ---
 
 <details>
-<summary><h2 style="display: inline;">📂 폴더 구조</h2></summary>
+<summary><h2 id="folder-structure" style="display: inline;">📂 폴더 구조</h2></summary>
 
 ```
 src/
@@ -113,7 +113,7 @@ templates/               # 새 글/프로젝트/레퍼런스/스니펫 작성 �
 ---
 
 <details>
-<summary><h2 style="display: inline;">📈 SEO / 방문자 분석 설정</h2></summary>
+<summary><h2 id="seo-analytics-setup" style="display: inline;">📈 SEO / 방문자 분석 설정</h2></summary>
 
 Google Search Console(검색 유입 분석)과 GoatCounter(방문자 분석) 연동을 지원합니다. 둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 렌더링되지 않습니다.
 

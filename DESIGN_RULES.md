@@ -456,7 +456,7 @@ Tailwind는 클래스명을 정적으로 스캔하므로 `text-cat-${key}` 같�
 
 Articles/카테고리 페이지/태그 페이지/홈 Recent Posts 전부 동일한 패턴을 쓴다.
 
-```
+```text
 제목+설명+메타 전체를 하나의 <a class="block -mx-3 rounded-lg px-3 py-2~3 transition-colors {hover 클래스}">로 감싼다
 ```
 
