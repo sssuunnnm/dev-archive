@@ -7,8 +7,22 @@
 [![Astro](https://img.shields.io/badge/Astro-BC52EE?style=flat-square&logo=astro&logoColor=white)](https://astro.build)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=github&logoColor=white)](https://pages.github.com)
+[![Deploy](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml/badge.svg)](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml)
+[![Last Commit](https://img.shields.io/github/last-commit/sssuunnnm/dev-archive?style=flat-square)](https://github.com/sssuunnnm/dev-archive/commits/main)
+
+[![🔗 Live Demo](https://img.shields.io/badge/🔗_Live_Demo-181717?style=flat-square)](https://sssuunnnm.github.io/dev-archive/)
 
 </div>
+
+---
+
+## 🖼 미리보기
+
+<div align="center">
+<img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="800" />
+</div>
+
+> 홈 화면 스크린샷(또는 GIF)을 `.github/assets/preview.png`로 추가하면 이 자리에 표시됩니다.
 
 ---
 
@@ -32,16 +46,18 @@
 
 ## ✨ 주요 기능
 
-- **4개 콘텐츠 타입**: Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드)
-- **Category / Tag 정적 페이지**: 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨
-- **Related Posts 자동 추천**: category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능)
-- **Project ↔ Article 양방향 연결**: `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결
-- **Archive vs Portfolio 패턴**: 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본 자료)와 `{slug}`(공개용 정리본)로 분리
-- **검색**: [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색
-- **다크모드**: 시스템 설정 감지 + 수동 토글, `localStorage`에 저장
-- **SEO**: Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동
-- **방문자 분석**: [GoatCounter](https://goatcounter.com) 연동 (선택, 무료)
-- **draft 워크플로우**: `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외
+|  | 기능 | 설명 |
+| :---: | --- | --- |
+| 📄 | 4개 콘텐츠 타입 | Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드) |
+| 🏷️ | Category / Tag 정적 페이지 | 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨 |
+| 🔗 | Related Posts 자동 추천 | category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능) |
+| 🔀 | Project ↔ Article 양방향 연결 | `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결 |
+| 🗂️ | Archive vs Portfolio 패턴 | 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본)와 `{slug}`(공개용 정리본)로 분리 |
+| 🔍 | 검색 | [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색 |
+| 🌗 | 다크모드 | 시스템 설정 감지 + 수동 토글, `localStorage`에 저장 |
+| 📈 | SEO | Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동 |
+| 📊 | 방문자 분석 | [GoatCounter](https://goatcounter.com) 연동 (선택, 무료) |
+| ✍️ | draft 워크플로우 | `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외 |
 
 ---
 
@@ -58,7 +74,8 @@
 
 ---
 
-## 📂 폴더 구조
+<details>
+<summary><h2 style="display: inline;">📂 폴더 구조</h2></summary>
 
 ```
 src/
@@ -78,10 +95,15 @@ templates/               # 새 글/프로젝트/레퍼런스/스니펫 작성 �
 
 > 글 폴더는 `category`별로 나누지 않고 **평평하게(flat)** 유지합니다. 분류는 오직 frontmatter 메타데이터로만 처리합니다.
 
+</details>
+
 ---
 
-## 📈 SEO / 방문자 분석 설정
+<details>
+<summary><h2 style="display: inline;">📈 SEO / 방문자 분석 설정</h2></summary>
 
 Google Search Console(검색 유입 분석)과 GoatCounter(방문자 분석) 연동을 지원합니다. 둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 렌더링되지 않습니다.
 
 가입 방법과 값 확인 방법은 `.env.example` 주석을 참고해 값을 채운 뒤, 로컬 테스트용으로 `.env`에 복사하세요. 배포에 반영하려면 GitHub repo → **Settings → Secrets and variables → Actions → Variables** 탭에 동일한 이름(`PUBLIC_GOOGLE_SITE_VERIFICATION`, `PUBLIC_GOATCOUNTER_CODE`)으로 등록하면 다음 배포부터 자동 반영됩니다.
+
+</details>
