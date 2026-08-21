@@ -20,7 +20,7 @@ const base = import.meta.env.BASE_URL;
 
     <div class="flex flex-wrap items-center gap-2 mt-3">
       {entry.data.technology.map((t: string) => (
-        <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{t}</span>
+        <span class="text-xs rounded-full px-3 py-1 bg-gray-100 dark:bg-gray-800">{t}</span>
       ))}
       {entry.data.tags.map((t: string) => (
         <a

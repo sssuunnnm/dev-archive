@@ -60,7 +60,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
 
       <div class="flex flex-wrap items-center gap-2">
         {technology.map((t: string) => (
-          <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{t}</span>
+          <span class="text-xs rounded-full px-3 py-1 bg-gray-100 dark:bg-gray-800">{t}</span>
         ))}
         {tags.map((t: string) => (
           <a
@@ -133,7 +133,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
         <ul class="space-y-2">
           {related.map((post) => (
             <li class="flex items-center gap-2">
-              <span class="text-xs text-gray-400 border rounded px-1.5 py-0.5 dark:border-gray-700">
+              <span class="text-xs text-gray-400 rounded-full px-2 py-0.5 bg-gray-100 dark:bg-gray-800">
                 {getCategoryLabel(post.data.category)}
               </span>
               <a

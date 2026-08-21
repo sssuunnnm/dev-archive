@@ -29,7 +29,7 @@ const statusLabel: Record<string, string> = {
   <header class="mb-8">
     <div class="flex items-center gap-2 mb-2">
       <h1 class="text-3xl font-bold">{entry.data.title}</h1>
-      <span class="text-xs border rounded px-2 py-0.5 text-gray-500 dark:border-gray-700">
+      <span class="text-xs rounded-full px-2.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
         {statusLabel[entry.data.status] ?? entry.data.status}
       </span>
     </div>
@@ -50,7 +50,7 @@ const statusLabel: Record<string, string> = {
 
     <div class="flex flex-wrap gap-2">
       {entry.data.stack.map((s: string) => (
-        <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{s}</span>
+        <span class="text-xs rounded-full px-3 py-1 bg-gray-100 dark:bg-gray-800">{s}</span>
       ))}
     </div>
   </header>
@@ -65,7 +65,7 @@ const statusLabel: Record<string, string> = {
       <ul class="space-y-2">
         {relatedArticles.map((post) => (
           <li class="flex items-center gap-2">
-            <span class="text-xs text-gray-400 border rounded px-1.5 py-0.5 dark:border-gray-700">
+            <span class="text-xs text-gray-400 rounded-full px-2 py-0.5 bg-gray-100 dark:bg-gray-800">
               {getCategoryLabel(post.data.category)}
             </span>
             <a

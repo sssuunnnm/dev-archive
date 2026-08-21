@@ -30,14 +30,14 @@ const statusLabel: Record<string, string> = {
             >
               {project.data.title}
             </a>
-            <span class="text-xs border rounded px-2 py-0.5 text-gray-500 dark:border-gray-700">
+            <span class="text-xs rounded-full px-2.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               {statusLabel[project.data.status] ?? project.data.status}
             </span>
           </div>
           <p class="text-sm text-gray-500 mb-2">{project.data.summary}</p>
           <div class="flex flex-wrap gap-2">
             {project.data.stack.map((s: string) => (
-              <span class="text-xs border rounded px-2 py-1 dark:border-gray-700">{s}</span>
+              <span class="text-xs rounded-full px-3 py-1 bg-gray-100 dark:bg-gray-800">{s}</span>
             ))}
           </div>
         </li>
