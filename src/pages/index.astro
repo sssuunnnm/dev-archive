@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MiniCalendar from '../components/MiniCalendar.astro';
 import { categories, getCategoryLabel } from '../lib/categories';
 import { isVisible } from '../lib/content-visibility';
+import { LayoutGrid, Flame, Tag } from '@lucide/astro';
 
 const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const recentPosts = allArticles
@@ -32,7 +33,7 @@ const popularTags = Object.entries(tagCount)
       </section>
 
       <section>
-        <h2 class="text-lg font-semibold mb-3">📚 Categories</h2>
+        <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><LayoutGrid size={18} /> Categories</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {categories.map((c) => (
             <a
@@ -50,7 +51,7 @@ const popularTags = Object.entries(tagCount)
   </div>
 
   <section class="mb-10">
-    <h2 class="text-lg font-semibold mb-3">🔥 Recent Posts</h2>
+    <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><Flame size={18} /> Recent Posts</h2>
     <ul class="space-y-3">
       {recentPosts.map((post) => (
         <li>
@@ -70,7 +71,7 @@ const popularTags = Object.entries(tagCount)
   </section>
 
   <section>
-    <h2 class="text-lg font-semibold mb-3">🏷 Popular Tags</h2>
+    <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><Tag size={18} /> Popular Tags</h2>
     <div class="flex flex-wrap gap-2">
       {popularTags.map((tag) => (
         <a
