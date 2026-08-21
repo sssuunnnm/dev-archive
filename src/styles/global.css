@@ -30,6 +30,21 @@
   --color-accent-dark: #8fadc7; /* 다크모드용 (어두운 배경에서 더 밝게) */
   --font-sans: 'Pretendard', -apple-system, blinkmacsystemfont, system-ui, sans-serif;
   --font-accent: 'Paperlogy', 'Pretendard', -apple-system, blinkmacsystemfont, system-ui, sans-serif;
+
+  /* 카테고리별 포인트 컬러 — accent(hue 207°)를 기준으로 60°씩 회전시켜 톤을 맞춘 패밀리.
+     채도/명도, 라이트→다크 변환 규칙(L 42%→67%)은 accent/accent-dark와 동일하게 유지 */
+  --color-cat-development: var(--color-accent); /* hue 207 (기존 accent 재사용) */
+  --color-cat-development-dark: var(--color-accent-dark);
+  --color-cat-infra: hsl(147 34% 42%);
+  --color-cat-infra-dark: hsl(147 33% 67%);
+  --color-cat-cs: hsl(27 34% 42%);
+  --color-cat-cs-dark: hsl(27 33% 67%);
+  --color-cat-ai: hsl(267 34% 42%);
+  --color-cat-ai-dark: hsl(267 33% 67%);
+  --color-cat-study: hsl(327 34% 42%);
+  --color-cat-study-dark: hsl(327 33% 67%);
+  --color-cat-certificates: hsl(87 34% 42%);
+  --color-cat-certificates-dark: hsl(87 33% 67%);
 }
 
 /* 스크롤바/폼 컨트롤 등 브라우저 기본 UI를 다크모드에 맞춤.
