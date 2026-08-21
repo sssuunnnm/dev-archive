@@ -8,9 +8,9 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=github&logoColor=white)](https://pages.github.com)
 [![Deploy](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml/badge.svg)](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml)
-[![Last Commit](https://img.shields.io/github/last-commit/sssuunnnm/dev-archive?style=flat-square)](https://github.com/sssuunnnm/dev-archive/commits/main)
+[![Last Commit](https://img.shields.io/github/last-commit/sssuunnnm/dev-archive?style=flat-square&color=466B8F)](https://github.com/sssuunnnm/dev-archive/commits/main)
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-4F46E5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://sssuunnnm.github.io/dev-archive/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-466B8F?style=for-the-badge&logo=googlechrome&logoColor=white)](https://sssuunnnm.github.io/dev-archive/)
 
 </div>
 
