@@ -2,6 +2,7 @@
 interface Item {
   label: string;
   href?: string; // 없으면 현재 페이지(링크 없이 텍스트만)
+  class?: string; // 개별 항목에 추가 클래스 (예: 카테고리 포인트 컬러)
 }
 
 interface Props {
@@ -16,7 +17,7 @@ const { items } = Astro.props;
     {items.map((item, i) => (
       <li class="flex items-center gap-1">
         {item.href ? (
-          <a href={item.href} class="hover:underline hover:text-gray-600 dark:hover:text-gray-300">
+          <a href={item.href} class={`hover:underline hover:text-gray-600 dark:hover:text-gray-300 ${item.class ?? ''}`}>
             {item.label}
           </a>
         ) : (

@@ -2,6 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isVisible } from '../../lib/content-visibility';
+import { formatTagLabel } from '../../lib/level';
+import { getCategoryLabel, getCategoryColorClass, getCategoryListItemHoverClass } from '../../lib/categories';
 
 export async function getStaticPaths() {
   const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
@@ -27,26 +29,26 @@ const { tag, posts } = Astro.props;
 ---
 
 <BaseLayout title={`#${tag}`} description={`#${tag} 태그가 달린 글 목록`} ogType="website">
-  <h1 class="text-2xl font-bold mb-2">#{tag}</h1>
+  <h1 class="text-2xl font-bold mb-2 font-accent" title={tag}>#{formatTagLabel(tag)}</h1>
   <p class="text-sm text-gray-400 mb-8">{posts.length}개의 글</p>
 
-  <ul class="space-y-4">
+  <ul class="space-y-1">
     {posts.map((post) => (
-      <li class="border-b pb-4 dark:border-gray-800">
+      <li>
         <a
           href={`${import.meta.env.BASE_URL}${post.data.category}/${post.id}`}
-          class="text-lg font-medium hover:underline"
+          class={`block -mx-3 rounded-lg px-3 py-3 transition-colors ${getCategoryListItemHoverClass(post.data.category)}`}
         >
-          {post.data.title}
+          <span class="text-lg font-medium">{post.data.title}</span>
+          <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
+          <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
+            <span class={`font-medium ${getCategoryColorClass(post.data.category)}`}>{getCategoryLabel(post.data.category)}</span>
+            <span>·</span>
+            <span>{post.data.type}</span>
+            <span>·</span>
+            <span>{post.data.date.toISOString().slice(0, 10)}</span>
+          </div>
         </a>
-        <p class="text-sm text-gray-500 mt-1">{post.data.description}</p>
-        <div class="flex flex-wrap gap-2 mt-2 text-xs text-gray-400">
-          <span>{post.data.category}</span>
-          <span>·</span>
-          <span>{post.data.type}</span>
-          <span>·</span>
-          <span>{post.data.date.toISOString().slice(0, 10)}</span>
-        </div>
       </li>
     ))}
   </ul>

@@ -422,3 +422,56 @@ Public GitHub 레포 특성상 `draft: true`여도 `.md` 원본 파일은 레포
 - [ ] `title`, `description`을 채웠는가
 - [ ] 이미지가 글 폴더 내부(`image/`)에 있는가
 - [ ] URL이 `/category/slug` 형태인가
+
+---
+
+## 15. UI 디자인 시스템
+
+> 13번 진행 순서에서 "5. 디자인 시스템"으로만 언급되고 실제 문서화는 미뤄뒀던 부분. 처음부터 정교하게 짜면 구조 잡는 속도가 느려질 것 같아 컨텐츠/구조를 먼저 만들고, 실제 화면이 나온 뒤 UI/UX를 점검하며 자리잡은 컨벤션을 여기 기록한다.
+
+### 15-1. 컬러 토큰 (`src/styles/global.css`)
+
+기본 accent(`--color-accent` #466b8f, hue 207°)를 기준으로 60°씩 회전시켜 카테고리 6개에 하나씩 배정한다. 채도/명도, 라이트→다크 변환 규칙(L 42%→67%)은 accent/accent-dark와 동일하게 맞춘다.
+
+| 카테고리 | hue | 비고 |
+| --- | --- | --- |
+| development | 207° | 기존 accent 재사용 |
+| infra | 147° | |
+| cs | 27° | |
+| ai | 267° | |
+| study | 327° | |
+| certificates | 87° | infra(147°)와 같은 "녹색 계열"로 보일 수 있는 걸 인지하고 있음 — 라벨 텍스트가 항상 같이 있어 실사용상 문제는 없다고 판단, 현재는 그대로 둠 |
+
+카테고리를 새로 추가/변경할 일은 거의 없지만(2-1 참고), 하게 되면 60° 간격 회전 공식을 그대로 따르고 이 표를 갱신한다.
+
+### 15-2. 카테고리 컬러 적용 규칙 (`src/lib/categories.ts`)
+
+Tailwind는 클래스명을 정적으로 스캔하므로 `text-cat-${key}` 같은 템플릿 문자열은 인식하지 못한다. 그래서 카테고리별 **완전한 클래스 문자열**을 `categories.ts`에 `Record<CategoryKey, string>`로 나열해두고, 헬퍼 함수(`getCategoryColorClass`, `getCategoryPillClass`, `getCategoryListItemHoverClass`)로 꺼내 쓴다. 새 용도가 필요하면 이 파일에 같은 방식으로 맵을 추가한다 (동적 조합 금지).
+
+- 텍스트 강조(breadcrumb, 목록 메타): `getCategoryColorClass`
+- pill/뱃지(홈 Categories): `getCategoryPillClass`
+- 목록 카드 hover 배경: `getCategoryListItemHoverClass`
+
+### 15-3. 글 목록 카드 컨벤션
+
+Articles/카테고리 페이지/태그 페이지/홈 Recent Posts 전부 동일한 패턴을 쓴다.
+
+```text
+제목+설명+메타 전체를 하나의 <a class="block -mx-3 rounded-lg px-3 py-2~3 transition-colors {hover 클래스}">로 감싼다
+```
+
+- 제목만이 아니라 카드 전체가 클릭 영역이어야 한다.
+- hover 시 카테고리 컬러로 은은한 배경 tint만 준다 (`/8` 라이트, `/15` 다크 정도의 투명도). **왼쪽 accent bar(`border-l`)는 쓰지 않는다** — 시도했다가 시각적으로 안 어울려서 제거함.
+- Articles 페이지의 필터 버튼(`.filter-btn`)은 이 카드 컨벤션과 별개로 JS 토글 상태를 가지므로 카테고리 컬러를 적용하지 않고 중립 톤을 유지한다.
+
+### 15-4. 홈 하단 아카이브 요약 스탯
+
+Popular Tags 아래에 실제 콘텐츠 컬렉션 개수(Articles/Projects/References/Snippets)를 은은한 회색 rounded 타일(`bg-gray-50 dark:bg-gray-900/40 rounded-xl`)로 보여준다. 외부 서비스나 가짜 숫자 없이 항상 실제 데이터 기준. 각 타일은 해당 목록 페이지로 링크된다.
+
+### 15-5. 태그 라벨 표기 (`src/lib/level.ts`)
+
+일반 태그는 `#tag` 그대로 표기한다. `level-1/2/3` 태그만 예외로 `#Lv.1`~`#Lv.3`로 표기한다 — 이건 일반적인 "난이도"가 아니라 **프로그래머스 자체 레벨**이라는 의미라서, 강도를 나타내는 점(●●○) 표기는 쓰지 않는다 (혼동 유발로 시도 후 되돌림). `#` 접두어는 호출부에서 붙이고, `formatTagLabel()`은 접두어 없는 라벨 문자열만 반환한다 — 모든 태그 표기(일반/레벨)를 시각적으로 동일하게 유지하기 위함.
+
+### 15-6. Paperlogy 강조 폰트 (`font-accent`)
+
+본문에는 쓰지 않고, 제목류에만 제한적으로 사용한다: 글 상세 h1, 홈 인사말("안녕하세요."), 카테고리 페이지 h1. 새로운 제목 요소가 생기면 이 목록에 맞춰 판단하고, 본문/버튼/작은 라벨에는 쓰지 않는다.

@@ -7,7 +7,28 @@
 [![Astro](https://img.shields.io/badge/Astro-BC52EE?style=flat-square&logo=astro&logoColor=white)](https://astro.build)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=github&logoColor=white)](https://pages.github.com)
+[![Deploy](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml/badge.svg)](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml)
+[![Last Commit](https://img.shields.io/github/last-commit/sssuunnnm/dev-archive?style=flat-square&color=466B8F)](https://github.com/sssuunnnm/dev-archive/commits/main)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-466B8F?style=for-the-badge&logo=googlechrome&logoColor=white)](https://sssuunnnm.github.io/dev-archive/)
+
+</div>
+
+---
+
+- [미리보기](#-미리보기)
+- [소개](#-소개)
+- [주요 기능](#-주요-기능)
+- [기술 스택](#-기술-스택)
+- [폴더 구조](#folder-structure)
+- [SEO / 방문자 분석 설정](#seo-analytics-setup)
+
+---
+
+## 🖼 미리보기
+
+<div align="center">
+<img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="480" />
 </div>
 
 ---
@@ -16,6 +37,7 @@
 
 블로그처럼 최신 글이 위에 쌓이는 구조보다, 필요한 내용을 **카테고리 · 기술 · 태그**로 바로 찾아볼 수 있는 위키에 가까운 형태를 목표로 합니다.
 
+> [!TIP]
 > 글을 많이 쓰는 것보다, 다시 찾기 쉬운 구조를 만드는 데 집중한다.
 
 폴더 구조는 최대한 단순하게 유지하고, 분류는 아래 3가지 메타데이터로만 관리합니다.
@@ -32,20 +54,26 @@
 
 ## ✨ 주요 기능
 
-- **4개 콘텐츠 타입**: Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드)
-- **Category / Tag 정적 페이지**: 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨
-- **Related Posts 자동 추천**: category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능)
-- **Project ↔ Article 양방향 연결**: `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결
-- **Archive vs Portfolio 패턴**: 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본 자료)와 `{slug}`(공개용 정리본)로 분리
-- **검색**: [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색
-- **다크모드**: 시스템 설정 감지 + 수동 토글, `localStorage`에 저장
-- **SEO**: Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동
-- **방문자 분석**: [GoatCounter](https://goatcounter.com) 연동 (선택, 무료)
-- **draft 워크플로우**: `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외
+| 기능 | 설명 |
+| --- | --- |
+| 4개 콘텐츠 타입 | Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드) |
+| Category / Tag 정적 페이지 | 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨 |
+| Related Posts 자동 추천 | category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능) |
+| Project ↔ Article 양방향 연결 | `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결 |
+| Archive vs Portfolio 패턴 | 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본)와 `{slug}`(공개용 정리본)로 분리 |
+| 검색 | [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색 |
+| 다크모드 | 시스템 설정 감지 + 수동 토글, `localStorage`에 저장 |
+| SEO | Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동 |
+| 방문자 분석 | [GoatCounter](https://goatcounter.com) 연동 (선택, 무료) |
+| draft 워크플로우 | `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외 |
 
 ---
 
 ## 🛠 기술 스택
+
+<div align="center">
+<img src="https://skillicons.dev/icons?i=astro,tailwind,github,githubactions" alt="tech stack icons" />
+</div>
 
 | 분류 | 사용 기술 |
 | --- | --- |
@@ -58,7 +86,8 @@
 
 ---
 
-## 📂 폴더 구조
+<details>
+<summary><h2 id="folder-structure" style="display: inline;">📂 폴더 구조</h2></summary>
 
 ```
 src/
@@ -76,29 +105,18 @@ src/
 templates/               # 새 글/프로젝트/레퍼런스/스니펫 작성 시 복사해서 쓰는 frontmatter 템플릿
 ```
 
+> [!IMPORTANT]
 > 글 폴더는 `category`별로 나누지 않고 **평평하게(flat)** 유지합니다. 분류는 오직 frontmatter 메타데이터로만 처리합니다.
+
+</details>
 
 ---
 
-## 📈 SEO / 방문자 분석 설정
+<details>
+<summary><h2 id="seo-analytics-setup" style="display: inline;">📈 SEO / 방문자 분석 설정</h2></summary>
 
-둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 아예 렌더링되지 않습니다.
+Google Search Console(검색 유입 분석)과 GoatCounter(방문자 분석) 연동을 지원합니다. 둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 렌더링되지 않습니다.
 
-1. **Google Search Console** (어떤 검색어로 유입되는지, 노출·클릭·순위 확인)
-   - [Search Console](https://search.google.com/search-console)에서 속성 추가 → URL 접두어 방식으로 `https://sssuunnnm.github.io/dev-archive/` 등록
-   - 소유권 확인은 "HTML 태그" 방식 선택 → `content="..."` 값만 복사
-   - 등록 후 Sitemaps 메뉴에서 `sitemap-index.xml`을 **직접 제출**할 것 — GitHub Pages 프로젝트 사이트(`username.github.io/dev-archive/`)는 호스트 루트(`username.github.io/robots.txt`)를 이 레포에서 제공할 수 없어서, `robots.txt`의 `Sitemap:` 줄은 Google이 실제로 찾지는 못함. `public/robots.txt`는 다른 크롤러를 위해 남겨두는 best-effort 파일이고, sitemap 인식은 이 수동 제출에 의존함
-2. **GoatCounter** (방문자 수 · 유입 경로, 서버/DB 불필요, 무료)
-   - [goatcounter.com](https://goatcounter.com)에서 가입 후 사이트 코드 확인 (예: `mycode.goatcounter.com`이면 `mycode`)
+가입 방법과 값 확인 방법은 `.env.example` 주석을 참고해 값을 채운 뒤, 로컬 테스트용으로 `.env`에 복사하세요. 배포에 반영하려면 GitHub repo → **Settings → Secrets and variables → Actions → Variables** 탭에 동일한 이름(`PUBLIC_GOOGLE_SITE_VERIFICATION`, `PUBLIC_GOATCOUNTER_CODE`)으로 등록하면 다음 배포부터 자동 반영됩니다.
 
-두 값 모두 GitHub repo → **Settings → Secrets and variables → Actions → Variables** 탭에 아래 이름으로 등록하면 다음 배포부터 자동 반영됩니다.
-
-| Variable | 값 |
-| --- | --- |
-| `PUBLIC_GOATCOUNTER_CODE` | GoatCounter 사이트 코드 |
-| `PUBLIC_GOOGLE_SITE_VERIFICATION` | GSC HTML 태그의 `content` 값 |
-
-로컬에서 테스트하려면 `.env.example`을 `.env`로 복사해서 값을 채우세요 (둘 다 공개 페이지에 노출되는 값이라 `PUBLIC_` 접두어가 붙습니다 — 비밀번호/API 키가 아님).
-
-- GSC 메타태그는 `npm run dev`로도 바로 확인 가능
-- GoatCounter 스크립트는 프로덕션 빌드에서만 렌더링되므로(`import.meta.env.PROD` 조건) `npm run dev`에서는 보이지 않음 — `npm run build && npm run preview`로 확인할 것. 실제 배포 후에는 스크립트 로드 여부와 GoatCounter 대시보드에 방문 기록이 찍히는지도 확인
+</details>
