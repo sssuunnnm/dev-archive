@@ -21,6 +21,15 @@ const technologyEnum = z.enum([
 // 대신 폴더명을 곧 slug로 쓰는 우리 컨벤션 덕분에, Astro가 자동 생성하는
 // post.id(=폴더명)를 그대로 slug처럼 사용하면 됨.
 
+// 날짜 전용(YYYY-MM-DD) 값만 허용한다 (CONVENTIONS.md 2-2).
+// frontmatter의 date-only YAML 스칼라는 파서가 이미 UTC 자정(Date)으로 변환해서 넘겨주므로,
+// 여기서 문자열 형식을 다시 검사할 수는 없다 — 대신 "시:분:초가 전부 0인 UTC 자정인지"로 검증한다.
+// 시간/오프셋이 포함된 값(예: 2026-08-21T00:30:00+09:00)은 자정이 아니게 되므로 여기서 걸러진다.
+const dateOnly = z.coerce.date().refine(
+  (d) => d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0 && d.getUTCMilliseconds() === 0,
+  { message: '날짜는 시간/타임존 없이 YYYY-MM-DD 형식으로만 작성한다' },
+);
+
 // Articles
 const articles = defineCollection({
   loader: glob({
@@ -32,8 +41,8 @@ const articles = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    date: z.coerce.date(),
-    updated: z.coerce.date().nullish(),
+    date: dateOnly,
+    updated: dateOnly.nullish(),
 
     category: z.enum(categoryKeys),
     technology: z.array(technologyEnum),
@@ -69,8 +78,8 @@ const projects = defineCollection({
     stack: z.array(technologyEnum),
     github: z.string().url().nullish(),
     status: z.enum(['in-progress', 'done', 'archived']),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date().nullish(),
+    startDate: dateOnly,
+    endDate: dateOnly.nullish(),
     draft: z.boolean().default(false),
   }),
 });
@@ -86,7 +95,7 @@ const references = defineCollection({
     title: z.string(),
     technology: z.array(technologyEnum).nullish(),  // 개념 문서는 생략 가능
     tags: z.array(z.string()),
-    updated: z.coerce.date(),
+    updated: dateOnly,
     aliases: z.array(z.string()).nullish(),
   }),
 });

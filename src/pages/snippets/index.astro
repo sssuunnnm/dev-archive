@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { Folder, FolderOpen } from '@lucide/astro';
 
 const snippets = await getCollection('snippets');
 
@@ -43,10 +44,10 @@ const sortedGroups = Array.from(groups.entries())
   ) : (
     <div class="space-y-3">
       {sortedGroups.map((group, i) => (
-        <details open={i === 0} class="border rounded-lg dark:border-gray-700">
+        <details open={i === 0} class="group border rounded-lg dark:border-gray-700">
           <summary class="cursor-pointer select-none px-4 py-3 font-medium flex items-center gap-2">
-            <span class="dark:hidden">📁</span>
-            <span class="hidden dark:inline">📂</span>
+            <Folder size={16} class="group-open:hidden" />
+            <FolderOpen size={16} class="hidden group-open:inline" />
             {group.label}
             <span class="text-xs text-gray-400 font-normal">({group.items.length})</span>
           </summary>

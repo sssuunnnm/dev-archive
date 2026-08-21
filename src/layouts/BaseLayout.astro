@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { Search, Moon, Sun } from '@lucide/astro';
 
 interface Props {
   title: string;
@@ -81,17 +82,17 @@ function isActive(href: string) {
           class="ml-auto text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
           aria-label="검색"
         >
-          🔍
+          <Search size={16} />
         </a>
 
         <button
           id="theme-toggle"
           type="button"
           aria-label="다크모드 전환"
-          class="text-base leading-none"
+          class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
         >
-          <span class="dark:hidden">🌙</span>
-          <span class="hidden dark:inline">☀️</span>
+          <Moon size={16} class="dark:hidden" />
+          <Sun size={16} class="hidden dark:inline" />
         </button>
       </nav>
     </header>
