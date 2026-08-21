@@ -50,6 +50,7 @@
 | --- | --- |
 | 프레임워크 | [Astro](https://astro.build) |
 | 스타일링 | [Tailwind CSS](https://tailwindcss.com) (+ Typography 플러그인), [Pretendard](https://github.com/orioncactus/pretendard) |
+| 아이콘 | [Lucide](https://lucide.dev) (`@lucide/astro`) |
 | 검색 | [Pagefind](https://pagefind.app) |
 | 배포 | [GitHub Pages](https://pages.github.com) + [GitHub Actions](https://github.com/features/actions) |
 | 코드 리뷰 | [CodeRabbit](https://coderabbit.ai) |

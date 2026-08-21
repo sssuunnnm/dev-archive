@@ -49,8 +49,8 @@ Articles / Projects / Reference / Snippets / About
 
 ### Home 구성 (블로그 첫 화면이 아니라 대시보드 형태)
 - 검색창 (최상단)
-- Categories 바로가기
 - Recent Posts (최근 글)
+- Categories 바로가기
 - Popular Tags
 - Monthly Archive
 
