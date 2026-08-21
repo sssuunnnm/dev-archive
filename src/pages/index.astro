@@ -95,10 +95,13 @@ const popularTags = Object.entries(tagCount)
     </div>
   </section>
 
-  <section class="mt-10 pt-8 border-t dark:border-gray-800">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+  <section class="mt-10">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {archiveStats.map((stat) => (
-        <a href={`${import.meta.env.BASE_URL}${stat.href}`} class="block hover:opacity-70 transition-opacity">
+        <a
+          href={`${import.meta.env.BASE_URL}${stat.href}`}
+          class="block rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/40 dark:hover:bg-gray-800/60 transition-colors p-4"
+        >
           <p class="text-2xl font-bold font-accent text-accent dark:text-accent-dark">{stat.count}</p>
           <p class="text-xs text-gray-400 mt-1">{stat.label}</p>
         </a>
