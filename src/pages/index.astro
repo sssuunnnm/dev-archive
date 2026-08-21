@@ -4,7 +4,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MiniCalendar from '../components/MiniCalendar.astro';
 import { categories, getCategoryLabel } from '../lib/categories';
 import { isVisible } from '../lib/content-visibility';
-import { LayoutGrid, Flame, Tag } from '@lucide/astro';
 
 const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const recentPosts = allArticles
@@ -32,7 +31,7 @@ const popularTags = Object.entries(tagCount)
     </section>
 
     <section class="home-recent">
-      <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><Flame size={18} /> Recent Posts</h2>
+      <h2 class="text-lg font-semibold mb-3">Recent Posts</h2>
       <ul class="space-y-3">
         {recentPosts.map((post) => (
           <li>
@@ -52,12 +51,12 @@ const popularTags = Object.entries(tagCount)
     </section>
 
     <section class="home-categories">
-      <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><LayoutGrid size={18} /> Categories</h2>
+      <h2 class="text-lg font-semibold mb-3">Categories</h2>
       <div class="flex flex-wrap gap-2">
         {categories.map((c) => (
           <a
             href={`${import.meta.env.BASE_URL}${c.key}`}
-            class="text-xs border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+            class="text-xs rounded-full px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
           >
             {c.label}
           </a>
@@ -69,12 +68,12 @@ const popularTags = Object.entries(tagCount)
   </div>
 
   <section>
-    <h2 class="text-lg font-semibold mb-3 flex items-center gap-1.5"><Tag size={18} /> Popular Tags</h2>
+    <h2 class="text-lg font-semibold mb-3">Popular Tags</h2>
     <div class="flex flex-wrap gap-2">
       {popularTags.map((tag) => (
         <a
           href={`${import.meta.env.BASE_URL}tags/${encodeURIComponent(tag)}`}
-          class="text-xs border rounded-full px-3 py-1 hover:bg-gray-50 dark:hover:bg-gray-800 dark:border-gray-700"
+          class="text-xs rounded-full px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
           #{tag}
         </a>
