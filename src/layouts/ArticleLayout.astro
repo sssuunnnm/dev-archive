@@ -90,7 +90,7 @@ const readingTime = Math.max(1, Math.round(wordCount / 400));
     )}
 
     {headings.length > 0 && (
-      <details class="mb-8 border rounded-lg p-4 text-sm dark:border-gray-700">
+      <details class="mb-8 rounded-lg p-4 text-sm bg-gray-50 dark:bg-gray-800/60">
         <summary class="font-semibold cursor-pointer select-none">목차</summary>
         <ul class="space-y-1 mt-2">
           {headings.filter((h) => h.depth <= 3).map((h) => (
