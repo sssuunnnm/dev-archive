@@ -10,6 +10,17 @@ const recentPosts = allArticles
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 5);
 
+// 하단 아카이브 요약 스탯 — 4개 콘텐츠 타입별 실제 글 수
+const allProjects = await getCollection('projects', ({ data }) => isVisible(data.draft));
+const allReferences = await getCollection('references');
+const allSnippets = await getCollection('snippets');
+const archiveStats = [
+  { label: 'Articles', count: allArticles.length, href: 'articles' },
+  { label: 'Projects', count: allProjects.length, href: 'projects' },
+  { label: 'References', count: allReferences.length, href: 'reference' },
+  { label: 'Snippets', count: allSnippets.length, href: 'snippets' },
+];
+
 // 태그 빈도 집계 (상위 8개)
 const tagCount: Record<string, number> = {};
 for (const post of allArticles) {
@@ -79,6 +90,17 @@ const popularTags = Object.entries(tagCount)
           class="text-xs rounded-full px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
         >
           #{tag}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="mt-10 pt-8 border-t dark:border-gray-800">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+      {archiveStats.map((stat) => (
+        <a href={`${import.meta.env.BASE_URL}${stat.href}`} class="block hover:opacity-70 transition-opacity">
+          <p class="text-2xl font-bold font-accent text-accent dark:text-accent-dark">{stat.count}</p>
+          <p class="text-xs text-gray-400 mt-1">{stat.label}</p>
         </a>
       ))}
     </div>
