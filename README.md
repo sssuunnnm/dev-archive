@@ -61,6 +61,10 @@
 
 ## 🛠 기술 스택
 
+<div align="center">
+<img src="https://skillicons.dev/icons?i=astro,tailwind,github,githubactions" alt="tech stack icons" />
+</div>
+
 | 분류 | 사용 기술 |
 | --- | --- |
 | 프레임워크 | [Astro](https://astro.build) |
