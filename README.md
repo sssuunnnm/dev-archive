@@ -10,7 +10,7 @@
 [![Deploy](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml/badge.svg)](https://github.com/sssuunnnm/dev-archive/actions/workflows/deploy.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/sssuunnnm/dev-archive?style=flat-square)](https://github.com/sssuunnnm/dev-archive/commits/main)
 
-[![🔗 Live Demo](https://img.shields.io/badge/🔗_Live_Demo-181717?style=flat-square)](https://sssuunnnm.github.io/dev-archive/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-4F46E5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://sssuunnnm.github.io/dev-archive/)
 
 </div>
 
