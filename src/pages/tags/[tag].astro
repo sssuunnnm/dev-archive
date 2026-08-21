@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { isVisible } from '../../lib/content-visibility';
-import { formatTagLabel } from '../../lib/difficulty';
+import { formatTagLabel } from '../../lib/level';
 
 export async function getStaticPaths() {
   const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));

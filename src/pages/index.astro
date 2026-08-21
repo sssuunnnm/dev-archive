@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import MiniCalendar from '../components/MiniCalendar.astro';
 import { categories, getCategoryLabel, getCategoryColorClass, getCategoryPillClass, getCategoryListItemHoverClass } from '../lib/categories';
 import { isVisible } from '../lib/content-visibility';
-import { formatTagLabel } from '../lib/difficulty';
+import { formatTagLabel } from '../lib/level';
 
 const allArticles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 const recentPosts = allArticles
