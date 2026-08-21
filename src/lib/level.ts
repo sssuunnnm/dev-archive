@@ -7,8 +7,8 @@ function parseLevelTag(tag: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
-// 태그 라벨을 화면에 표시할 문자열로 변환 (레벨 태그는 Lv.N, 나머지는 #tag 그대로)
+// 태그 라벨을 화면에 표시할 문자열로 변환 (# 접두어는 호출부에서 붙인다 — 레벨/일반 태그 모두 동일하게)
 export function formatTagLabel(tag: string): string {
   const level = parseLevelTag(tag);
-  return level === null ? `#${tag}` : `Lv.${level}`;
+  return level === null ? tag : `Lv.${level}`;
 }
