@@ -19,7 +19,7 @@
 ## 🖼 미리보기
 
 <div align="center">
-<img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="800" />
+<img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="480" />
 </div>
 
 ---
