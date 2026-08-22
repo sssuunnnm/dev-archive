@@ -2,7 +2,7 @@
 title: 정렬 개념과 문제 패턴
 description: 기본 정렬 말고 comparator를 커스텀해야 하는 문제, 정렬이 다른 알고리즘의 전처리로 쓰이는 패턴을 정리한다
 date: 2026-07-31
-updated:
+updated: 2026-08-22
 category: cs
 technology: [cpp]
 tags: [sort, comparator, pattern-recognition]
@@ -61,6 +61,91 @@ sort(nums.begin(), nums.end(), [](string& a, string& b) {
 ```
 
 `3`과 `30`을 비교할 때 숫자 크기(`30 > 3`)가 아니라 `"330"` vs `"303"`을 비교해서 정렬 기준을 정하는 게 핵심이다. 이런 문제는 "정렬 기준이 뭔지"부터 다시 정의해야 한다는 신호다.
+
+### 직접 눌러보기 — 이어붙여서 비교하는 정렬
+
+`[3, 30, 34, 5, 9]`를 `a+b > b+a` comparator로 정렬하는 과정을 버블 정렬로 한 단계씩 재생한다. 숫자 크기가 아니라 "이어붙인 문자열"을 비교한다는 게 매번 어떻게 적용되는지 확인한다.
+
+<div class="srdemo">
+<style>
+.srdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .srdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.srdemo .arr { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.srdemo .cell {
+  min-width: 44px; text-align: center; padding: 10px 6px; border-radius: 8px; background: var(--card2);
+  border: 2px solid var(--line); font-family: 'Fira Code', monospace; font-weight: 700; font-size: 15px; transition: all .2s;
+}
+.srdemo .cell.cmp { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, var(--card2)); }
+.srdemo .cell.done { border-color: var(--good); opacity: .7; }
+.srdemo .compare { min-height: 22px; font-size: 12.5px; color: var(--sub); margin-bottom: 12px; font-family: 'Fira Code', monospace; }
+.srdemo .compare b { color: var(--ink); }
+.srdemo .controls { display: flex; gap: 10px; margin-bottom: 12px; }
+.srdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.srdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+.srdemo .result { font-family: 'Fira Code', monospace; font-size: 13px; color: var(--sub); }
+.srdemo .result b { color: var(--good); font-size: 16px; }
+</style>
+
+<div class="arr" id="sr_arr"></div>
+<div class="compare" id="sr_compare">재생 버튼을 누르면 인접한 두 원소를 비교합니다.</div>
+<div class="controls"><button class="btn" id="sr_play">▶ 처음부터 재생</button></div>
+<div class="result">결과: <b id="sr_result">-</b></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('srdemo')) return;
+  const ORIGINAL = ['3', '30', '34', '5', '9'];
+  const arrEl = root.querySelector('#sr_arr');
+  const cmpEl = root.querySelector('#sr_compare');
+  const resultEl = root.querySelector('#sr_result');
+  const playBtn = root.querySelector('#sr_play');
+
+  function renderArr(arr, cmpIdx, doneFrom) {
+    arrEl.innerHTML = arr.map((v, i) => {
+      const cls = (cmpIdx && (i === cmpIdx[0] || i === cmpIdx[1])) ? 'cmp' : (doneFrom != null && i >= doneFrom ? 'done' : '');
+      return `<div class="cell ${cls}">${v}</div>`;
+    }).join('');
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    resultEl.textContent = '-';
+    const arr = [...ORIGINAL];
+    renderArr(arr, null, null);
+    await wait(400);
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = 0; j < n - 1 - i; j++) {
+        if (my !== runId) return;
+        renderArr(arr, [j, j + 1], n - i);
+        const a = arr[j], b = arr[j + 1];
+        const ab = a + b, ba = b + a;
+        const shouldSwap = ab < ba; // 내림차순(더 큰 결과가 앞) 정렬이므로 ab가 더 작으면 스왑
+        cmpEl.innerHTML = `"${a}" + "${b}" = <b>${ab}</b> vs "${b}" + "${a}" = <b>${ba}</b> → ${shouldSwap ? `"${ba}"가 더 크다 → 스왑` : `"${ab}"가 더 크거나 같다 → 유지`}`;
+        await wait(1000);
+        if (my !== runId) return;
+        if (shouldSwap) { [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]]; renderArr(arr, [j, j + 1], n - i); await wait(350); }
+      }
+    }
+    renderArr(arr, null, 0);
+    cmpEl.textContent = '정렬 완료 — 앞에서부터 이어붙이면 가장 큰 수가 된다.';
+    resultEl.textContent = arr.join('');
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+  renderArr(ORIGINAL, null, null);
+})();
+</script>
 
 ### 패턴 3. 정렬 + 투 포인터
 
