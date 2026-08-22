@@ -146,6 +146,106 @@ class GamePlayViewModel(
 
 `Channel`은 구독자가 없는 순간에도 이벤트를 버퍼에 담아뒀다가 나중에 전달하고(`Channel.BUFFERED`), `receiveAsFlow()`로 소비하면 한 collector에게 한 번만 전달되고 재생되지도 않는다(구독자가 요소를 받은 뒤 처리를 끝내기 전에 취소되면 그 요소는 유실될 수 있으므로, 엄밀히는 "정확히 한 번 실행 보장"까지는 아니다). `SharedFlow`로도 비슷하게 흉내 낼 수는 있지만, "한 번 처리된 이벤트가 다시 재생되지 않는다"는 의도를 코드로 더 분명하게 드러내는 쪽은 `Channel`이다.
 
+### 직접 눌러보기 — State/Intent/Effect가 한 라운드 동안 어떻게 움직이는가
+
+위 `GamePlayState`/`GamePlayIntent`/`GamePlayEffect`가 실제로 한 라운드(카운트다운 → 녹음 → 평가 → 결과) 동안 어떻게 갱신되는지 재생한다. State는 매번 다시 그려지고, Effect는 마지막 라운드에서 단 한 번만 발생한다.
+
+<div class="mvidemo">
+<style>
+.mvidemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .mvidemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.mvidemo .row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.mvidemo .col { flex: 1; min-width: 200px; }
+.mvidemo .col .lbl { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 6px; }
+.mvidemo .state-box {
+  font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px;
+  background: #0f1633; color: #c8d0f0; border-radius: 8px; padding: 10px 12px; line-height: 1.7; min-height: 140px;
+}
+.mvidemo .state-box .changed { background: rgba(254,223,87,0.16); border-left: 2px solid #fedf57; margin: 0 -12px; padding: 0 12px; display: block; }
+.mvidemo .intent-box {
+  font-family: 'Fira Code', monospace; font-size: 13px; font-weight: 700; color: var(--accent);
+  background: var(--card2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-height: 24px;
+}
+.mvidemo .effect-box {
+  font-family: 'Fira Code', monospace; font-size: 12.5px; color: var(--sub);
+  background: var(--card2); border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; min-height: 24px;
+}
+.mvidemo .effect-box.fired { color: var(--good); border: 1px solid var(--good); background: color-mix(in srgb, var(--good) 12%, var(--card2)); font-weight: 700; }
+.mvidemo .narr { min-height: 22px; font-size: 12.5px; color: var(--sub); margin-bottom: 12px; }
+.mvidemo .narr b { color: var(--ink); }
+.mvidemo .controls { display: flex; gap: 10px; }
+.mvidemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.mvidemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div class="row">
+  <div class="col"><div class="lbl">State</div><div class="state-box" id="mvi_state"></div></div>
+  <div class="col">
+    <div class="lbl">Intent (onIntent)</div><div class="intent-box" id="mvi_intent">-</div>
+    <div class="lbl" style="margin-top:10px">Effect (Channel)</div><div class="effect-box" id="mvi_effect">-</div>
+  </div>
+</div>
+<div class="narr" id="mvi_narr">재생 버튼을 누르면 한 라운드를 처음부터 따라갑니다.</div>
+<div class="controls"><button class="btn" id="mvi_play">▶ 처음부터 재생</button></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('mvidemo')) return;
+  const stateEl = root.querySelector('#mvi_state');
+  const intentEl = root.querySelector('#mvi_intent');
+  const effectEl = root.querySelector('#mvi_effect');
+  const narrEl = root.querySelector('#mvi_narr');
+  const playBtn = root.querySelector('#mvi_play');
+
+  const STEPS = [
+    { intent: '-', state: { round: 2, hearts: 2, countdown: null, isRecording: false, isAnalyzing: false, showRoundModal: false }, changed: [], effect: null, narr: '라운드 2 대기 중' },
+    { intent: 'StartCountdown', state: { round: 2, hearts: 2, countdown: 3, isRecording: false, isAnalyzing: false, showRoundModal: false }, changed: ['countdown'], effect: null, narr: '사용자가 마이크 버튼 탭 → onIntent(StartCountdown)' },
+    { intent: '(coroutine)', state: { round: 2, hearts: 2, countdown: null, isRecording: true, isAnalyzing: false, showRoundModal: false }, changed: ['countdown', 'isRecording'], effect: null, narr: '카운트다운 종료 → 녹음 시작' },
+    { intent: 'StopRecording', state: { round: 2, hearts: 2, countdown: null, isRecording: false, isAnalyzing: true, showRoundModal: false }, changed: ['isRecording', 'isAnalyzing'], effect: null, narr: '녹음 종료 → onIntent(StopRecording) → 평가 시작' },
+    { intent: '(evaluate 완료)', state: { round: 2, hearts: 3, countdown: null, isRecording: false, isAnalyzing: false, showRoundModal: true }, changed: ['hearts', 'isAnalyzing', 'showRoundModal'], effect: 'NavigateToResult(finalResult)', narr: '마지막 라운드 → _effect.send(NavigateToResult) 발생' },
+  ];
+
+  function renderState(state, changed) {
+    const lines = Object.entries(state).map(([k, v]) => {
+      const line = `${k}: ${JSON.stringify(v)}`;
+      return changed.includes(k) ? `<span class="changed">${line}</span>` : line;
+    });
+    stateEl.innerHTML = lines.join('\n');
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    for (const step of STEPS) {
+      if (my !== runId) return;
+      intentEl.textContent = step.intent;
+      renderState(step.state, step.changed);
+      narrEl.innerHTML = step.narr;
+      if (step.effect) {
+        effectEl.textContent = step.effect;
+        effectEl.classList.add('fired');
+      } else {
+        effectEl.textContent = '-';
+        effectEl.classList.remove('fired');
+      }
+      await wait(1100);
+    }
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+  renderState(STEPS[0].state, []);
+})();
+</script>
+
 ### 4. 왜 앱 전체에 MVI를 강제하지 않았는가
 
 여기서 자연스러운 다음 질문은 "그럼 처음부터 앱 전체를 MVI로 만들지 그랬냐"다. 두 가지 이유로 그러지 않았다.
