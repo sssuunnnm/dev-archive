@@ -164,6 +164,33 @@ description: Docker Compose에 대한 글입니다.   ❌ (내용 없음)
 - 문어체(`~한다`, `~이다`) 통일. 대화체(`~해요`, `~합니다`) 혼용 금지.
 - 존댓말/반말 섞지 않는다.
 
+### 3-7. 인터랙티브 데모 임베드
+
+- **넣는 기준**: 개념이 시각적으로 확인될 때만 넣는다 (좌표 계산, 상태 전이, 필터링 전후 비교, 프로토콜 동작 비교 등). 회고·개념 설명처럼 텍스트만으로 충분한 글에는 억지로 넣지 않는다.
+- Astro는 MDX 없이도 `.md` 안의 raw HTML/CSS/`<script>`를 그대로 통과시키므로, 별도 컴포넌트 없이 마크다운 본문에 바로 작성한다.
+
+```md
+<div class="xxxdemo">
+<style>
+.xxxdemo { --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5; }
+.dark .xxxdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; }
+</style>
+<!-- 마크업 -->
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('xxxdemo')) return;
+  // 이 root 안에서만 querySelector — 같은 글에 데모가 여러 개 있어도 서로 안 건드림
+})();
+</script>
+```
+
+- 색상은 하드코딩하지 않고 위처럼 `--ink`/`--sub`/`--line`/`--card`/`--card2` 같은 CSS 변수로 두고 `.dark .xxxdemo { ... }`로 덮어쓴다.
+- 코드/로그를 보여주는 패널은 다크 대응을 별도로 하지 않고 항상 어두운 배경으로 둔다 — 사이트의 코드블럭 자체가 테마와 무관하게 항상 `github-dark`라, 이렇게 두는 게 오히려 더 일관적이다.
+- 발행 전 `astro dev`로 직접 띄워 라이트/다크 모드 둘 다 확인한다 (콘솔 에러 여부, 좁은 화면에서 레이아웃 깨짐 여부 포함).
+
 ---
 
 ## 4. Git 커밋 컨벤션
