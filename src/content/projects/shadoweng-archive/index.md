@@ -3,7 +3,7 @@ title: ShadowEng (Archive)
 summary: ShadowEng 기술 상세 아카이브 — 실제 코드 조사로 확인한 아키텍처·미완성 지점·문서 불일치 원본 기록
 stack: [android, kotlin, mysql, aws]
 status: done
-startDate: 2026-02-01
+startDate: 2026-02-19
 endDate: 2026-03-30
 draft: true
 ---

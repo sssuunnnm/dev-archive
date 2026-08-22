@@ -17,7 +17,7 @@ highlights:
     tag: 요청 큐잉
 stack: [react, typescript, websocket, sse, fastapi, spring-boot, kubernetes]
 status: done
-startDate: 2026-04-01
+startDate: 2026-04-06
 endDate: 2026-05-21
 draft: false
 ---

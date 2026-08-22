@@ -3,7 +3,7 @@ title: NGRAS (Archive)
 summary: NGRAS 기술 상세 아카이브 — 실제 코드로 확인한 SSE·토큰 갱신·리렌더 버그, 백엔드 실제 스택 원본 기록
 stack: [react, typescript, python, fastapi, sse, websocket, redis, postgresql, kubernetes]
 status: done
-startDate: 2026-04-01
+startDate: 2026-04-06
 endDate: 2026-05-21
 draft: true
 ---

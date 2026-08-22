@@ -17,7 +17,7 @@ highlights:
     tag: 일일 챌린지 · 리더보드
 stack: [android, kotlin, aws, docker, jenkins]
 status: done
-startDate: 2026-02-01
+startDate: 2026-02-19
 endDate: 2026-03-30
 draft: false
 ---
