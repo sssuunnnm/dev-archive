@@ -3,15 +3,15 @@ title: ShadowEng
 summary: 유튜브 영상으로 발음을 따라 하고 AI가 오류를 시각적으로 짚어주는 영어 섀도잉 학습 앱
 features: [유튜브 영상 기반 학습, 발음 오류 시각화, 맞춤 스크립트 자동 생성, 세션 리포트, 일일 챌린지 · 리그 리더보드]
 highlights:
-  - icon: 📺
+  - icon: Tv
     title: 사용자 주도형 콘텐츠
     description: 유튜브 URL을 직접 입력해 원하는 구간을 학습. 영상은 서버에 저장하지 않고 그때그때 재생.
     tag: YouTube Player + ExoPlayer 병행
-  - icon: ✨
+  - icon: Highlighter
     title: 발음 오류 시각화
     description: 단순히 틀렸다고만 표시하지 않고, 강세·발음 포인트를 Canvas로 문장 위에 직접 그려서 보여줌.
     tag: Canvas API 좌표 정합
-  - icon: 🏆
+  - icon: Trophy
     title: 게이미피케이션 학습 동기
     description: 매일 난이도별 문장을 풀어 점수를 쌓고 리그에서 경쟁. 상위 승격·하위 강등, 장기 미사용 시 Freeze로 순위 보호.
     tag: 일일 챌린지 · 리더보드

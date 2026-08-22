@@ -3,15 +3,15 @@ title: NGRAS
 summary: 자연어로 네트워크 인증 시험을 지시하고 진행 상황을 실시간으로 확인하는 시험 자동화 콘솔
 features: [자연어 시험 실행, AI 결과 실시간 스트리밍, 6단계 인증 시험 워크플로우, 실시간 작업 모니터링, 결과 분석 · AI 리포트]
 highlights:
-  - icon: 📡
+  - icon: Satellite
     title: JWT 인증 SSE 스트리밍
     description: 표준 EventSource는 인증 헤더를 실을 수 없어, fetch + ReadableStream으로 SSE를 직접 파싱하고 끊기면 자동 재연결하도록 구현.
     tag: fetch + ReadableStream
-  - icon: 🔁
+  - icon: RefreshCw
     title: React 19 다중 스토어 Tearing 해결
     description: 두 Zustand 스토어를 같은 동기 블록에서 연속 업데이트하면 useSyncExternalStore가 tearing을 감지해 무한 리렌더에 빠짐. 두 번째 업데이트를 await 경계 뒤로 옮겨 해결.
     tag: useSyncExternalStore
-  - icon: 🔐
+  - icon: KeyRound
     title: 동시 401 → 토큰 갱신 1회로 단일화
     description: 여러 요청이 동시에 401을 받아도, 이미 진행 중인 토큰 갱신 요청을 재사용해 중복 갱신을 막음.
     tag: 요청 큐잉

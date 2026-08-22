@@ -3,6 +3,12 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCategoryLabel } from '../../lib/categories';
 import { isVisible } from '../../lib/content-visibility';
+import { Sprout, PawPrint, Shield, Tv, Highlighter, Trophy, Satellite, RefreshCw, KeyRound } from '@lucide/astro';
+
+// highlights[].icon에 쓸 수 있는 @lucide/astro 아이콘 (필요해지면 여기 추가)
+const highlightIcons: Record<string, typeof Sprout> = {
+  Sprout, PawPrint, Shield, Tv, Highlighter, Trophy, Satellite, RefreshCw, KeyRound,
+};
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects', ({ data }) => isVisible(data.draft));
@@ -68,16 +74,19 @@ const statusLabel: Record<string, string> = {
 
   {entry.data.highlights && entry.data.highlights.length > 0 && (
     <section class="grid gap-4 sm:grid-cols-3 mb-10">
-      {entry.data.highlights.map((h: { icon: string; title: string; description: string; tag: string }) => (
+      {entry.data.highlights.map((h: { icon: string; title: string; description: string; tag: string }) => {
+        const Icon = highlightIcons[h.icon] ?? Sprout;
+        return (
         <div class="rounded-xl bg-gray-50 dark:bg-gray-900/40 p-4">
-          <p class="text-2xl mb-2">{h.icon}</p>
+          <Icon size={22} class="mb-2 text-gray-500 dark:text-gray-400" />
           <p class="font-semibold mb-1">{h.title}</p>
           <p class="text-sm text-gray-500 mb-3">{h.description}</p>
           <span class="text-xs rounded-full px-2.5 py-0.5 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
             {h.tag}
           </span>
         </div>
-      ))}
+        );
+      })}
     </section>
   )}
 

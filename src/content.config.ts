@@ -79,7 +79,7 @@ const projects = defineCollection({
     features: z.array(z.string()).max(8).nullish(),
     // 차별점 카드 (최대 3장) — 이 프로젝트만의 판단/설계를 짧게 어필
     highlights: z.array(z.object({
-      icon: z.string(),        // 이모지 1개
+      icon: z.string(),        // @lucide/astro 아이콘 이름 (PascalCase, 예: Sprout) — src/pages/projects/[...id].astro의 highlightIcons에 등록된 것만 사용
       title: z.string(),
       description: z.string(),
       tag: z.string(),         // 카드 하단 요약 태그 (예: "실패 부담 zero")
