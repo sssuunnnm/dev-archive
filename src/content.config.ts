@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 import { categoryKeys } from './lib/categories';
+import { highlightIconNames } from './lib/highlight-icons';
 
 // 공통: Technology Dictionary (CONVENTIONS.md 2-2 원칙 반영)
 // 새 기술 추가 시 반드시 여기 먼저 등록 후 사용
@@ -13,7 +14,7 @@ const technologyEnum = z.enum([
   'aws', 'linux', 'git',
   'mysql', 'redis', 'mongodb', 'postgresql', 'chromadb',
   'android', 'kotlin', 'mapbox', 'fcm',
-  'kafka', 'websocket', 'fastapi', 'langchain', 'openai', 'gemini',
+  'kafka', 'websocket', 'sse', 'fastapi', 'langchain', 'openai', 'gemini',
   // 새 기술 추가 시 이 목록에 먼저 등록할 것
 ]);
 
@@ -75,6 +76,15 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
+    // "이런 제품" 칩 목록 — 핵심 기능을 짧은 명사구로 나열 (예: "마이크로 루틴 챌린지")
+    features: z.array(z.string()).max(8).nullish(),
+    // 차별점 카드 (최대 3장) — 이 프로젝트만의 판단/설계를 짧게 어필
+    highlights: z.array(z.object({
+      icon: z.enum(highlightIconNames),  // src/lib/highlight-icons.ts에 등록된 @lucide/astro 아이콘 이름만 허용
+      title: z.string(),
+      description: z.string(),
+      tag: z.string(),         // 카드 하단 요약 태그 (예: "실패 부담 zero")
+    })).max(3).nullish(),
     stack: z.array(technologyEnum),
     github: z.string().url().nullish(),
     status: z.enum(['in-progress', 'done', 'archived']),

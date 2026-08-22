@@ -1,6 +1,20 @@
 ---
 title: OneStep
 summary: 고립·은둔 청년의 외출을 돕는 산책 챌린지 기반 케어 앱
+features: [마이크로 루틴 챌린지, AI 감성 펫, 가상 창문 · 익명 편지, 단계별 산책]
+highlights:
+  - icon: Sprout
+    title: No-Failure Policy
+    description: 미수행 시 페널티나 기록이 남지 않음. 매일 새로운 시작이 보장되어 재도전을 유도.
+    tag: 실패 부담 zero
+  - icon: PawPrint
+    title: 즉각적 시각 보상
+    description: 루틴 달성 시 펫 성장·GP 획득으로 행동 직후 보상을 즉시 보여줌.
+    tag: 게이미피케이션
+  - icon: Shield
+    title: 비대면 심리 안전지대
+    description: 대면 부담 없는 AI 음성 대화 + 익명 소통으로 진입장벽을 최소화.
+    tag: 진입장벽 최소화
 stack: [android, kotlin, spring-boot, redis, postgresql, mongodb, mapbox, kafka, fastapi]
 status: done
 startDate: 2026-01-06
@@ -52,7 +66,7 @@ PostgreSQL                        MongoDB · ChromaDB
 
 - **Mapbox**: 앱의 레트로/픽셀 디자인 톤에 지도를 맞추기 위해 커스텀 스타일링이 가능한 SDK가 필요했음. 구글/카카오맵은 스타일 커스텀 자유도가 낮고, 국내 POI 정확도도 이 앱엔 핵심 요구사항이 아니었음(장소 정보는 백엔드가 미리 계산해 제공)
 - **임계값 가드 (GPS 노이즈 대응)**: 칼만 필터 같은 스무딩 기법 대신 정확도·거리·판정 기준의 단순 가드를 택함. 타겟 사용자 특성상 이동 반경이 좁아 "부드러운 궤적"보다 "명백한 이상치(순간이동) 제거"가 우선이었고, 구현·튜닝 비용도 훨씬 낮았음
-- **Jetpack Compose**: 실시간으로 갱신되는 위치·거리·속도 값을 상태(State) 기반으로 선언형으로 그릴 수 있어, 잦은 UI 갱신이 필요한 산책 화면에 적합했음
+- **Jetpack Compose**: XML View 기반이었다면 위치·거리·속도가 갱신될 때마다 `findViewById`로 뷰를 찾아 값을 직접 밀어 넣는 코드를 계속 늘려야 했을 것. State가 바뀌면 관련 UI만 자동으로 다시 그려지는 선언형 방식이 초당 여러 번 값이 바뀌는 산책 화면엔 훨씬 적합했음
 - **Kafka + 사전 생성 캐싱**: 개인화 추천을 접속 즉시 생성하면 응답이 느려지므로, 배치로 미리 만들어두고 접속 시 바로 반환하는 구조를 팀 차원에서 택함 — 실시간 생성보다 응답속도·서버 부하 모두에서 유리
 - **게스트 우선 온보딩**: 타겟 사용자가 회원가입 자체를 진입장벽으로 느낄 수 있어, 가입 없이 바로 체험하고 이후 원하면 카카오 계정으로 연동하는 흐름을 택함
 
