@@ -4,9 +4,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCategoryLabel } from '../../lib/categories';
 import { isVisible } from '../../lib/content-visibility';
 import { Sprout, PawPrint, Shield, Tv, Highlighter, Trophy, Satellite, RefreshCw, KeyRound } from '@lucide/astro';
+import type { HighlightIconName } from '../../lib/highlight-icons';
 
-// highlights[].icon에 쓸 수 있는 @lucide/astro 아이콘 (필요해지면 여기 추가)
-const highlightIcons: Record<string, typeof Sprout> = {
+// highlights[].icon에 쓸 수 있는 @lucide/astro 아이콘 — 이름 목록은 content.config.ts의
+// z.enum과 src/lib/highlight-icons.ts를 공유하므로, 새 아이콘은 거기에 먼저 등록한다.
+const highlightIcons: Record<HighlightIconName, typeof Sprout> = {
   Sprout, PawPrint, Shield, Tv, Highlighter, Trophy, Satellite, RefreshCw, KeyRound,
 };
 
@@ -74,8 +76,8 @@ const statusLabel: Record<string, string> = {
 
   {entry.data.highlights && entry.data.highlights.length > 0 && (
     <section class="grid gap-4 sm:grid-cols-3 mb-10">
-      {entry.data.highlights.map((h: { icon: string; title: string; description: string; tag: string }) => {
-        const Icon = highlightIcons[h.icon] ?? Sprout;
+      {entry.data.highlights.map((h: { icon: HighlightIconName; title: string; description: string; tag: string }) => {
+        const Icon = highlightIcons[h.icon];
         return (
         <div class="rounded-xl bg-gray-50 dark:bg-gray-900/40 p-4">
           <Icon size={22} class="mb-2 text-gray-500 dark:text-gray-400" />
@@ -100,7 +102,7 @@ const statusLabel: Record<string, string> = {
       <ul class="space-y-2">
         {relatedArticles.map((post) => (
           <li class="flex items-center gap-2">
-            <span class="text-xs text-gray-400 rounded-full px-2 py-0.5 bg-gray-100 dark:bg-gray-800">
+            <span class="text-xs text-gray-600 rounded-full px-2 py-0.5 bg-gray-100 dark:text-gray-400 dark:bg-gray-800">
               {getCategoryLabel(post.data.category)}
             </span>
             <a

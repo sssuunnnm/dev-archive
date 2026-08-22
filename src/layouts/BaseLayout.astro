@@ -121,7 +121,7 @@ function isActive(href: string) {
         </button>
       </nav>
 
-      <div id="mobile-nav" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800">
+      <nav id="mobile-nav" aria-label="모바일 내비게이션" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800">
         <div class="max-w-3xl mx-auto px-4 py-3 flex flex-col gap-3 text-sm">
           {navLinks.map((link) => (
             <a
@@ -135,7 +135,7 @@ function isActive(href: string) {
             </a>
           ))}
         </div>
-      </div>
+      </nav>
     </header>
 
     <main class="max-w-3xl mx-auto px-4 py-8" data-pagefind-body={pagefindBody ? true : undefined}>

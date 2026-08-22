@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 import { categoryKeys } from './lib/categories';
+import { highlightIconNames } from './lib/highlight-icons';
 
 // 공통: Technology Dictionary (CONVENTIONS.md 2-2 원칙 반영)
 // 새 기술 추가 시 반드시 여기 먼저 등록 후 사용
@@ -79,7 +80,7 @@ const projects = defineCollection({
     features: z.array(z.string()).max(8).nullish(),
     // 차별점 카드 (최대 3장) — 이 프로젝트만의 판단/설계를 짧게 어필
     highlights: z.array(z.object({
-      icon: z.string(),        // @lucide/astro 아이콘 이름 (PascalCase, 예: Sprout) — src/pages/projects/[...id].astro의 highlightIcons에 등록된 것만 사용
+      icon: z.enum(highlightIconNames),  // src/lib/highlight-icons.ts에 등록된 @lucide/astro 아이콘 이름만 허용
       title: z.string(),
       description: z.string(),
       tag: z.string(),         // 카드 하단 요약 태그 (예: "실패 부담 zero")

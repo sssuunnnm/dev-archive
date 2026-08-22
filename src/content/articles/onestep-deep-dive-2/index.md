@@ -70,7 +70,9 @@ private const val MAX_WALKING_SPEED_MPS = 20_000f / 3600f // 시속 20km를 m/s�
 
 fun isPlausibleMove(previous: Location, current: Location): Boolean {
     val distanceMeters = previous.distanceTo(current)
-    val elapsedSeconds = (current.time - previous.time) / 1000f
+    // Location.time은 시스템 시각이라 시계 보정으로 거꾸로 흐를 수 있다.
+    // elapsedRealtimeNanos는 부팅 후 단조 증가하는 값이라 경과 시간 계산엔 이쪽을 써야 한다.
+    val elapsedSeconds = (current.elapsedRealtimeNanos - previous.elapsedRealtimeNanos) / 1_000_000_000f
     if (elapsedSeconds <= 0f) return false
 
     val speedMps = distanceMeters / elapsedSeconds
@@ -129,15 +131,20 @@ class WalkLocationManager(
     private val arrivalRadiusMeters: Float,
 ) {
     private val filter = LocationFilter()
+    private var hasArrived = false
 
     fun onNewLocation(raw: Location): Boolean {
         val accepted = filter.accept(raw) ?: return false
-        return accepted.distanceTo(destination) <= arrivalRadiusMeters
+        val isWithinRadius = accepted.distanceTo(destination) <= arrivalRadiusMeters
+        if (!isWithinRadius || hasArrived) return false
+
+        hasArrived = true
+        return true
     }
 }
 ```
 
-`onNewLocation()`이 `true`를 반환하는 시점에 도착 처리 로직(챌린지 완료 API 호출 등)을 실행한다.
+`onNewLocation()`이 `true`를 반환하는 시점에 도착 처리 로직(챌린지 완료 API 호출 등)을 실행한다. `hasArrived` 없이 반경 안 여부만 반환하면, 도착 반경 안에서 잡히는 좌표마다 매번 `true`가 나와 완료 API가 중복 호출된다.
 
 ## 주의사항
 
@@ -146,6 +153,9 @@ class WalkLocationManager(
 - 가드를 통과하지 못한 좌표를 계속 버리기만 하면, 사용자가 실외로 나가 정확도가 급격히 개선되는
   상황에서도 `lastAccepted`가 오래된 값에 머물러 있을 수 있다. 일정 시간(예: 10초) 이상 새 좌표를 받지
   못하면 가드를 완화하는 등의 예외 처리가 실무에서는 추가로 필요하다.
+- `hasArrived` 플래그는 클라이언트가 재시작되면 초기화된다. 완료 API 쪽에도 idempotency key나
+  "이미 완료된 챌린지는 재요청을 무시" 같은 방어 로직을 둬야, 클라이언트만 믿고 중복 보상을
+  지급하는 일을 막을 수 있다.
 - 이 가드는 "명백한 이상치 제거"만 담당할 뿐 궤적을 부드럽게 만들어주지는 않는다. 지도에 이동 경로를
   시각적으로 예쁘게 그려야 하는 서비스라면 칼만 필터나 이동평균 같은 스무딩 기법이 별도로 필요하다.
 

@@ -66,8 +66,8 @@ while (true) {
   if (done) break
   buffer += decoder.decode(value, { stream: true })
 
-  // SSE 이벤트는 빈 줄(\n\n)로 구분된다
-  const events = buffer.split('\n\n')
+  // SSE 이벤트는 빈 줄로 구분되는데, 줄바꿈이 \n\n·\r\n\r\n·\r\r 세 가지로 올 수 있어 정규화부터 한다
+  const events = buffer.split(/\r\n\r\n|\n\n|\r\r/)
   buffer = events.pop() ?? '' // 아직 안 끝난 조각은 다음 루프까지 보관
   for (const raw of events) {
     handleSseEvent(raw)
@@ -75,7 +75,7 @@ while (true) {
 }
 ```
 
-**WebSocket 쪽 우회**: `WebSocket` 생성자는 `new WebSocket(url, protocols)` 형태로, 애초에 헤더를 받는 파라미터 자체가 없다. `fetch`처럼 저수준으로 내려가 헤더를 직접 붙이는 우회가 불가능하다. 그래서 남은 방법은 URL에 실어 보내는 것뿐이었다 — 먼저 `POST /auth/ws-token`으로 단기 유효 토큰을 발급받고, 그 토큰을 쿼리스트링에 담아 WebSocket을 연다.
+**WebSocket 쪽 우회**: `WebSocket` 생성자는 `new WebSocket(url, protocols)` 형태로, 애초에 헤더를 받는 파라미터 자체가 없다. 두 번째 인자(`protocols`)는 서브프로토콜 협상용이라 인증 토큰을 실을 용도가 아니다. 쿠키 기반 세션이나 연결 후 첫 메시지로 인증 정보를 보내는 방식도 대안이 될 수 있지만, 이 프로젝트는 JWT를 헤더로 검증하는 기존 인증 방식을 그대로 재사용하고 싶었기 때문에 다른 우회를 택했다 — 먼저 `POST /auth/ws-token`으로 단기 유효 토큰을 발급받고, 그 토큰을 쿼리스트링에 담아 WebSocket을 연다.
 
 ```ts
 const { token } = await postAuthWsToken() // 단기 토큰 발급
