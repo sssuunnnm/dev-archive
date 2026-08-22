@@ -117,6 +117,7 @@ while (true) {
   const CHUNKS = [
     'event: progress\ndata: {"pct":10}\n\nevent: progress\ndata: {"pc',
     't":20}\n\n',
+    'event: progress\r\ndata: {"pct":50}\r\n\r\n', // 서버에 따라 CRLF로 오는 경우도 실제 파서가 처리한다
     'event: completed\ndata: {"pct":100}\n\n',
   ];
   const chunkEl = root.querySelector('#sse_chunk');
@@ -138,13 +139,13 @@ while (true) {
       if (my !== runId) return;
       chunkEl.textContent = chunk;
       buffer += chunk;
-      bufferEl.innerHTML = esc(buffer).replace(/\n/g, '\\n');
+      bufferEl.innerHTML = esc(buffer).replace(/\r/g, '\\r').replace(/\n/g, '\\n');
       await wait(900);
       if (my !== runId) return;
-      const events = buffer.split(/\n\n/);
+      const events = buffer.split(/\r\n\r\n|\n\n|\r\r/); // 실제 파서와 동일하게 CRLF/LF/CR 경계를 모두 인식
       const leftover = events.pop() ?? '';
       buffer = leftover;
-      bufferEl.innerHTML = leftover ? `<span class="leftover">${esc(leftover).replace(/\n/g, '\\n')}</span> (다음 청크와 이어붙일 조각)` : '(완결된 이벤트만 있어 남는 조각 없음)';
+      bufferEl.innerHTML = leftover ? `<span class="leftover">${esc(leftover).replace(/\r/g, '\\r').replace(/\n/g, '\\n')}</span> (다음 청크와 이어붙일 조각)` : '(완결된 이벤트만 있어 남는 조각 없음)';
       for (const raw of events) {
         if (!raw.trim()) continue;
         const div = document.createElement('div');

@@ -52,7 +52,7 @@ Text(
 )
 ```
 
-`TextLayoutResult.getBoundingBox(charIndex)`를 부르면 그 문자 인덱스가 화면 좌표계에서 차지하는 사각형(`Rect`)을 돌려준다. 어노테이션의 시작 글자와 끝 글자 각각에 이 함수를 불러 두 사각형을 얻으면, 그 사이에 곡선이나 화살표를 그릴 좌표 기준이 생긴다.
+`TextLayoutResult.getBoundingBox(charIndex)`를 부르면 그 문자 인덱스가 텍스트 레이아웃의 로컬 좌표계에서 차지하는 사각형(`Rect`, 픽셀 단위)을 돌려준다. `Text`와 `Canvas`가 같은 위치에서 시작하는 경우(이 글의 `Box` 겹침 구조처럼)라면 이 좌표를 그대로 써도 되지만, 서로 원점이 다르면 `LayoutCoordinates`로 좌표계를 변환해야 한다. 어노테이션의 시작 글자와 끝 글자 각각에 이 함수를 불러 두 사각형을 얻으면, 그 사이에 곡선이나 화살표를 그릴 좌표 기준이 생긴다.
 
 ```kotlin
 val startRect = layoutResult.getBoundingBox(annotation.startIndex)
@@ -75,7 +75,9 @@ Box {
             when (ann.type) {
                 AnnotationType.CURVE_LONG -> drawLongCurve(startRect, endRect)
                 AnnotationType.CURVE_SHORT -> drawShortCurve(startRect, endRect)
-                else -> Unit
+                AnnotationType.ARROW_UP -> drawArrow(startRect, endRect, pointingUp = true)
+                AnnotationType.ARROW_DOWN -> drawArrow(startRect, endRect, pointingUp = false)
+                AnnotationType.HIGHLIGHT -> Unit // SpanStyle에서 처리 (Canvas 아님)
             }
         }
     }
@@ -86,7 +88,7 @@ Box {
 
 ### 4. 직접 눌러보기 — 좌표를 구하는 과정 그대로 재현
 
-아래 데모는 위 2·3번 과정을 그대로 애니메이션으로 옮긴 것이다. 어노테이션을 고르고 재생하면, `getBoundingBox(startIndex)`와 `getBoundingBox(endIndex-1)`로 두 사각형을 구하고 → 중점(`mid`)과 중심 X좌표(`centerX`)를 계산하고 → 그 좌표로 `Path`를 그리는 순서가 로그에 그대로 찍힌다.
+아래 데모는 위 2·3번 과정에서 좌표를 구하는 흐름(시작/끝 인덱스 → 두 사각형 → 중점·중심 X좌표 → Path)을 웹 브라우저에서 그대로 흉내 낸 것이다. 실제로는 Compose `TextLayoutResult.getBoundingBox()`를 호출하는 게 아니라, `CanvasRenderingContext2D.measureText()`로 글자별 사각형을 직접 계산해 `boxes[startIndex]`/`boxes[endIndex - 1]`로 근사한다 — 글꼴 셰이핑·줄바꿈·유니코드 폭 처리 방식이 달라서 실제 Compose 결과와 정확히 같은 수치가 나오지는 않지만, "좌표를 구해서 그 위에 그린다"는 흐름 자체는 동일하다.
 
 <div class="cvdemo">
 <style>
@@ -124,7 +126,7 @@ Box {
 
 <div class="toolbar"><button class="run-btn" id="cv_run">▶ 좌표 구하기부터 다시 재생</button></div>
 
-<div class="log" id="cv_log">// 재생하면 getBoundingBox 호출 순서가 여기 표시됩니다</div>
+<div class="log" id="cv_log">// 재생하면 좌표를 구하는 순서(웹 Canvas 근사)가 여기 표시됩니다</div>
 </div>
 
 <script>
@@ -205,13 +207,13 @@ Box {
     log(`sentence.indexOf("${ann.word}") = ${startIndex}`);
     await wait(500); if (my !== runId) return;
 
-    log(`startRect = layout.getBoundingBox(${startIndex})`);
+    log(`boxes[${startIndex}] (Compose getBoundingBox(${startIndex})의 웹 Canvas 근사)`);
     const startRect = boxes[startIndex];
     ctx.clearRect(0, 0, w, 160); ctx.fillStyle = dark ? '#27272a' : '#f4f4f5'; ctx.fillRect(0, 0, w, 160);
     drawText(boxes, dark); strokeRect(startRect, '#e53935');
     await wait(500); if (my !== runId) return;
 
-    log(`endRect = layout.getBoundingBox(${endIndex - 1})`);
+    log(`boxes[${endIndex - 1}] (Compose getBoundingBox(${endIndex - 1})의 웹 Canvas 근사)`);
     const endRect = boxes[endIndex - 1];
     ctx.clearRect(0, 0, w, 160); ctx.fillStyle = dark ? '#27272a' : '#f4f4f5'; ctx.fillRect(0, 0, w, 160);
     drawText(boxes, dark); strokeRect(startRect, '#e53935'); strokeRect(endRect, '#3a86ff');
@@ -252,6 +254,7 @@ Box {
   });
   root.querySelector('#cv_run').addEventListener('click', play);
   window.addEventListener('resize', () => play());
+  new MutationObserver(() => play()).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   play();
 })();
 </script>
@@ -290,7 +293,13 @@ fun AnnotatedSentenceView(sentence: String, annotations: List<Annotation>) {
                         color = Color(0xFF1565C0),
                         style = Stroke(width = 3f),
                     )
-                    else -> Unit // HIGHLIGHT는 Canvas가 아니라 SpanStyle에서 처리
+                    AnnotationType.ARROW_UP, AnnotationType.ARROW_DOWN -> drawPath(
+                        // 시작/끝 사각형 사이 중심에 위·아래를 가리키는 화살표 Path를 그린다 (곡선과 같은 좌표 기준 사용)
+                        path = buildArrowPath(startRect, endRect, mid, pointingUp = ann.type == AnnotationType.ARROW_UP),
+                        color = Color(0xFF2EB872),
+                        style = Stroke(width = 3f),
+                    )
+                    AnnotationType.HIGHLIGHT -> Unit // Canvas가 아니라 SpanStyle에서 처리
                 }
             }
         }
@@ -303,7 +312,7 @@ fun AnnotatedSentenceView(sentence: String, annotations: List<Annotation>) {
 - 이 Canvas 시각화는 클라이언트 쪽에서는 완성돼 있지만, 이 스냅샷 기준으로 서버의 발음 평가 로직은 점수가 하드코딩된 스텁이었다(`EvaluationService.kt` — `// TODO: AI 분석 연동 시 실제 점수로 교체`). "화면에 정확히 그려지는가"와 "그 평가 결과 자체가 진짜인가"는 별개 문제이고, 이 글은 전자만 다룬다.
 - `sentence.indexOf(word)`는 첫 번째 일치 위치만 찾으므로, 같은 단어가 문장에 반복되면 좌표가 어긋날 수 있다. 정확히 하려면 서버가 인덱스를 함께 내려주거나, 이전에 이미 매칭된 위치 이후부터 다시 탐색해야 한다.
 - 하이라이트(`SpanStyle`)와 곡선·화살표(`Canvas`)는 같은 "시각 요소"로 뭉뚱그리기 쉽지만 구현 계층이 다르다. 텍스트 스타일링으로 충분한 것까지 Canvas로 옮기면 코드만 복잡해진다.
-- `getBoundingBox`는 `TextLayoutResult`가 아직 준비되지 않은 첫 프레임에는 null일 수 있으므로, 항상 null 체크 후 사용해야 한다.
+- `getBoundingBox()` 자체는 `Rect`를 반환하며 null이 아니다. 다만 `onTextLayout`이 아직 한 번도 호출되지 않은 첫 프레임에는 `layoutResult` 변수 자체가 null이므로, `getBoundingBox`를 부르기 전에 `layoutResult`를 null 체크해야 한다.
 
 ## 참고자료
 

@@ -310,7 +310,14 @@ val locationCallback = object : LocationCallback() {
     ['gps_raw_total', 'gps_flt_total', 'gps_rej_acc', 'gps_rej_speed'].forEach((id) => root.querySelector('#' + id).textContent = '0');
     ['gps_raw_dist', 'gps_flt_dist'].forEach((id) => root.querySelector('#' + id).textContent = '0.0');
   });
-  window.addEventListener('resize', () => { RAW_SIZE = fit(rawCv); FLT_SIZE = fit(fltCv); redraw(); });
+  window.addEventListener('resize', () => {
+    playToken++;
+    RAW_SIZE = fit(rawCv);
+    FLT_SIZE = fit(fltCv);
+    TRUE_PATH = genPath(RAW_SIZE);
+    NOISY = addNoise(TRUE_PATH);
+    redraw();
+  });
 })();
 </script>
 

@@ -20,11 +20,11 @@ draft: false
 
 ## 한 줄 요약
 
-Zustand 스토어 두 개를 같은 동기 블록에서 연달아 업데이트했더니 화면이 `Maximum update depth exceeded`로 멈췄다. 원인은 React 19의 `useSyncExternalStore`가 여러 스토어를 동시에 구독하는 컴포넌트에서 스냅샷 불일치를 감지하고 계속 재렌더로 복구를 시도한 것이었고, 두 번째 스토어 업데이트를 `await` 경계 너머로 미루는 것과 한 컴포넌트가 여러 스토어를 동시에 구독하지 않게 하는 것, 두 가지로 해결했다.
+Zustand 스토어 두 개를 같은 동기 블록에서 연달아 업데이트했더니 화면이 `Maximum update depth exceeded`로 멈췄다. 원인은 React 19의 `useSyncExternalStore`가 여러 스토어를 동시에 구독하는 컴포넌트에서 스냅샷 불일치를 감지하고 계속 재렌더로 복구를 시도한 것으로 보이고, 두 번째 스토어 업데이트를 첫 `await` 이후로 옮기는 것과 한 컴포넌트가 여러 스토어를 동시에 구독하지 않게 하는 것, 두 가지 코드 변경 이후 증상이 재현되지 않았다.
 
 ## 왜 (배경/문제 상황)
 
-NGRAS는 Zustand 스토어 11개를 기능별로 나눠 쓴다. AI 에이전트 채팅 패널(`aiAgent` 스토어)에서 작업을 새로 시작하면, 이전 작업의 경고를 지우는 `testQueue` 스토어 업데이트와 현재 스트리밍 상태를 켜는 `aiAgent` 스토어 업데이트가 한 함수 안에서 연달아 일어났다. 코드만 보면 평범한 순차 실행인데, 화면에서는 `Maximum update depth exceeded` 에러와 함께 렌더가 멈추는 증상이 나타났다. 두 스토어를 모두 구독하는 컴포넌트가 있을 때만 재현됐고, 그 컴포넌트 하나만 떼어놓고 보면 이상한 점이 없었다 — 원인이 "무엇을 구독하는가"와 "언제 업데이트하는가"의 조합에 있었기 때문이다.
+NGRAS는 Zustand 스토어 11개를 기능별로 나눠 쓴다. AI 에이전트 채팅 패널(`aiAgent` 스토어)에서 작업을 새로 시작하면, 이전 작업의 경고를 지우는 `testQueue` 스토어 업데이트와 현재 작업 ID(`currentTaskId`)를 갱신하는 `aiAgent` 스토어 업데이트가 한 함수 안에서 연달아 일어났다. 코드만 보면 평범한 순차 실행인데, 화면에서는 `Maximum update depth exceeded` 에러와 함께 렌더가 멈추는 증상이 나타났다. 두 스토어를 모두 구독하는 컴포넌트가 있을 때만 재현됐고, 그 컴포넌트 하나만 떼어놓고 보면 이상한 점이 없었다 — 원인이 "무엇을 구독하는가"와 "언제 업데이트하는가"의 조합에 있었기 때문이다.
 
 ## 본문
 
@@ -71,7 +71,7 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
 
 ### 3. 해결 패턴 두 가지
 
-**패턴 A — `await` 경계로 두 번째 스토어 업데이트 분리.** 두 스토어 업데이트를 같은 동기 블록에 두지 않고, 그 사이에 진짜 비동기 작업(API 호출 등)이 있다면 그 `await` 뒤로 두 번째 업데이트를 미룬다. `await`는 스케줄러에게 실행을 양보하는 지점이라, 두 업데이트가 서로 다른 태스크로 나뉘어 처리되면서 같은 틱 안에서의 스냅샷 불일치가 생기지 않는다.
+**패턴 A — 두 번째 스토어 업데이트를 첫 `await` 이후로 옮기기.** 두 스토어 업데이트를 완전히 동기적인 블록(같은 함수 호출 안에서 `await` 없이 연달아 실행)에 두지 않고, 그 앞에 실제 비동기 작업(API 호출 등)을 하나 두어 그 이후로 두 업데이트를 옮긴다. NGRAS 코드베이스는 이 변경 이후 증상이 재현되지 않았다고 문서화했다. 다만 `await` 하나를 거쳤다고 해서 그 뒤에 연달아 실행되는 두 줄이 서로 다른 렌더 사이클로 자동으로 분리되는 건 아니다 — 같은 `await` 뒤에서 동기적으로 실행되는 코드는 여전히 같은 마이크로태스크 안에서 처리되고, React의 자동 배칭 대상이 될 수 있다. 즉 이 패턴이 실제로 왜 증상을 없앴는지의 정확한 메커니즘은 이 글에서 독립적으로 검증하지 않았고, "이렇게 바꿨더니 재현되지 않았다"는 NGRAS 코드베이스의 경험적 관찰로만 받아들이는 게 안전하다.
 
 **패턴 B — 단일 구독점.** 한 컴포넌트가 여러 스토어를 동시에 구독하지 않도록, 구독을 가장 필요한 지점 하나로 모으고 나머지는 prop으로 내려준다. 애초에 "여러 스토어를 동시에 구독하는 컴포넌트"가 없으면 스냅샷 불일치가 발생할 자리 자체가 없어진다.
 
@@ -80,6 +80,8 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
 ### 4. 직접 눌러보기 — Before / After 시뮬레이터
 
 아래 데모는 위 ①번 사례(`aiAgent` 스토어가 `testQueue` 스토어를 같은 동기 블록에서 건드리는 상황)를 그대로 재현한 것이다. Before를 눌러 실행하면 재렌더 카운터가 폭주하다 멈추고, After로 바꿔서 실행하면 같은 두 스토어 업데이트가 각각 한 번의 렌더로 끝난다.
+
+> **이 데모는 실제 React/Zustand를 실행하지 않는다.** DOM 요소와 타이머, `Math.random()`으로 "폭주하는 느낌"을 흉내 낸 개념적 시뮬레이터다. `Maximum update depth exceeded` 에러나 리렌더 횟수는 실제로 발생하는 게 아니라 스토리를 재생하기 위해 연출된 값이다.
 
 <div class="rtdemo">
 <style>
@@ -106,6 +108,7 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
 .rtdemo .codebox {
   font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace;
   font-size: 12.5px; background: var(--code-bg); color: var(--code-ink);
+  white-space: pre-wrap;
   border-radius: 10px; padding: 14px; line-height: 1.7; overflow-x: auto; margin-bottom: 14px;
 }
 .rtdemo .codebox .cmt { color: #7e88bd; }
@@ -178,12 +181,12 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
 <span class="hl-bad">  set({ isStreaming: true })</span>
 <span class="cmt">  // ↑ ChatPanel이 두 스토어를 모두 구독 → 스냅샷 불일치 → 재렌더 폭주</span>
 <span>}</span>`,
-    after: `<span class="cmt">// ✅ await 경계로 두 스토어 업데이트를 분리</span>
+    after: `<span class="cmt">// ✅ 첫 await 이후로 두 업데이트를 옮김 (NGRAS가 채택한 경험적 수정)</span>
 <span>async function requestDraft(testId) {</span>
 <span>  const res = await requestDraftApi(testId)</span>
 <span class="hl-good">  useTestQueueStore.getState().clearPresetWarnings(testId)</span>
 <span class="hl-good">  set({ currentTaskId: res.taskId })</span>
-<span class="cmt">  // ↑ await가 양보 지점 → 서로 다른 태스크로 처리 → 불일치 없음</span>
+<span class="cmt">  // ↑ 이 변경 이후 증상이 재현되지 않았다 (정확한 메커니즘은 미검증)</span>
 <span>}</span>`,
   };
   function renderCode() { root.querySelector('#rtdemo_code').innerHTML = CODE[mode]; }
@@ -260,10 +263,10 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
   }
   async function runAfter() {
     tl([
-      { n: 1, t: 'await requestDraftApi() — 여기서 스케줄러에 양보' },
-      { n: 2, t: 'testQueue 스토어 업데이트 → task 1에서 1회 리렌더', cls: 'good' },
-      { n: 3, t: 'aiAgent 스토어 업데이트 → task 2에서 1회 리렌더', cls: 'good' },
-      { n: 4, t: '서로 다른 태스크 → 스냅샷 항상 일관 → 불일치 없음', cls: 'good' },
+      { n: 1, t: 'await requestDraftApi() — 비동기 작업을 먼저 기다림' },
+      { n: 2, t: 'testQueue 스토어 업데이트 → 리렌더 1회', cls: 'good' },
+      { n: 3, t: 'aiAgent 스토어 업데이트 → 리렌더 1회', cls: 'good' },
+      { n: 4, t: '증상 재현 안 됨 (정확한 메커니즘은 미검증)', cls: 'good' },
     ]);
     const steps = timeline.children;
     steps[0].classList.add('show'); await wait(500);
@@ -271,7 +274,7 @@ React 18부터 도입된 `useSyncExternalStore`는 Zustand 같은 외부 스토�
     storeA.classList.remove('flash'); storeB.classList.add('flash'); sbVal.textContent = 'isStreaming: true'; setNum(2, false); steps[2].classList.add('show'); await wait(600);
     storeB.classList.remove('flash'); steps[3].classList.add('show'); await wait(250);
     verdict.className = 'verdict success';
-    verdict.innerHTML = '✅ <b>안정</b> — 총 2회 리렌더로 종료. await 경계가 두 업데이트를 별도 태스크로 나눠 불일치가 생기지 않는다.';
+    verdict.innerHTML = '✅ <b>안정</b> — 총 2회 리렌더로 종료. NGRAS 코드베이스가 이 변경 이후 증상이 재현되지 않았다고 문서화한 결과를 재현한 연출이다 (원인 메커니즘은 미검증).';
   }
   runBtn.addEventListener('click', async () => {
     if (running) return;
@@ -295,13 +298,13 @@ async function requestDraft(testId: string) {
   set({ currentTaskId: res.taskId })
 }
 
-// 패턴 B: 단일 구독점 — 부모는 구독하지 않고 자식 하나만 구독
+// 패턴 B: 단일 구독점 — 부모는 스토어를 구독하지 않고 자식 하나만 구독
 function ChatPanel() {
-  const currentTaskId = useAiAgentStore((s) => s.currentTaskId)
-  return <TestContent taskId={currentTaskId} />
+  return <TestContent />
 }
-function TestContent({ taskId }: { taskId: string }) {
-  const isStreaming = useAiAgentStore((s) => s.isStreaming) // 이 컴포넌트만 구독
+function TestContent() {
+  const currentTaskId = useAiAgentStore((s) => s.currentTaskId) // 이 컴포넌트만 구독
+  const isStreaming = useAiAgentStore((s) => s.isStreaming)      // 이 컴포넌트만 구독
   // ...
 }
 ```

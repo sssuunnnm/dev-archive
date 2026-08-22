@@ -164,6 +164,7 @@ class GamePlayViewModel(
 .mvidemo .col .lbl { font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; margin-bottom: 6px; }
 .mvidemo .state-box {
   font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px;
+  white-space: pre-wrap;
   background: #0f1633; color: #c8d0f0; border-radius: 8px; padding: 10px 12px; line-height: 1.7; min-height: 140px;
 }
 .mvidemo .state-box .changed { background: rgba(254,223,87,0.16); border-left: 2px solid #fedf57; margin: 0 -12px; padding: 0 12px; display: block; }
