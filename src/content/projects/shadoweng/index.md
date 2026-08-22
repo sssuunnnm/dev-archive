@@ -5,8 +5,8 @@ features: [유튜브 영상 기반 학습, 발음 오류 시각화, 맞춤 스�
 highlights:
   - icon: 📺
     title: 사용자 주도형 콘텐츠
-    description: 유튜브 URL을 직접 입력해 원하는 구간을 학습. 영상은 서버에 저장하지 않고 ExoPlayer로 그때그때 재생.
-    tag: ExoPlayer 기반 재생
+    description: 유튜브 URL을 직접 입력해 원하는 구간을 학습. 영상은 서버에 저장하지 않고 그때그때 재생.
+    tag: YouTube Player + ExoPlayer 병행
   - icon: ✨
     title: 발음 오류 시각화
     description: 단순히 틀렸다고만 표시하지 않고, 강세·발음 포인트를 Canvas로 문장 위에 직접 그려서 보여줌.
@@ -36,29 +36,29 @@ draft: false
 
 ## 내 역할
 
-**PL(개발 리더) + 프론트엔드/인프라 전담**. 원래 6명 팀이었는데 1명이 중도 이탈해 5명으로 줄었고, 본인을 제외한 팀원 전원이 비전공자(그중 2명은 개발 경험이 거의 없는 상태)였다. 유일한 개발 경험자로서 PL을 맡아, 기능을 난이도와 의존 관계 기준으로 쪼개 팀원별로 배분하는 역할까지 함께 했다. Kotlin·Jetpack Compose 기반 Android 앱 전체 개발, Canvas API 기반 발음 오류 시각화, ExoPlayer 기반 유튜브 영상·음성 재생, Jenkins·Docker·AWS 기반 CI/CD 및 배포 환경 구축을 담당했다.
+**PL(개발 리더) + 프론트엔드/인프라 전담**. 원래 6명 팀이었는데 1명이 중도 이탈해 5명으로 줄었고, 본인을 제외한 팀원 전원이 비전공자(그중 2명은 개발 경험이 거의 없는 상태)였다. 유일한 개발 경험자로서 PL을 맡아, 기능을 난이도와 의존 관계 기준으로 쪼개 팀원별로 배분하는 역할까지 함께 했다. Kotlin·Jetpack Compose 기반 Android 앱 전체 개발, Canvas API 기반 발음 오류 시각화, 유튜브 영상·게임 음성 재생, Jenkins·Docker·AWS 기반 CI/CD 및 배포 환경 구축을 담당했다.
 
 ## Architecture (개요)
 
 ```text
-Android (Kotlin/Compose, MVVM)
-   │  ExoPlayer(영상/음성) · Canvas(오류 시각화)
+Android (Kotlin/Compose)
+   │  YouTube Player(영상) · ExoPlayer(게임 음성) · Canvas(오류 시각화)
    ▼
 Backend API ──▶ 발음 평가(AI)
 ```
 
-- **MVVM**: 화면별 ViewModel이 상태(State)를 들고, Compose가 이를 구독해 그리는 구조로 앱 전체를 구성했다.
-- **Feature 단위 모듈화**: `study`(학습 세션·하이라이트·리포트), `game`(일일 챌린지·리그), `content`(유튜브 URL 등록·구간 선택) 세 핵심 도메인을 각각 api/domain/mapper/presentation/repository 레이어로 나눠 구성했다.
-- **SavedStateHandle**: 학습 세션 중 화면 회전이나 프로세스 재생성이 일어나도 진행 상태(현재 문장, 녹음 여부 등)가 유지되도록 화면 상태를 SavedStateHandle에 실었다.
+- **화면별로 다른 상태 관리 패턴**: 대부분 화면은 ViewModel이 UiState(StateFlow)를 들고 Compose가 구독하는 MVVM 계열로 구성했고, 상태 전이가 특히 복잡한 게임 플레이 화면 한 곳만 State/Intent/Effect를 분리한 MVI(Contract 패턴)로 구현했다.
+- **Feature 단위 모듈화**: `study`(학습 세션·하이라이트·리포트), `game`(일일 챌린지·리그), `content`(유튜브 URL 등록·구간 선택) 등 기능 단위로 패키지를 나누고, 그중 상태가 복잡한 도메인(study/game)은 api/domain/mapper/presentation/repository 레이어로 세분화했다.
+- **SavedStateHandle**: 게임 플레이처럼 여러 단계(카운트다운·녹음·평가·결과)를 거치는 화면에서, 화면 회전이나 프로세스 재생성이 일어나도 진행 상태가 유지되도록 SavedStateHandle에 실었다.
 
 ## 기술 선택 이유
 
-- **MVVM (MVI 검토 후 기각)**: 게임(`game`) 도메인의 상태 전이가 복잡해 초기에는 MVI(State/Intent/Effect 분리)를 검토했다. 하지만 팀원 5명 중 4명이 비전공자였고 그중 2명은 개발 경험이 거의 없어, 새 아키텍처 패턴을 익히는 학습 비용이 일정 안에서 감당하기 어렵다고 판단했다. 결국 이미 익숙한 MVVM으로 통일해, 아키텍처 학습보다 기능 구현에 팀 역량을 집중시켰다.
+- **화면 복잡도에 따른 아키텍처 혼합 (MVVM + 부분 MVI)**: 대부분 화면은 익숙한 MVVM으로 충분했지만, 게임 플레이 화면은 카운트다운→녹음→평가→결과로 이어지는 다단계 흐름에 일회성 이벤트(결과 화면 이동 등)까지 섞여 있어 State만으로는 표현이 부족했다. 이 화면 하나에만 State/Intent/Effect를 분리한 MVI를 도입해, 팀 전체에 새 패턴을 강제하지 않으면서도 복잡한 화면의 상태를 명확히 관리했다.
 - **Canvas API (SpanStyle 대신)**: 발음 오류를 단순 배경색(SpanStyle)으로만 표시하면 "끌림"이나 "급함" 같은 시간축 정보를 담을 수 없었다. `TextLayoutResult.getBoundingBox(charIndex)`로 문자 단위 좌표를 얻어 그 위에 Canvas로 화살표·곡선을 직접 그리는 방식을 택해, 단순 색칠보다 풍부한 피드백을 표현했다.
-- **ExoPlayer**: 유튜브 영상을 서버에 저장하지 않고 그때그때 스트리밍 재생해야 해서, 안정적인 미디어 재생·구간 반복(loop) 제어가 가능한 ExoPlayer를 선택했다.
+- **YouTube Player + ExoPlayer 병행**: 유튜브 영상 재생은 유튜브 자체 IFrame 플레이어를 그대로 썼고, 게임 모드에서 재생하는 참조 음성 파일은 ExoPlayer로 별도 처리했다. 용도가 다른 두 미디어(외부 유튜브 영상 vs 자체 음성 파일)를 하나의 플레이어로 억지로 통일하지 않고, 각각에 맞는 재생 방식을 그대로 썼다.
 
 ## 배운 점
 
-- 팀 구성이 아키텍처보다 먼저다. 기술적으로 더 적합해 보이는 패턴(MVI)이 있어도, 팀 전체가 감당할 수 있는 선택(MVVM)이 실제로는 더 나은 결정일 수 있다는 걸 PL 역할을 하며 체감했다.
+- 아키텍처는 앱 전체에 하나로 통일해야 한다는 강박을 버렸다. 상태 흐름이 단순한 화면은 팀이 이미 익숙한 MVVM으로, 유독 복잡한 화면 하나만 MVI로 — 화면별 복잡도에 맞게 패턴을 섞어 써도 된다는 걸 PL 역할을 하며 체감했다.
 - 개발 경험이 없는 팀원에게 일을 배분할 때는 "무엇을 만들 것인가"보다 "어떤 순서로, 어디까지 혼자 해낼 수 있는가"를 먼저 판단해야 한다는 걸 배웠다.
 - 문자 단위 좌표(`getBoundingBox`)를 다루면서, 텍스트 위에 그림을 겹치는 UI는 텍스트 레이아웃을 얼마나 정확히 이해하느냐에 품질이 좌우된다는 걸 알게 됐다.
