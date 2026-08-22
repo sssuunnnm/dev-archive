@@ -1,6 +1,20 @@
 ---
 title: OneStep
 summary: 고립·은둔 청년의 외출을 돕는 산책 챌린지 기반 케어 앱
+features: [마이크로 루틴 챌린지, AI 감성 펫, 가상 창문 · 익명 편지, 단계별 산책]
+highlights:
+  - icon: 🌱
+    title: No-Failure Policy
+    description: 미수행 시 페널티나 기록이 남지 않음. 매일 새로운 시작이 보장되어 재도전을 유도.
+    tag: 실패 부담 zero
+  - icon: 🐾
+    title: 즉각적 시각 보상
+    description: 루틴 달성 시 펫 성장·GP 획득으로 행동 직후 보상을 즉시 보여줌.
+    tag: 게이미피케이션
+  - icon: 🤫
+    title: 비대면 심리 안전지대
+    description: 대면 부담 없는 AI 음성 대화 + 익명 소통으로 진입장벽을 최소화.
+    tag: 진입장벽 최소화
 stack: [android, kotlin, spring-boot, redis, postgresql, mongodb, mapbox, kafka, fastapi]
 status: done
 startDate: 2026-01-06
