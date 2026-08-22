@@ -2,7 +2,7 @@
 title: OneStep 파헤치기 (2) - GPS는 왜 튀는가 (임계값 가드로 이상치 걸러내기)
 description: GPS 원시 좌표가 튀는 이유를 살펴보고, 칼만 필터 대신 정확도·거리 임계값 가드로 이상치를 걸러낸 이유와 구현을 정리한다.
 date: 2026-08-21
-updated: 2026-08-21
+updated: 2026-08-22
 category: development
 technology: [android, kotlin]
 tags: [location-tracking, gps-accuracy]
@@ -120,6 +120,199 @@ val locationCallback = object : LocationCallback() {
 원시 좌표를 그대로 쓰면, 실제로는 목적지 밖에 있는데 튄 좌표 하나가 반경 안으로 순간 진입해 도착 처리되는
 오탐이 생긴다. 반대로 실제 도착 좌표가 튀어서 반경 밖으로 나가면 도착이 누락된다. 필터를 거친 좌표만
 판정에 쓰면 이 두 오작동을 크게 줄일 수 있다.
+
+### 5. 직접 눌러보기 — 필터링 전후 비교
+
+아래 데모는 위 `isAccurate` + `isPlausibleMove` 가드를 그대로 재현한 것이다. 왼쪽은 필터를 거치지 않은 원시 좌표, 오른쪽은 두 가드를 통과한 좌표만 남긴 결과다. 같은 노이즈 데이터를 두 방식으로 그려 비교한다.
+
+<div class="gpsdemo">
+<style>
+.gpsdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --bad: #dc2626; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif;
+  font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+  background: var(--card); margin: 24px 0;
+}
+.dark .gpsdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; }
+.gpsdemo .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+@media (max-width: 640px) { .gpsdemo .grid { grid-template-columns: 1fr; } }
+.gpsdemo .panel { background: var(--card2); border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.gpsdemo .panel .title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 12px; font-weight: 700; }
+.gpsdemo .panel .badge { padding: 1px 8px; font-size: 10px; border-radius: 999px; color: #fff; }
+.gpsdemo .panel.raw .badge { background: var(--bad); }
+.gpsdemo .panel.filtered .badge { background: var(--good); }
+.gpsdemo canvas { display: block; width: 100%; height: 200px; border-radius: 6px; }
+.gpsdemo .meter { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 11.5px; color: var(--sub); }
+.gpsdemo .meter b { color: var(--ink); }
+.gpsdemo .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.gpsdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.gpsdemo .btn.ghost { background: var(--card2); color: var(--ink); border: 1px solid var(--line); }
+.gpsdemo .constants {
+  font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px;
+  background: #0f1633; color: #9fb0e8; border-radius: 10px; padding: 12px 14px; line-height: 1.8;
+}
+.gpsdemo .constants b { color: #fff; }
+</style>
+
+<div class="grid">
+  <div class="panel raw">
+    <div class="title"><span>📡 원시 좌표</span><span class="badge">UNFILTERED</span></div>
+    <canvas id="gps_raw"></canvas>
+    <div class="meter"><span>수신: <b id="gps_raw_total">0</b></span><span>총거리: <b id="gps_raw_dist">0.0</b>m</span></div>
+  </div>
+  <div class="panel filtered">
+    <div class="title"><span>✅ isAccurate + isPlausibleMove 통과</span><span class="badge">FILTERED</span></div>
+    <canvas id="gps_flt"></canvas>
+    <div class="meter"><span>채택: <b id="gps_flt_total">0</b></span><span>총거리: <b id="gps_flt_dist">0.0</b>m</span><span>정확도 탈락: <b id="gps_rej_acc">0</b></span><span>속도 탈락: <b id="gps_rej_speed">0</b></span></div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn" id="gps_play">▶ 산책 재현</button>
+  <button class="btn ghost" id="gps_regen">🎲 노이즈 다시 뽑기</button>
+</div>
+
+<div class="constants">
+  <b>MAX_ACCURACY_METERS</b> = 30f&nbsp;&nbsp;&nbsp;<b>MAX_WALKING_SPEED_MPS</b> = 20_000f / 3600f (≈5.56 m/s)
+</div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('gpsdemo')) return;
+  const MAX_ACCURACY = 30;
+  const MAX_SPEED = 20000 / 3600; // m/s
+
+  const rawCv = root.querySelector('#gps_raw');
+  const fltCv = root.querySelector('#gps_flt');
+  const rawCtx = rawCv.getContext('2d');
+  const fltCtx = fltCv.getContext('2d');
+
+  function fit(cv) {
+    const ratio = window.devicePixelRatio || 1;
+    const rect = cv.getBoundingClientRect();
+    cv.width = rect.width * ratio; cv.height = rect.height * ratio;
+    cv.getContext('2d').scale(ratio, ratio);
+    return { w: rect.width, h: rect.height };
+  }
+  let RAW_SIZE = fit(rawCv), FLT_SIZE = fit(fltCv);
+
+  function genPath(size) {
+    const pts = []; const N = 60, padX = 24, padY = 30;
+    for (let i = 0; i < N; i++) {
+      const t = i / (N - 1);
+      const x = padX + t * (size.w - 2 * padX);
+      const y = size.h / 2 + Math.sin(t * Math.PI * 1.8) * (size.h / 2 - padY) * 0.7;
+      pts.push({ x, y, t: i * 1.2 }); // 1.2초 간격 샘플링 가정
+    }
+    return pts;
+  }
+  function addNoise(truePath) {
+    return truePath.map((p) => {
+      const r = Math.random();
+      let accuracy, jitter;
+      if (r < 0.15) { accuracy = 35 + Math.random() * 25; jitter = 18 + Math.random() * 20; } // 정확도 탈락 유도
+      else if (r < 0.2) { accuracy = 8 + Math.random() * 5; jitter = 90 + Math.random() * 60; } // 속도 탈락 유도(텔레포트)
+      else { accuracy = 3 + Math.random() * 8; jitter = Math.random() * 3; }
+      const angle = Math.random() * Math.PI * 2;
+      return { x: p.x + Math.cos(angle) * jitter, y: p.y + Math.sin(angle) * jitter, accuracy, t: p.t };
+    });
+  }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); } // 데모에서는 1px ≈ 1m로 간주
+
+  let TRUE_PATH = genPath(RAW_SIZE);
+  let NOISY = addNoise(TRUE_PATH);
+
+  function drawGrid(ctx, size, dark) {
+    ctx.clearRect(0, 0, size.w, size.h);
+    ctx.fillStyle = dark ? '#27272a' : '#fff'; ctx.fillRect(0, 0, size.w, size.h);
+    ctx.strokeStyle = dark ? '#374151' : '#e5e7eb'; ctx.lineWidth = 1;
+    for (let x = 0; x < size.w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, size.h); ctx.stroke(); }
+    for (let y = 0; y < size.h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(size.w, y); ctx.stroke(); }
+  }
+  function ghost(ctx, dark) {
+    ctx.strokeStyle = dark ? 'rgba(156,163,175,0.35)' : 'rgba(107,114,128,0.3)';
+    ctx.lineWidth = 1.5; ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    TRUE_PATH.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  function isDark() { return document.documentElement.classList.contains('dark'); }
+  function redraw() {
+    const dark = isDark();
+    drawGrid(rawCtx, RAW_SIZE, dark); ghost(rawCtx, dark);
+    drawGrid(fltCtx, FLT_SIZE, dark); ghost(fltCtx, dark);
+  }
+  redraw();
+
+  let playToken = 0;
+  function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+  async function play() {
+    const my = ++playToken;
+    redraw();
+    const elRawTotal = root.querySelector('#gps_raw_total');
+    const elRawDist = root.querySelector('#gps_raw_dist');
+    const elFltTotal = root.querySelector('#gps_flt_total');
+    const elFltDist = root.querySelector('#gps_flt_dist');
+    const elRejAcc = root.querySelector('#gps_rej_acc');
+    const elRejSpeed = root.querySelector('#gps_rej_speed');
+    let rawCount = 0, rawDist = 0, fltCount = 0, fltDist = 0, rejAcc = 0, rejSpeed = 0;
+    let prevRaw = null, lastAccepted = null;
+    for (let i = 0; i < NOISY.length; i++) {
+      if (my !== playToken) return;
+      const p = NOISY[i];
+      rawCount++;
+      if (prevRaw) {
+        rawDist += dist(prevRaw, p);
+        rawCtx.strokeStyle = '#dc2626'; rawCtx.lineWidth = 1.8;
+        rawCtx.beginPath(); rawCtx.moveTo(prevRaw.x, prevRaw.y); rawCtx.lineTo(p.x, p.y); rawCtx.stroke();
+      }
+      rawCtx.fillStyle = p.accuracy > MAX_ACCURACY ? '#dc2626' : '#f59e0b';
+      rawCtx.beginPath(); rawCtx.arc(p.x, p.y, 3, 0, Math.PI * 2); rawCtx.fill();
+      prevRaw = p;
+
+      // isAccurate
+      if (p.accuracy > MAX_ACCURACY) {
+        rejAcc++;
+        fltCtx.fillStyle = 'rgba(220,38,38,0.25)';
+        fltCtx.beginPath(); fltCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fltCtx.fill();
+      } else if (lastAccepted && (dist(lastAccepted, p) / (p.t - lastAccepted.t)) > MAX_SPEED) {
+        // isPlausibleMove
+        rejSpeed++;
+        fltCtx.fillStyle = 'rgba(220,38,38,0.25)';
+        fltCtx.beginPath(); fltCtx.arc(p.x, p.y, 2, 0, Math.PI * 2); fltCtx.fill();
+      } else {
+        fltCount++;
+        if (lastAccepted) {
+          fltDist += dist(lastAccepted, p);
+          fltCtx.strokeStyle = '#16a34a'; fltCtx.lineWidth = 2;
+          fltCtx.beginPath(); fltCtx.moveTo(lastAccepted.x, lastAccepted.y); fltCtx.lineTo(p.x, p.y); fltCtx.stroke();
+        }
+        fltCtx.fillStyle = '#16a34a';
+        fltCtx.beginPath(); fltCtx.arc(p.x, p.y, 3, 0, Math.PI * 2); fltCtx.fill();
+        lastAccepted = p;
+      }
+      elRawTotal.textContent = rawCount; elRawDist.textContent = rawDist.toFixed(1);
+      elFltTotal.textContent = fltCount; elFltDist.textContent = fltDist.toFixed(1);
+      elRejAcc.textContent = rejAcc; elRejSpeed.textContent = rejSpeed;
+      await sleep(35);
+    }
+  }
+  root.querySelector('#gps_play').addEventListener('click', play);
+  root.querySelector('#gps_regen').addEventListener('click', () => {
+    playToken++;
+    RAW_SIZE = fit(rawCv); FLT_SIZE = fit(fltCv);
+    TRUE_PATH = genPath(RAW_SIZE); NOISY = addNoise(TRUE_PATH);
+    redraw();
+    ['gps_raw_total', 'gps_flt_total', 'gps_rej_acc', 'gps_rej_speed'].forEach((id) => root.querySelector('#' + id).textContent = '0');
+    ['gps_raw_dist', 'gps_flt_dist'].forEach((id) => root.querySelector('#' + id).textContent = '0.0');
+  });
+  window.addEventListener('resize', () => { RAW_SIZE = fit(rawCv); FLT_SIZE = fit(fltCv); redraw(); });
+})();
+</script>
 
 ## 예제
 
