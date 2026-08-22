@@ -110,10 +110,10 @@ set({ currentTaskId: task_id });
 
 article 작성될 때마다 아래 체크만 갱신. 괄호는 이 아카이브에서 참고할 섹션.
 
-- [ ] 1. EventSource 대신 fetch+ReadableStream으로 SSE 직접 파싱하기 — *(SSE 구현)*
+- [x] 1. EventSource 대신 fetch+ReadableStream으로 SSE 직접 파싱하기 — *(SSE 구현)* — 4번 글에 함께 담음(`ngras-deep-dive-1`)
 - [ ] 2. React 19 useSyncExternalStore와 tearing — 두 스토어를 같은 틱에 건드리면 생기는 일 — *(React 19 리렌더링 버그)*
 - [ ] 3. 사내 LLM(Gauss)을 위한 다중 크레덴셜 스케줄러 설계 — *(LLM은 OpenAI/Anthropic이 아니라 삼성 사내 Gauss)*
-- [ ] 4. WebSocket과 SSE, 같은 인증 문제를 다르게 우회하기 — *(SSE 구현의 WS 비교 부분)*
+- [x] 4. WebSocket과 SSE, 같은 인증 문제를 다르게 우회하기 — *(SSE 구현의 WS 비교 부분)* — `ngras-deep-dive-1`
 - [ ] 5. 자체 회고 문서도 코드로 재검증해야 하는 이유 — *(회고)*
 
 > 각 article의 `projects` 필드는 `ngras`(포트폴리오 엔트리)에만 연결한다. 이 아카이브(`ngras-archive`)는 연결 대상이 아니다 (DESIGN_RULES 4-3).
