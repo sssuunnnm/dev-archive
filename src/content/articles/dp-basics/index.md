@@ -126,6 +126,108 @@ for (int i = 1; i < triangle.size(); i++) {
 }
 ```
 
+### 직접 눌러보기 — dp 테이블이 채워지는 과정
+
+아래 삼각형으로 `dp[i][j] = max(left, up) + value`가 위에서 아래로 한 칸씩 어떻게 채워지는지 재생한다. 강조된 칸이 지금 계산 중인 칸, 그 위에 연결된 칸이 `left`/`up`이다.
+
+<div class="dpdemo">
+<style>
+.dpdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .dpdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.dpdemo .tri-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; }
+.dpdemo .cell {
+  width: 56px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border-radius: 8px; background: var(--card2); border: 2px solid var(--line); transition: all .2s;
+}
+.dpdemo .cell .v { font-family: 'Fira Code', monospace; font-size: 10px; color: var(--sub); }
+.dpdemo .cell .dp { font-family: 'Fira Code', monospace; font-size: 15px; font-weight: 700; }
+.dpdemo .cell.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--card2)); }
+.dpdemo .cell.parent { border-color: var(--good); }
+.dpdemo .cell.best { border-color: var(--good); background: color-mix(in srgb, var(--good) 18%, var(--card2)); }
+.dpdemo .narr { min-height: 22px; font-size: 12.5px; color: var(--sub); margin: 10px 0 12px; text-align: center; }
+.dpdemo .narr b { color: var(--ink); font-family: 'Fira Code', monospace; }
+.dpdemo .controls { display: flex; gap: 10px; justify-content: center; }
+.dpdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.dpdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div id="dp_tri"></div>
+<div class="narr" id="dp_narr">재생 버튼을 누르면 위에서 아래로 한 칸씩 채웁니다.</div>
+<div class="controls"><button class="btn" id="dp_play">▶ 처음부터 재생</button></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('dpdemo')) return;
+  const TRIANGLE = [[7], [3, 8], [8, 1, 0], [2, 7, 4, 4]];
+  const triEl = root.querySelector('#dp_tri');
+  const narrEl = root.querySelector('#dp_narr');
+  const playBtn = root.querySelector('#dp_play');
+  const NEG = null;
+
+  function render(dp, curI, curJ, parents, bestJ) {
+    triEl.innerHTML = TRIANGLE.map((row, i) => `
+      <div class="tri-row">${row.map((v, j) => {
+        const isCur = i === curI && j === curJ;
+        const isParent = parents && i === curI - 1 && (j === parents[0] || j === parents[1]);
+        const isBest = bestJ != null && i === TRIANGLE.length - 1 && j === bestJ;
+        const dpVal = dp[i] && dp[i][j] != null ? dp[i][j] : '';
+        return `<div class="cell ${isCur ? 'cur' : ''} ${isParent ? 'parent' : ''} ${isBest ? 'best' : ''}">
+          <span class="v">val ${v}</span><span class="dp">${dpVal}</span>
+        </div>`;
+      }).join('')}</div>
+    `).join('');
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    const dp = TRIANGLE.map((row) => row.map(() => null));
+    dp[0][0] = TRIANGLE[0][0];
+    render(dp, 0, 0, null, null);
+    narrEl.innerHTML = `dp[0][0] = ${dp[0][0]} (맨 위 칸은 그대로 시작값)`;
+    await wait(900);
+    for (let i = 1; i < TRIANGLE.length; i++) {
+      for (let j = 0; j <= i; j++) {
+        if (my !== runId) return;
+        const leftJ = j > 0 ? j - 1 : null;
+        const upJ = j < i ? j : null;
+        render(dp, i, j, [leftJ, upJ], null);
+        const leftV = leftJ != null ? dp[i - 1][leftJ] : NEG;
+        const upV = upJ != null ? dp[i - 1][upJ] : NEG;
+        const parts = [];
+        if (leftV != null) parts.push(`left=dp[${i - 1}][${leftJ}]=${leftV}`);
+        if (upV != null) parts.push(`up=dp[${i - 1}][${upJ}]=${upV}`);
+        narrEl.innerHTML = `${parts.join(', ')} 중 큰 값 + val(${TRIANGLE[i][j]})`;
+        await wait(750);
+        if (my !== runId) return;
+        const best = Math.max(leftV ?? -Infinity, upV ?? -Infinity);
+        dp[i][j] = TRIANGLE[i][j] + best;
+        render(dp, i, j, [leftJ, upJ], null);
+        narrEl.innerHTML = `dp[${i}][${j}] = ${TRIANGLE[i][j]} + ${best} = <b>${dp[i][j]}</b>`;
+        await wait(600);
+      }
+    }
+    const lastRow = dp[dp.length - 1];
+    const maxVal = Math.max(...lastRow);
+    const bestJ = lastRow.indexOf(maxVal);
+    render(dp, -1, -1, null, bestJ);
+    narrEl.innerHTML = `마지막 줄에서 가장 큰 값 <b>${maxVal}</b>이 정답.`;
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+  render(TRIANGLE.map((row) => row.map(() => null)), -1, -1, null, null);
+})();
+</script>
+
 ## 주의사항
 
 - DP 배열의 인덱스 경계(맨 왼쪽/맨 오른쪽 칸처럼 한쪽 값이 없는 경우)를 놓치면 범위 밖 접근이나 잘못된 최댓값이 나온다. 위 예제처럼 없는 방향은 아주 작은 값(`-1e9`)으로 막아두는 방식이 안전하다.
