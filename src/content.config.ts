@@ -75,6 +75,15 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
+    // "이런 제품" 칩 목록 — 핵심 기능을 짧은 명사구로 나열 (예: "마이크로 루틴 챌린지")
+    features: z.array(z.string()).max(8).nullish(),
+    // 차별점 카드 (최대 3장) — 이 프로젝트만의 판단/설계를 짧게 어필
+    highlights: z.array(z.object({
+      icon: z.string(),        // 이모지 1개
+      title: z.string(),
+      description: z.string(),
+      tag: z.string(),         // 카드 하단 요약 태그 (예: "실패 부담 zero")
+    })).max(3).nullish(),
     stack: z.array(technologyEnum),
     github: z.string().url().nullish(),
     status: z.enum(['in-progress', 'done', 'archived']),
