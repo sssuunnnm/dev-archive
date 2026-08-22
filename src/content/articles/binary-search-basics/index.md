@@ -104,6 +104,109 @@ long long solution(int n, vector<int> times) {
 
 "시간을 1부터 하나씩 늘려가며 확인"하면 시간초과가 나지만, 이분탐색으로 후보 시간을 반씩 좁히면 O(log(범위))로 확 줄어든다.
 
+### 직접 눌러보기 — lo/hi가 좁혀지는 과정
+
+`n=6`, `times=[7,10]`일 때 실제로 `lo`/`hi`/`mid`가 어떻게 움직여 답 `28`에 도달하는지 재생해본다.
+
+<div class="psdemo">
+<style>
+.psdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a; --bad: #dc2626;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .psdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.psdemo .vals { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; font-size: 13px; color: var(--sub); }
+.psdemo .vals b { color: var(--ink); font-family: 'Fira Code', monospace; }
+.psdemo .track { position: relative; height: 34px; background: var(--card2); border-radius: 8px; margin-bottom: 6px; }
+.psdemo .range { position: absolute; top: 0; bottom: 0; background: var(--accent); opacity: .25; border-radius: 8px; }
+.psdemo .mid-mark { position: absolute; top: -6px; bottom: -6px; width: 2px; background: var(--ink); }
+.psdemo .mid-label { position: absolute; top: -26px; transform: translateX(-50%); font-size: 11px; font-weight: 700; font-family: 'Fira Code', monospace; }
+.psdemo .axis { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--sub); margin-bottom: 14px; }
+.psdemo .controls { display: flex; gap: 10px; margin-bottom: 12px; }
+.psdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.psdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+.psdemo .log {
+  font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+  background: #0f1633; color: #9fb0e8; border-radius: 10px; padding: 12px 14px; line-height: 1.8; min-height: 40px; white-space: pre-wrap;
+}
+.psdemo .log .ok { color: #7ee0a0; }
+.psdemo .log .no { color: #ff8a8a; }
+</style>
+
+<div class="vals">
+  <span>lo = <b id="ps_lo">1</b></span>
+  <span>hi = <b id="ps_hi">60</b></span>
+  <span>mid = <b id="ps_mid">-</b></span>
+  <span>answer = <b id="ps_ans">-</b></span>
+</div>
+<div class="track" id="ps_track">
+  <div class="range" id="ps_range"></div>
+  <div class="mid-mark" id="ps_midmark" style="display:none"><span class="mid-label" id="ps_midlabel"></span></div>
+</div>
+<div class="axis"><span>1</span><span>60</span></div>
+<div class="controls">
+  <button class="btn" id="ps_play">▶ 처음부터 재생</button>
+</div>
+<div class="log" id="ps_log">// 재생하면 isPossible(mid) 판정 과정이 여기 표시됩니다</div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('psdemo')) return;
+  const TIMES = [7, 10], N = 6, MAXV = 60;
+  function isPossible(mid) { return TIMES.reduce((s, t) => s + Math.floor(mid / t), 0) >= N; }
+
+  const elLo = root.querySelector('#ps_lo'), elHi = root.querySelector('#ps_hi');
+  const elMid = root.querySelector('#ps_mid'), elAns = root.querySelector('#ps_ans');
+  const elRange = root.querySelector('#ps_range'), elMark = root.querySelector('#ps_midmark'), elMarkLabel = root.querySelector('#ps_midlabel');
+  const elLog = root.querySelector('#ps_log');
+  const playBtn = root.querySelector('#ps_play');
+  const pct = (v) => ((v - 1) / (MAXV - 1)) * 100;
+
+  function render(lo, hi, mid) {
+    elLo.textContent = lo; elHi.textContent = hi;
+    elRange.style.left = pct(lo) + '%'; elRange.style.width = Math.max(0, pct(hi) - pct(lo)) + '%';
+    if (mid != null) {
+      elMid.textContent = mid; elMark.style.display = 'block';
+      elMark.style.left = pct(mid) + '%'; elMarkLabel.textContent = mid;
+    } else { elMid.textContent = '-'; elMark.style.display = 'none'; }
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    elLog.innerHTML = ''; elAns.textContent = '-';
+    let lo = 1, hi = MAXV, answer = -1;
+    render(lo, hi, null);
+    await wait(500);
+    while (lo <= hi) {
+      if (my !== runId) return;
+      const mid = lo + Math.floor((hi - lo) / 2);
+      render(lo, hi, mid);
+      const ok = isPossible(mid);
+      const count = TIMES.reduce((s, t) => s + Math.floor(mid / t), 0);
+      elLog.innerHTML += `mid=${mid} → count=${count} ${ok ? '&gt;= 6' : '&lt; 6'} → <span class="${ok ? 'ok' : 'no'}">${ok ? 'isPossible=true' : 'isPossible=false'}</span>\n`;
+      elLog.scrollTop = elLog.scrollHeight;
+      await wait(900);
+      if (my !== runId) return;
+      if (ok) { answer = mid; elAns.textContent = answer; hi = mid - 1; }
+      else { lo = mid + 1; }
+      await wait(300);
+    }
+    render(lo, hi, null);
+    elLog.innerHTML += `<span class="ok">lo(${lo}) &gt; hi(${hi}) → 종료, answer = ${answer}</span>`;
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+  render(1, MAXV, null);
+})();
+</script>
+
 ## 주의사항
 
 - `lo + (hi - lo) / 2`로 mid를 계산하는 걸 습관화한다. `(lo + hi) / 2`는 값이 크면 오버플로우가 날 수 있다.

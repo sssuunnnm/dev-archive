@@ -163,6 +163,117 @@ int bfsGrid(vector<vector<int>>& board, int n, int m) {
 
 이 패턴은 "그래프"라는 말이 문제에 없어도, 격자 이동/최단거리라는 단어만 보이면 바로 BFS부터 떠올리면 된다.
 
+### 직접 눌러보기 — 격자에서 BFS가 퍼져나가는 과정
+
+왼쪽 위(파란 칸)에서 시작해 오른쪽 아래(초록 테두리 칸)까지, 검은 칸(벽)을 피해 BFS가 한 단계씩 퍼져나가는 걸 재생한다. 숫자는 시작 칸으로부터의 거리(`dist`)다.
+
+<div class="bfsdemo">
+<style>
+.bfsdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a; --wall: #44403c;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .bfsdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; --wall: #0a0a0a; }
+.bfsdemo .grid { display: grid; grid-template-columns: repeat(5, 44px); gap: 5px; margin-bottom: 12px; justify-content: center; }
+.bfsdemo .cell {
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; background: var(--card2); border: 2px solid var(--line);
+  font-family: 'Fira Code', monospace; font-weight: 700; font-size: 13px; transition: all .2s;
+}
+.bfsdemo .cell.wall { background: var(--wall); border-color: var(--wall); }
+.bfsdemo .cell.frontier { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 25%, var(--card2)); }
+.bfsdemo .cell.visited { color: var(--sub); }
+.bfsdemo .cell.start { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 35%, var(--card2)); }
+.bfsdemo .cell.end { border-color: var(--good); }
+.bfsdemo .narr { min-height: 22px; font-size: 12.5px; color: var(--sub); margin-bottom: 12px; text-align: center; }
+.bfsdemo .narr b { color: var(--ink); font-family: 'Fira Code', monospace; }
+.bfsdemo .controls { display: flex; gap: 10px; justify-content: center; }
+.bfsdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.bfsdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div class="grid" id="bfs_grid"></div>
+<div class="narr" id="bfs_narr">재생 버튼을 누르면 큐에서 하나씩 꺼내 상하좌우를 확인합니다.</div>
+<div class="controls"><button class="btn" id="bfs_play">▶ 처음부터 재생</button></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('bfsdemo')) return;
+  const BOARD = [
+    [1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1],
+  ];
+  const N = BOARD.length, M = BOARD[0].length;
+  const gridEl = root.querySelector('#bfs_grid');
+  const narrEl = root.querySelector('#bfs_narr');
+  const playBtn = root.querySelector('#bfs_play');
+
+  function render(dist, visited, frontierKey) {
+    let html = '';
+    for (let x = 0; x < N; x++) {
+      for (let y = 0; y < M; y++) {
+        const key = x + ',' + y;
+        let cls = '';
+        if (BOARD[x][y] === 0) cls = 'wall';
+        else if (x === 0 && y === 0) cls = 'start';
+        else if (x === N - 1 && y === M - 1) cls = 'end';
+        if (frontierKey === key) cls += ' frontier';
+        else if (visited[key]) cls += ' visited';
+        html += `<div class="cell ${cls}">${BOARD[x][y] === 0 ? '' : (dist[key] != null ? dist[key] : '')}</div>`;
+      }
+    }
+    gridEl.innerHTML = html;
+  }
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    const dist = {}, visited = {};
+    const queue = [[0, 0]];
+    visited['0,0'] = true; dist['0,0'] = 1;
+    render(dist, visited, '0,0');
+    narrEl.innerHTML = `시작 칸 (0,0)을 큐에 넣는다. dist=1.`;
+    await wait(700);
+    const dx = [-1, 1, 0, 0], dy = [0, 0, -1, 1];
+    while (queue.length) {
+      if (my !== runId) return;
+      const [x, y] = queue.shift();
+      const key = x + ',' + y;
+      render(dist, visited, key);
+      narrEl.innerHTML = `큐에서 (${x},${y}) 꺼냄 — 상하좌우 확인 중`;
+      await wait(550);
+      for (let d = 0; d < 4; d++) {
+        const nx = x + dx[d], ny = y + dy[d];
+        if (nx < 0 || nx >= N || ny < 0 || ny >= M) continue;
+        if (BOARD[nx][ny] === 0) continue;
+        const nkey = nx + ',' + ny;
+        if (visited[nkey]) continue;
+        visited[nkey] = true;
+        dist[nkey] = dist[key] + 1;
+        queue.push([nx, ny]);
+        render(dist, visited, key);
+        await wait(160);
+      }
+    }
+    const endKey = (N - 1) + ',' + (M - 1);
+    render(dist, visited, null);
+    narrEl.innerHTML = `큐가 비어 종료. 도착 칸까지 최단거리 = <b>${dist[endKey]}</b>`;
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+  render({}, {}, null);
+})();
+</script>
+
 ## 예제
 
 위 게임 맵 예시(5x5, 캐릭터가 (1,1)에서 (5,5)로 이동)를 그대로 `bfsGrid`에 넣으면, 벽으로 막힌 칸은 `board`값을 0으로, 갈 수 있는 칸은 1로 채운 뒤 함수를 호출하면 된다.

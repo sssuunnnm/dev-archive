@@ -75,6 +75,92 @@ while (true) {
 }
 ```
 
+#### 직접 눌러보기 — 청크가 이벤트 경계를 끊어도 안전하게 처리하기
+
+네트워크로 오는 청크는 SSE 이벤트 하나를 정확히 담아 오지 않는다. 아래는 두 번째 이벤트가 청크 중간에서 끊겨 도착하는 상황을 그대로 재생한 것이다 — `buffer`에 계속 이어붙이고, 완결된 이벤트만 뽑아내고, 잘린 조각은 버퍼에 남겨 다음 청크와 이어붙인다.
+
+<div class="ssedemo">
+<style>
+.ssedemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .ssedemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.ssedemo .row { margin-bottom: 12px; }
+.ssedemo .row .lbl { font-size: 11px; color: var(--sub); margin-bottom: 6px; }
+.ssedemo .box {
+  font-family: 'Fira Code', ui-monospace, Menlo, Consolas, monospace; font-size: 12px;
+  background: var(--card2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px;
+  min-height: 20px; white-space: pre-wrap; word-break: break-all;
+}
+.ssedemo .box.buffer { color: var(--sub); }
+.ssedemo .box.buffer .leftover { color: var(--ink); font-weight: 700; background: color-mix(in srgb, var(--accent) 20%, var(--card2)); border-radius: 3px; }
+.ssedemo .events { display: flex; flex-direction: column; gap: 6px; }
+.ssedemo .events .ev { font-family: 'Fira Code', monospace; font-size: 12px; background: #0f1633; color: #7ee0a0; border-radius: 6px; padding: 8px 10px; }
+.ssedemo .controls { display: flex; gap: 10px; margin-top: 4px; }
+.ssedemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.ssedemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div class="row"><div class="lbl">방금 받은 청크 (reader.read()의 value)</div><div class="box" id="sse_chunk">-</div></div>
+<div class="row"><div class="lbl">buffer (이어붙인 뒤, 강조된 부분은 다음으로 넘어갈 잘린 조각)</div><div class="box buffer" id="sse_buffer">-</div></div>
+<div class="row"><div class="lbl">이번에 뽑아낸 완결 이벤트 (handleSseEvent 호출)</div><div class="events" id="sse_events"></div></div>
+<div class="controls"><button class="btn" id="sse_play">▶ 처음부터 재생</button></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('ssedemo')) return;
+  const CHUNKS = [
+    'event: progress\ndata: {"pct":10}\n\nevent: progress\ndata: {"pc',
+    't":20}\n\n',
+    'event: progress\r\ndata: {"pct":50}\r\n\r\n', // 서버에 따라 CRLF로 오는 경우도 실제 파서가 처리한다
+    'event: completed\ndata: {"pct":100}\n\n',
+  ];
+  const chunkEl = root.querySelector('#sse_chunk');
+  const bufferEl = root.querySelector('#sse_buffer');
+  const eventsEl = root.querySelector('#sse_events');
+  const playBtn = root.querySelector('#sse_play');
+  const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+  let runId = 0;
+  async function play() {
+    const my = ++runId;
+    playBtn.disabled = true;
+    eventsEl.innerHTML = '';
+    let buffer = '';
+    chunkEl.textContent = '-'; bufferEl.textContent = '-';
+    await wait(300);
+    for (const chunk of CHUNKS) {
+      if (my !== runId) return;
+      chunkEl.textContent = chunk;
+      buffer += chunk;
+      bufferEl.innerHTML = esc(buffer).replace(/\r/g, '\\r').replace(/\n/g, '\\n');
+      await wait(900);
+      if (my !== runId) return;
+      const events = buffer.split(/\r\n\r\n|\n\n|\r\r/); // 실제 파서와 동일하게 CRLF/LF/CR 경계를 모두 인식
+      const leftover = events.pop() ?? '';
+      buffer = leftover;
+      bufferEl.innerHTML = leftover ? `<span class="leftover">${esc(leftover).replace(/\r/g, '\\r').replace(/\n/g, '\\n')}</span> (다음 청크와 이어붙일 조각)` : '(완결된 이벤트만 있어 남는 조각 없음)';
+      for (const raw of events) {
+        if (!raw.trim()) continue;
+        const div = document.createElement('div');
+        div.className = 'ev';
+        div.textContent = 'handleSseEvent(' + JSON.stringify(raw) + ')';
+        eventsEl.appendChild(div);
+      }
+      await wait(900);
+    }
+    playBtn.disabled = false;
+  }
+  playBtn.addEventListener('click', play);
+})();
+</script>
+
 **WebSocket 쪽 우회**: `WebSocket` 생성자는 `new WebSocket(url, protocols)` 형태로, 애초에 헤더를 받는 파라미터 자체가 없다. 두 번째 인자(`protocols`)는 서브프로토콜 협상용이라 인증 토큰을 실을 용도가 아니다. 쿠키 기반 세션이나 연결 후 첫 메시지로 인증 정보를 보내는 방식도 대안이 될 수 있지만, 이 프로젝트는 JWT를 헤더로 검증하는 기존 인증 방식을 그대로 재사용하고 싶었기 때문에 다른 우회를 택했다 — 먼저 `POST /auth/ws-token`으로 단기 유효 토큰을 발급받고, 그 토큰을 쿼리스트링에 담아 WebSocket을 연다.
 
 ```ts

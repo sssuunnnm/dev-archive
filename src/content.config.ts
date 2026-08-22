@@ -15,6 +15,7 @@ const technologyEnum = z.enum([
   'mysql', 'redis', 'mongodb', 'postgresql', 'chromadb',
   'android', 'kotlin', 'mapbox', 'fcm',
   'kafka', 'websocket', 'sse', 'fastapi', 'langchain', 'openai', 'gemini',
+  'zustand',
   // 새 기술 추가 시 이 목록에 먼저 등록할 것
 ]);
 
