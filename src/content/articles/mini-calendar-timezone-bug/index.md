@@ -2,6 +2,7 @@
 title: 정적 사이트에서 "오늘"이 며칠씩 어긋난 이유
 description: 홈 화면 미니 캘린더가 배포 시점에 멈춰있던 문제를 원인 분석하고, 빌드 타임 계산을 클라이언트 계산으로 옮겨 해결한 과정을 정리한다.
 date: 2026-08-21
+updated: 2026-08-22
 category: development
 technology: [astro, typescript, github-actions]
 tags: [timezone, static-site]
@@ -113,6 +114,78 @@ const postedDates = articles.map((post) => post.data.date.toISOString().slice(0,
 **날짜 문자열은 `format()`이 아니라 `formatToParts()`로 조립했다.** `format()`이 반환하는 문자열은 사람이 읽기 좋은 "표시용" 형식이라, 특정 로케일(`en-CA`)을 쓰면 우연히 `YYYY-MM-DD` 순서로 나오긴 하지만 이건 그 로케일의 표시 관례일 뿐 코드가 기대도 되는 고정된 계약은 아니다. 날짜를 특정 형식의 문자열 키로 써야 한다면 `formatToParts()`로 연/월/일 값을 각각 뽑아 원하는 형식으로 직접 조립하는 편이 더 안전하다.
 
 **요일·일수 계산은 UTC 기반 Date로만 했다.** `new Date(Date.UTC(year, month, 1)).getUTCDay()`처럼 UTC 생성자와 UTC getter를 짝지어 쓰면, 특정 연-월-일의 요일이 실행 환경 타임존에 전혀 영향받지 않는다. 로컬 생성자(`new Date(year, month, 1)`)와 로컬 getter를 쓰면 실행 환경 타임존에 따라 결과가 달라질 여지가 남는다.
+
+### 직접 눌러보기 — 배포 후 며칠이 지나면 어떻게 달라지는가
+
+8/19에 배포했다고 가정하고, 슬라이더로 "방문자가 실제로 접속한 날"을 옮겨본다. Before는 빌드 시점에 박제된 "오늘"이 그대로 남아있고, After는 방문 시점을 따라 다시 계산된다.
+
+<div class="tzdemo">
+<style>
+.tzdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --bad: #dc2626; --good: #16a34a;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .tzdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.tzdemo .panel { margin-bottom: 14px; }
+.tzdemo .panel .label { font-size: 12px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.tzdemo .panel .badge { font-size: 10px; padding: 2px 8px; border-radius: 999px; color: #fff; }
+.tzdemo .panel.before .badge { background: var(--bad); }
+.tzdemo .panel.after .badge { background: var(--good); }
+.tzdemo .days { display: flex; gap: 5px; flex-wrap: wrap; }
+.tzdemo .day {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border-radius: 7px; background: var(--card2); border: 2px solid var(--line);
+  font-family: 'Fira Code', monospace; font-size: 12px; transition: all .15s;
+}
+.tzdemo .day.today { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, var(--card2)); font-weight: 700; }
+.tzdemo .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.tzdemo input[type="range"] { flex: 1; }
+.tzdemo .visit-label { font-size: 12.5px; color: var(--sub); white-space: nowrap; }
+.tzdemo .visit-label b { color: var(--ink); font-family: 'Fira Code', monospace; }
+</style>
+
+<div class="panel before">
+  <div class="label"><span class="badge">BEFORE</span> 빌드 시점(new Date()) — 항상 8/19에 멈춰있음</div>
+  <div class="days" id="tz_before"></div>
+</div>
+<div class="panel after">
+  <div class="label"><span class="badge">AFTER</span> 방문 시점 클라이언트 계산 — 슬라이더를 따라간다</div>
+  <div class="days" id="tz_after"></div>
+</div>
+<div class="slider-row">
+  <input type="range" id="tz_slider" min="0" max="10" value="0" />
+  <span class="visit-label">배포 후 <b id="tz_n">0</b>일 뒤 방문 → 실제 날짜 <b id="tz_visit">8/19</b></span>
+</div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('tzdemo')) return;
+  const DEPLOY_DAY = 19;
+  const RANGE = Array.from({ length: 16 }, (_, i) => DEPLOY_DAY - 2 + i); // 17~32(다음달 넘어가면 그냥 숫자로 표시)
+  const beforeEl = root.querySelector('#tz_before');
+  const afterEl = root.querySelector('#tz_after');
+  const slider = root.querySelector('#tz_slider');
+  const nEl = root.querySelector('#tz_n');
+  const visitEl = root.querySelector('#tz_visit');
+
+  function renderDays(el, todayDay) {
+    el.innerHTML = RANGE.map((d) => `<div class="day ${d === todayDay ? 'today' : ''}">${d}</div>`).join('');
+  }
+  function update() {
+    const n = Number(slider.value);
+    nEl.textContent = n;
+    visitEl.textContent = `8/${DEPLOY_DAY + n}`;
+    renderDays(beforeEl, DEPLOY_DAY); // 항상 배포일에 고정
+    renderDays(afterEl, DEPLOY_DAY + n); // 슬라이더를 따라 이동
+  }
+  slider.addEventListener('input', update);
+  update();
+})();
+</script>
 
 ## 정리
 
