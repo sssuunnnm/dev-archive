@@ -35,7 +35,7 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
 | 하네스 엔지니어링 | 모델을 감싸는 실행 루프·환경 전체를 설계 | 반복 루프 구조, 승인/거부 흐름, 실패 복구, 상태 관리 |
 | 에이전트 엔지니어링 | 위 레이어를 조합해 자율적으로 목표를 수행하게 만들기 | 멀티스텝 계획, 서브에이전트 위임, 관찰-행동 루프 |
 
-이 표에서 위로 갈수록 "모델 안에서" 해결되는 문제고, 아래로 갈수록 "모델 바깥의 시스템"이 해결해야 하는 문제다.
+프롬프트와 컨텍스트도 모델 내부에서 벌어지는 일이 아니라, 실행 시스템이 모델을 호출하기 전에 준비해서 넣어주는 입력이다. 이 표에서 위로 갈수록 "한 번의 모델 호출에 넣는 입력"으로 조정되는 문제고, 아래로 갈수록 "호출·도구·상태를 관리하는 실행 루프" 자체가 해결해야 하는 문제다.
 
 ### 직접 살펴보기 — 요청 한 번이 처리되는 동안 각 레이어가 개입하는 순서
 
@@ -53,16 +53,19 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
 .pvhdemo .steps { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .pvhdemo .step {
   display: flex; gap: 10px; align-items: baseline; padding: 8px 10px; border-radius: 8px;
-  border: 1px solid var(--line); background: var(--card2); opacity: .45; transition: all .2s;
+  border: 1px solid var(--line); background: var(--card2); transition: all .2s;
 }
-.pvhdemo .step.active { opacity: 1; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card2)); }
-.pvhdemo .step .idx { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--accent); flex: none; width: 18px; }
-.pvhdemo .step .txt { flex: 1; }
+.pvhdemo .step.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.pvhdemo .step .idx { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--sub); flex: none; width: 18px; }
+.pvhdemo .step.active .idx { color: var(--accent); }
+.pvhdemo .step .txt { flex: 1; color: var(--sub); }
+.pvhdemo .step.active .txt { color: var(--ink); font-weight: 600; }
 .pvhdemo .step .layer { font-size: 11px; color: var(--sub); flex: none; }
 .pvhdemo .step.active .layer { color: var(--accent); font-weight: 700; }
 .pvhdemo .controls { display: flex; gap: 10px; align-items: center; }
 .pvhdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
 .pvhdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+.pvhdemo .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 </style>
 
 <div class="steps" id="pvh_steps"></div>
@@ -70,6 +73,7 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
   <button class="btn" id="pvh_next">다음 단계 →</button>
   <button class="btn" id="pvh_reset">처음부터</button>
 </div>
+<div class="sr-only" id="pvh_status" aria-live="polite"></div>
 </div>
 
 <script>
@@ -79,13 +83,16 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
   const stepsEl = root.querySelector('#pvh_steps');
   const nextBtn = root.querySelector('#pvh_next');
   const resetBtn = root.querySelector('#pvh_reset');
+  const statusEl = root.querySelector('#pvh_status');
 
   const STEPS = [
     { txt: '사용자 메시지 도착', layer: '' },
     { txt: '이전 대화 요약 + 검색 결과를 컨텍스트에 배치', layer: '컨텍스트 엔지니어링' },
     { txt: '시스템 지시문 + few-shot으로 요청 구성', layer: '프롬프트 엔지니어링' },
     { txt: '모델이 응답 — 어떤 도구를 어떤 인자로 부를지 결정', layer: '툴 엔지니어링(스키마가 선택지를 정함)' },
-    { txt: '도구 실행 — 성공/실패, 재시도 여부, 승인 필요 여부 판단', layer: '하네스 엔지니어링' },
+    { txt: '실행 전 승인이 필요한 행동인지 확인', layer: '하네스 엔지니어링' },
+    { txt: '도구 실행', layer: '하네스 엔지니어링' },
+    { txt: '실행 결과 평가 — 재시도할지, 사람에게 물어볼지 판단', layer: '하네스 엔지니어링' },
     { txt: '도구 결과를 다시 컨텍스트에 반영', layer: '컨텍스트 + 하네스 엔지니어링' },
     { txt: '다음 행동 결정 — 반복할지 종료할지', layer: '에이전트 엔지니어링(전체 레이어 조합)' },
   ];
@@ -93,13 +100,16 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
   let cur = -1;
   function render() {
     stepsEl.innerHTML = STEPS.map((s, i) => `
-      <div class="step ${i === cur ? 'active' : ''}">
+      <div class="step ${i === cur ? 'active' : ''}" ${i === cur ? 'aria-current="step"' : ''}>
         <span class="idx">${i + 1}</span>
         <span class="txt">${s.txt}</span>
         <span class="layer">${s.layer}</span>
       </div>
     `).join('');
     nextBtn.disabled = cur >= STEPS.length - 1;
+    statusEl.textContent = cur < 0
+      ? '아직 시작하지 않음'
+      : `${cur + 1}단계: ${STEPS[cur].txt}${STEPS[cur].layer ? ` (${STEPS[cur].layer})` : ''}`;
   }
   nextBtn.addEventListener('click', () => { if (cur < STEPS.length - 1) { cur++; render(); } });
   resetBtn.addEventListener('click', () => { cur = -1; render(); });
