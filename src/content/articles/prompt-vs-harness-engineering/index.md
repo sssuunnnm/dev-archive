@@ -37,6 +37,76 @@ LLM을 다루는 작업이 커지면서 "프롬프트 엔지니어링", "컨텍�
 
 이 표에서 위로 갈수록 "모델 안에서" 해결되는 문제고, 아래로 갈수록 "모델 바깥의 시스템"이 해결해야 하는 문제다.
 
+### 직접 살펴보기 — 요청 한 번이 처리되는 동안 각 레이어가 개입하는 순서
+
+에이전트가 도구를 한 번 호출하는 요청 하나가 어떤 순서로 처리되는지, 각 단계에서 어느 레이어가 관여하는지를 순서대로 짚어본다.
+
+<div class="pvhdemo">
+<style>
+.pvhdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .pvhdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; }
+.pvhdemo .steps { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.pvhdemo .step {
+  display: flex; gap: 10px; align-items: baseline; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--card2); opacity: .45; transition: all .2s;
+}
+.pvhdemo .step.active { opacity: 1; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card2)); }
+.pvhdemo .step .idx { font-family: 'Fira Code', monospace; font-weight: 700; color: var(--accent); flex: none; width: 18px; }
+.pvhdemo .step .txt { flex: 1; }
+.pvhdemo .step .layer { font-size: 11px; color: var(--sub); flex: none; }
+.pvhdemo .step.active .layer { color: var(--accent); font-weight: 700; }
+.pvhdemo .controls { display: flex; gap: 10px; align-items: center; }
+.pvhdemo .btn { background: var(--ink); color: var(--card); border: 0; border-radius: 8px; padding: 9px 16px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer; }
+.pvhdemo .btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+
+<div class="steps" id="pvh_steps"></div>
+<div class="controls">
+  <button class="btn" id="pvh_next">다음 단계 →</button>
+  <button class="btn" id="pvh_reset">처음부터</button>
+</div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('pvhdemo')) return;
+  const stepsEl = root.querySelector('#pvh_steps');
+  const nextBtn = root.querySelector('#pvh_next');
+  const resetBtn = root.querySelector('#pvh_reset');
+
+  const STEPS = [
+    { txt: '사용자 메시지 도착', layer: '' },
+    { txt: '이전 대화 요약 + 검색 결과를 컨텍스트에 배치', layer: '컨텍스트 엔지니어링' },
+    { txt: '시스템 지시문 + few-shot으로 요청 구성', layer: '프롬프트 엔지니어링' },
+    { txt: '모델이 응답 — 어떤 도구를 어떤 인자로 부를지 결정', layer: '툴 엔지니어링(스키마가 선택지를 정함)' },
+    { txt: '도구 실행 — 성공/실패, 재시도 여부, 승인 필요 여부 판단', layer: '하네스 엔지니어링' },
+    { txt: '도구 결과를 다시 컨텍스트에 반영', layer: '컨텍스트 + 하네스 엔지니어링' },
+    { txt: '다음 행동 결정 — 반복할지 종료할지', layer: '에이전트 엔지니어링(전체 레이어 조합)' },
+  ];
+
+  let cur = -1;
+  function render() {
+    stepsEl.innerHTML = STEPS.map((s, i) => `
+      <div class="step ${i === cur ? 'active' : ''}">
+        <span class="idx">${i + 1}</span>
+        <span class="txt">${s.txt}</span>
+        <span class="layer">${s.layer}</span>
+      </div>
+    `).join('');
+    nextBtn.disabled = cur >= STEPS.length - 1;
+  }
+  nextBtn.addEventListener('click', () => { if (cur < STEPS.length - 1) { cur++; render(); } });
+  resetBtn.addEventListener('click', () => { cur = -1; render(); });
+  render();
+})();
+</script>
+
 ### 프롬프트 엔지니어링: 한 번의 대화 안에서 승부
 
 모델을 호출하는 코드나 실행 환경은 그대로 두고, 텍스트로 넣는 지시문만 바꿔서 결과를 개선하는 작업이다.
