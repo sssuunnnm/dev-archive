@@ -39,9 +39,9 @@ draft: true
 
 ### RDB 안에서도 다르다 — PostgreSQL vs MySQL
 
-- **PostgreSQL**: `JSONB`, 배열, 커스텀 타입처럼 확장된 타입 시스템을 지원해서 RDB이면서도 준정형 데이터를 다루기 편하다. 윈도우 함수, CTE 같은 복잡한 쿼리 기능이 강하다.
-- **MySQL**: 단순한 CRUD 위주 워크로드에서 오래 검증된 성능과 레플리케이션 생태계를 갖고 있다. 스토리지 엔진(InnoDB)이 단순한 읽기/쓰기 패턴에 최적화되어 있다.
-- **선택 기준**: 복잡한 쿼리·데이터 무결성·확장 타입이 중요하면 PostgreSQL, 단순한 트래픽 위주고 기존 생태계/운영 경험이 MySQL에 맞춰져 있으면 MySQL도 충분히 좋은 선택이다.
+- **PostgreSQL**: `JSONB`, 배열, 커스텀 타입처럼 PostgreSQL에만 있는 확장된 타입 시스템을 지원해서 RDB이면서도 준정형 데이터를 다루기 편하다.
+- **MySQL**: 단순한 CRUD 위주 워크로드에서 오래 검증된 성능과 레플리케이션 생태계를 갖고 있다. 스토리지 엔진(InnoDB)이 단순한 읽기/쓰기 패턴에 최적화되어 있다. 윈도우 함수와 CTE는 MySQL 8.0부터 지원하므로, 이 둘만으로는 PostgreSQL과 MySQL을 가르는 기준이 되지 않는다 (8.0 미만 버전을 운영 중이라면 예외).
+- **선택 기준**: `JSONB`·배열·커스텀 타입 같은 PostgreSQL 고유 확장이 필요하거나 데이터 무결성이 특히 중요하면 PostgreSQL, 단순한 트래픽 위주고 기존 생태계/운영 경험이 MySQL(8.0 이상)에 맞춰져 있으면 MySQL도 충분히 좋은 선택이다.
 
 ### NoSQL 안에서도 여러 종류다
 
@@ -142,9 +142,9 @@ collection.query(query_embeddings=[...], n_results=5)
       ],
     },
     q2a: {
-      q: '복잡한 조인, 윈도우 함수, JSONB 같은 확장 타입이 필요한가요?',
+      q: 'JSONB, 배열, 커스텀 타입 같은 PostgreSQL 고유 확장 타입이 필요한가요?',
       opts: [
-        { label: '예', result: { name: 'PostgreSQL', reason: '복잡한 쿼리와 JSONB·배열 같은 확장 타입을 지원하는 RDB' } },
+        { label: '예', result: { name: 'PostgreSQL', reason: 'JSONB·배열 같은 PostgreSQL 고유 확장 타입을 지원하는 RDB (참고: 윈도우 함수·CTE는 MySQL 8.0부터도 지원)' } },
         { label: '아니오', result: { name: 'MySQL', reason: '단순한 CRUD 위주 워크로드에 최적화된 생태계와 레플리케이션' } },
       ],
     },
@@ -171,7 +171,7 @@ collection.query(query_embeddings=[...], n_results=5)
     trailEl.textContent = path.length ? path.map((p) => `${p.answer}`).join(' → ') + ' →' : '';
   }
 
-  function renderQuestion() {
+  function renderQuestion(focusFirst) {
     const node = TREE[cur];
     boxEl.innerHTML = `
       <div class="qtext">${node.q}</div>
@@ -186,10 +186,15 @@ collection.query(query_embeddings=[...], n_results=5)
           renderResult(opt.result);
         } else {
           cur = opt.next;
-          renderQuestion();
+          renderQuestion(true);
         }
       });
     });
+    // 사용자 조작(답변 선택/재시작)으로 다시 그렸을 때만 포커스를 옮긴다 — 최초 렌더링에서는 자동 포커스하지 않는다
+    if (focusFirst) {
+      const first = boxEl.querySelector('.optbtn');
+      if (first) first.focus();
+    }
   }
 
   function renderResult(result) {
@@ -200,10 +205,13 @@ collection.query(query_embeddings=[...], n_results=5)
         <button class="resetbtn" id="dbd_reset">처음부터 다시</button>
       </div>
     `;
-    boxEl.querySelector('#dbd_reset').addEventListener('click', () => {
+    const resetBtn = boxEl.querySelector('#dbd_reset');
+    resetBtn.addEventListener('click', () => {
       path = []; cur = 'q1';
-      renderTrail(); renderQuestion();
+      renderTrail(); renderQuestion(true);
     });
+    // 결과 화면은 항상 사용자 클릭 이후에만 그려지므로 다음 조작 지점(재시작 버튼)으로 포커스를 옮긴다
+    resetBtn.focus();
   }
 
   renderTrail();
@@ -236,7 +244,7 @@ collection.query(query_embeddings=[...], n_results=5)
 ## 주의사항
 
 - DB 종류를 늘릴 때마다 운영·백업·모니터링 대상이 하나씩 늘어난다. "이 데이터 특성에 딱 맞는 DB가 있다"는 것과 "그래서 반드시 그 DB를 추가해야 한다"는 것은 별개의 판단이다 — 늘어나는 운영 비용을 상회하는 이점이 있는지 먼저 따져야 한다.
-- CAP 이론은 "이거 아니면 저거"의 이분법이 아니라 트레이드오프의 스펙트럼이다. 같은 PostgreSQL도 복제 구성(동기/비동기)에 따라 일관성 수준이 달라진다.
+- CAP 이론은 "이거 아니면 저거"의 이분법이 아니라, 네트워크 분단 상황에서 일관성과 가용성 중 무엇을 포기할지에 대한 트레이드오프다. 이건 복제 구성과는 별개의 개념이다 — 예를 들어 PostgreSQL의 동기 복제는 커밋 대기 시간과 내구성에 영향을 주고, 비동기 복제는 지연과 장애 조치(failover) 시 데이터 손실 위험을 만든다. 실제 읽기 일관성은 `synchronous_commit`/`remote_apply` 같은 설정, 읽기 트래픽을 어디로 라우팅하는지, 장애 조치 정책까지 종합적으로 따져야 정해진다.
 - 여기 소개한 매핑은 일반적인 경향이지, 절대적인 규칙은 아니다. 실제로는 팀의 운영 경험, 기존 인프라, 트래픽 패턴에 따라 같은 요구사항에도 다른 DB를 고르는 게 정상이다.
 
 ## 참고자료
