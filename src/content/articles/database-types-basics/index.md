@@ -53,17 +53,41 @@ draft: true
 
 ### 다섯 가지 DB를 한 표로 비교
 
-앞에서 다룬 PostgreSQL, MySQL, MongoDB, Redis, ChromaDB를 데이터 모델·쿼리 방식·대표 사용처·최근 경향으로 나란히 놓으면 이렇다.
+앞에서 다룬 PostgreSQL, MySQL, MongoDB, Redis, ChromaDB를 데이터 모델·대표 사용처·최근 경향으로 나란히 놓으면 이렇다.
 
-| DB | 데이터 모델 | 쿼리 방식(예시) | 대표 사용처 | 최근 경향 |
-|---|---|---|---|---|
-| PostgreSQL | 관계형(테이블) + JSONB로 반정형도 수용 | SQL — `SELECT * FROM users WHERE id = 1;` | 정형 데이터, 트랜잭션이 중요한 도메인 | `pgvector` 같은 확장으로 벡터 검색까지 흡수하면서 "일단 Postgres부터" 고려하는 흐름이 강해지는 중 |
-| MySQL | 관계형(테이블) | SQL — 문법은 PostgreSQL과 거의 같지만 세부 함수·타입이 다름 | 단순 CRUD, 읽기 위주 웹 서비스 | 여전히 널리 쓰이지만, 신규 프로젝트에서는 PostgreSQL을 먼저 검토하는 팀이 늘어나는 추세 |
-| MongoDB | 문서(JSON/BSON) | 문서 쿼리 API — `db.users.findOne({ _id: 1 })` | 스키마가 자주 바뀌는 데이터, 빠른 프로토타이핑 | 한때 "NoSQL 대세"로 불렸지만, RDB의 JSONB 지원이 늘면서 상대적으로 선택 이유가 좁아지는 편 |
-| Redis | 키-값 + 다양한 자료구조(string/list/set/hash/sorted set) | 커맨드 기반 — `GET user:1` | 캐시, 세션, 실시간 랭킹, 큐 | RDB/NoSQL 논쟁과 무관하게 캐시 레이어로는 거의 기본값처럼 쓰임 |
-| ChromaDB (벡터 DB) | 벡터 임베딩 + 메타데이터 | 유사도 검색 API — `collection.query(query_embeddings=[...], n_results=5)` | 추천, RAG, 시맨틱 검색 | LLM 애플리케이션이 늘면서 수요가 급증했지만, `pgvector` 같은 RDB 확장과도 경쟁하는 구도 |
+| DB | 데이터 모델 | 대표 사용처 | 최근 경향 |
+|---|---|---|---|
+| PostgreSQL | 관계형(테이블) + JSONB로 반정형도 수용 | 정형 데이터, 트랜잭션이 중요한 도메인 | `pgvector` 같은 확장으로 벡터 검색까지 흡수하면서 "일단 Postgres부터" 고려하는 흐름이 강해지는 중 |
+| MySQL | 관계형(테이블) | 단순 CRUD, 읽기 위주 웹 서비스 | 여전히 널리 쓰이지만, 신규 프로젝트에서는 PostgreSQL을 먼저 검토하는 팀이 늘어나는 추세 |
+| MongoDB | 문서(JSON/BSON) | 스키마가 자주 바뀌는 데이터, 빠른 프로토타이핑 | 한때 "NoSQL 대세"로 불렸지만, RDB의 JSONB 지원이 늘면서 상대적으로 선택 이유가 좁아지는 편 |
+| Redis | 키-값 + 다양한 자료구조(string/list/set/hash/sorted set) | 캐시, 세션, 실시간 랭킹, 큐 | RDB/NoSQL 논쟁과 무관하게 캐시 레이어로는 거의 기본값처럼 쓰임 |
+| ChromaDB (벡터 DB) | 벡터 임베딩 + 메타데이터 | 추천, RAG, 시맨틱 검색 | LLM 애플리케이션이 늘면서 수요가 급증했지만, `pgvector` 같은 RDB 확장과도 경쟁하는 구도 |
 
-여기서 "쿼리 방식" 칸만 봐도 알 수 있듯, RDB 두 개(PostgreSQL/MySQL)는 같은 SQL 문법을 공유하지만 나머지는 저마다 완전히 다른 API/커맨드 체계를 쓴다 — 그만큼 팀에 새 DB를 하나 들이는 건 "쿼리 문법을 하나 더 배우는" 비용도 같이 따라온다.
+### 쿼리 방식도 다 다르다
+
+같은 "값을 하나 조회한다"는 동작도 DB마다 완전히 다른 문법/API를 쓴다. RDB 두 개(PostgreSQL/MySQL)만 SQL을 공유하고, 나머지는 저마다 다른 체계다.
+
+```sql
+-- PostgreSQL / MySQL: SQL
+SELECT * FROM users WHERE id = 1;
+```
+
+```javascript
+// MongoDB: 문서 쿼리 API
+db.users.findOne({ _id: 1 });
+```
+
+```bash
+# Redis: 커맨드 기반
+GET user:1
+```
+
+```python
+# ChromaDB: 유사도 검색 API
+collection.query(query_embeddings=[...], n_results=5)
+```
+
+그만큼 팀에 새 DB를 하나 들이는 건 "쿼리 문법을 하나 더 배우는" 비용도 같이 따라온다.
 
 ### 실무 경향 — 왜 다들 일단 PostgreSQL부터 고려하는가
 
