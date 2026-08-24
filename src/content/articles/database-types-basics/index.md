@@ -12,7 +12,7 @@ series:
 projects:
 related:
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
