@@ -62,7 +62,7 @@ Docker 하나로 다 되는 것처럼 보이지만, 내부는 여러 계층으�
 
 ### 직접 살펴보기 — VM 방식 vs 컨테이너 방식 레이어 비교
 
-같은 애플리케이션 3개를 띄운다고 할 때, VM 방식과 컨테이너 방식의 레이어 구조가 어떻게 다른지 비교한다.
+같은 애플리케이션 3개를 각각 별도 VM 또는 컨테이너로 격리한다고 할 때, 두 방식의 레이어 구조가 어떻게 다른지 비교한다.
 
 <div class="vcdemo">
 <style>
@@ -117,7 +117,7 @@ Docker 하나로 다 되는 것처럼 보이지만, 내부는 여러 계층으�
           <div class="unit"><div class="guest">Guest OS</div><div class="app">App</div></div>
         </div>
       </div>
-      <div class="summary">앱 3개를 띄우려면 <b>Guest OS 3벌</b>이 함께 뜬다 — 앱 하나당 OS 하나가 추가 비용이다.</div>
+      <div class="summary">앱 3개를 각각 별도 VM으로 실행하면 <b>Guest OS 3벌</b>이 함께 뜬다 — 앱 하나당 OS 하나가 추가 비용이다.</div>
     `;
   }
   function renderContainer() {
@@ -132,7 +132,7 @@ Docker 하나로 다 되는 것처럼 보이지만, 내부는 여러 계층으�
           <div class="unit"><div class="app">App</div></div>
         </div>
       </div>
-      <div class="summary">앱 3개가 <b>Host OS 커널 하나</b>를 공유한다 — Guest OS가 없어서 그만큼 가볍다.</div>
+      <div class="summary">앱 3개를 각각 별도 컨테이너로 실행해도 <b>Host OS 커널 하나</b>를 공유한다 — Guest OS가 없어서 그만큼 가볍다.</div>
     `;
   }
   function select(which) {
