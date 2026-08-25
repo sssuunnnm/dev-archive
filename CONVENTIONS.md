@@ -300,3 +300,12 @@ git push origin --delete feat/spring-security-jwt   # 원격 브랜치 삭제 (G
 - [ ] `h1`(`#`)을 본문에서 쓰지 않았는가
 - [ ] `draft` 값을 명시했는가 (`true`/`false`)
 - [ ] 커밋 메시지가 `type: 설명` 형식인가
+
+---
+
+## 8. 글감 백로그 관리
+
+- 글을 쓰다가 범위를 벗어나는 주제(너무 깊거나 분량이 따로 한 편이 될 만한 내용)가 나오면, 지금 글에 욱여넣지 않고 리포 루트의 `content-backlog.md`에 기록해둔다.
+- 형식: `- [ ] 주제/제목 후보 — 메모 (출처: <원래 글 slug>, YYYY-MM-DD)`
+- 새 글감을 정할 때(일요일 주간 글감 계획, 자동화 포함)는 `content-backlog.md`부터 먼저 검토해서 여기 있는 항목을 우선 채택한다.
+- 글감으로 확정해서 `content-plan.md`에 올리면 `content-backlog.md`에서는 지운다.
