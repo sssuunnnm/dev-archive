@@ -158,14 +158,14 @@ Kubernetes 오브젝트(Deployment, Service 등)나 실제 운영 디테일은 �
 
 ## 예제
 
-같은 애플리케이션을 "완전가상화 VM 위"와 "컨테이너"로 각각 띄운다고 하면, 실행 경로는 이렇게 대비된다.
+같은 애플리케이션을 "완전가상화 VM 위"와 "컨테이너"로 각각 띄운다고 하면, 실행 경로는 이렇게 대비된다 (위 데모와 같은 기준으로, Host OS가 있는 Type 2/호스트형 하이퍼바이저 예시다 — Type 1/베어메탈이면 Host OS 층 없이 하드웨어 위에 하이퍼바이저가 바로 올라간다).
 
 ```text
-VM:      Hardware → Hypervisor → Guest OS → App
+VM:      Hardware → Host OS → Hypervisor → Guest OS → App
 컨테이너: Hardware → Host OS → Container Runtime(containerd) → runc → App
 ```
 
-VM은 앱까지 도달하기 전에 완전한 OS 하나를 더 거치고, 컨테이너는 호스트 커널 위에서 곧바로 프로세스로 실행된다.
+VM은 앱까지 도달하기 전에 완전한 OS(Guest OS) 하나를 더 거치고, 컨테이너는 같은 Host OS 커널 위에서 곧바로 프로세스로 실행된다.
 
 ## 주의사항
 
