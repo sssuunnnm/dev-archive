@@ -43,7 +43,7 @@ INCR page:home:views           # String — 조회수 카운터
 HSET user:1 name sun age 20    # Hash — 유저 객체를 필드별로
 SADD post:1:likes user:1       # Set — 좋아요 누른 유저 집합 (중복 자동 제거)
 ZADD ranking 120 user:1        # Sorted Set — 점수(120)로 랭킹에 등록
-ZRANGE ranking 0 9 REV         # Sorted Set — 상위 10명 조회
+ZREVRANGE ranking 0 9          # Sorted Set — 상위 10명 조회 (내림차순)
 ```
 
 객체 하나를 통째로 JSON 문자열로 String에 넣을 수도 있지만, 필드 일부만 자주 갱신한다면 Hash로 나눠두는 게 그 필드만 따로 읽고 쓸 수 있어 유리하다. 랭킹처럼 "정렬된 상태를 유지해야 하는" 데이터는 애플리케이션에서 매번 정렬하는 대신 Sorted Set에 맡기는 게 자연스럽다.
@@ -57,7 +57,9 @@ SET session:abc123 "user:1" EX 3600   # 3600초(1시간) 뒤 자동 삭제
 TTL session:abc123                    # 남은 만료 시간 확인
 ```
 
-메모리가 가득 찼을 때 무엇을 먼저 지울지는 `maxmemory-policy` 설정으로 정한다. 대표적으로 `allkeys-lru`(전체 키 중 최근 안 쓴 것부터), `volatile-lru`(TTL 걸린 키 중에서만 LRU), `noeviction`(더 안 지우고 쓰기 실패) 등이 있다. 캐시 용도로만 쓰는 Redis라면 `allkeys-lru` 계열을, 세션처럼 잃으면 안 되는 데이터가 섞여 있다면 `volatile-lru`를 주로 쓴다.
+메모리가 가득 찼을 때 무엇을 먼저 지울지는 `maxmemory-policy` 설정으로 정한다. 대표적으로 `allkeys-lru`(전체 키 중 최근 안 쓴 것부터), `volatile-lru`(TTL이 걸린 키 중에서만 LRU로 지움), `noeviction`(더 안 지우고 쓰기 실패) 등이 있다. 캐시 용도로만 쓰는 Redis라면 `allkeys-lru` 계열을 주로 쓴다.
+
+주의할 점은 `volatile-lru`가 지켜주는 건 "TTL이 없는 키"이지, "세션처럼 중요한 키"가 아니라는 것이다 — `session:abc123`처럼 `EX`로 TTL을 건 키는 `volatile-lru`에서도 얼마든지 eviction 대상이 될 수 있다. 세션처럼 만료 전까지는 반드시 살아있어야 하는 데이터를, 지워져도 되는 캐시 데이터와 같은 인스턴스에 TTL을 걸어 섞어두면 메모리 압박 상황에서 같이 밀려날 수 있으니, 가능하면 세션 저장용 Redis(또는 별도 DB 번호/인스턴스)를 캐시와 분리하는 편이 안전하다.
 
 ### 캐싱 전략 패턴
 
