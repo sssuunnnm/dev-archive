@@ -1,7 +1,7 @@
 ---
 title: 가상화, 반가상화, 컨테이너 — 격리 기술 한눈에 정리
 description: 완전가상화/반가상화/컨테이너가 무엇을 어떻게 격리하는지, 그리고 컨테이너를 가능하게 하는 리눅스 커널 기능과 런타임 계층을 정리한다
-date: 2026-08-25
+date: 2026-08-26
 updated:
 category: infra
 technology: [docker, kubernetes]
@@ -12,7 +12,7 @@ series:
 projects:
 related:
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약

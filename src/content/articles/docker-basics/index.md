@@ -1,7 +1,7 @@
 ---
 title: Docker 기초 개념과 자주 쓰는 명령어
 description: 컨테이너가 해결하는 문제와 이미지/컨테이너 개념, 실무에서 반복해서 쓰게 되는 docker 명령어를 정리한다
-date: 2026-08-25
+date: 2026-08-26
 updated:
 category: infra
 technology: [docker]
@@ -12,7 +12,7 @@ series:
 projects:
 related:
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
