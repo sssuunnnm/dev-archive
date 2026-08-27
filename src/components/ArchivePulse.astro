@@ -1,7 +1,7 @@
 ---
 // About 페이지용 인터랙티브 통계 위젯.
-// "지금까지 쓴 글 수"는 홈 화면 하단 archiveStats와 내용이 겹쳐서 제외하고,
-// "N일째 기록 중"만 스포트라이트 카드로 남긴다.
+// 통계 카드(일째/총 글 수/최근 7일/연속 기록일)는 마우스 스포트라이트 대신
+// 숫자가 랜덤하게 스크램블되다가 왼쪽부터 자리를 잡는 타이포그래피 효과로 표현.
 // 카테고리 카드는 진행률 막대(고정된 max 개념) 대신, 카테고리 고유 색상의
 // 스포트라이트로 표현 — 카테고리 개수만큼 한 줄에 꽉 채운다.
 // 새 의존성 없이 vanilla JS/CSS로 구현 (CONVENTIONS 3-7과 같은 정신).
@@ -11,10 +11,28 @@ import { categories } from '../lib/categories';
 
 const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
 
+const total = articles.length;
+
 const firstDate = articles.length
   ? new Date(Math.min(...articles.map((a) => a.data.date.valueOf())))
   : null;
 const firstDateStr = firstDate ? firstDate.toISOString().slice(0, 10) : null;
+
+// 최근 7일 이내 발행된 글 수
+const recentCount = articles.filter(
+  (a) => Date.now() - a.data.date.valueOf() <= 7 * 86_400_000
+).length;
+
+// 연속 기록일 — 글이 있는 날짜를 모아 가장 최근 날짜부터 며칠 연속인지 계산
+const postedDateStrs = [...new Set(articles.map((a) => a.data.date.toISOString().slice(0, 10)))].sort();
+let streak = postedDateStrs.length ? 1 : 0;
+for (let i = postedDateStrs.length - 1; i > 0; i--) {
+  const gapDays = Math.round(
+    (new Date(postedDateStrs[i]).valueOf() - new Date(postedDateStrs[i - 1]).valueOf()) / 86_400_000
+  );
+  if (gapDays === 1) streak++;
+  else break;
+}
 
 const categoryCounts: Record<string, number> = {};
 for (const a of articles) {
@@ -27,17 +45,33 @@ const categoryData = categories
 ---
 
 <div id="archive-pulse" data-first-date={firstDateStr}>
-  <div class="pulse-card pulse-card--spotlight pulse-days-card" tabindex="0">
-    <div class="pulse-spotlight" aria-hidden="true"></div>
-    <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-days">0</p>
-    <p class="pulse-caption">일째 기록 중</p>
+  <div class="pulse-stats-row">
+    <div class="pulse-card pulse-card--scramble" tabindex="0">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" id="pulse-days">0</p>
+      <p class="pulse-caption">일째 기록 중</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble" tabindex="0">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={total}>0</p>
+      <p class="pulse-caption">지금까지 쓴 글</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble" tabindex="0">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={recentCount}>0</p>
+      <p class="pulse-caption">최근 7일간 쓴 글</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble" tabindex="0">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={streak}>0</p>
+      <p class="pulse-caption">일 연속 기록</p>
+    </div>
   </div>
 
   <div class="pulse-category-row" style={`--cat-count: ${categoryData.length}`}>
     {categoryData.map((c) => (
       <div class="pulse-card pulse-card--cat" tabindex="0">
         <div class="pulse-spotlight pulse-spotlight--cat" data-cat={c.key} aria-hidden="true"></div>
-        <p class="pulse-cat-count" data-target={c.count}>0</p>
+        <p class="pulse-cat-count pulse-countup" data-target={c.count}>0</p>
         <p class="pulse-caption">{c.label}</p>
       </div>
     ))}
@@ -45,8 +79,10 @@ const categoryData = categories
 </div>
 
 <style>
-  .pulse-card.pulse-days-card {
-    padding: 1.5rem 1.25rem;
+  .pulse-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.5rem;
   }
 
   .pulse-category-row {
@@ -88,22 +124,31 @@ const categoryData = categories
     color: rgb(156 163 175);
   }
 
-  /* 스포트라이트 — 마우스를 따라다니는 은은한 빛 (일째 카드는 accent, 카테고리 카드는 각자 컬러) */
+  /* 스크램블 카드 — hover하면 다시 스크램블 재생 (커서로는 은은한 배경 반응만) */
+  .pulse-card--scramble {
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .pulse-card--scramble:hover,
+  .pulse-card--scramble:focus-visible {
+    background: rgb(243 244 246);
+  }
+
+  :global(.dark) .pulse-card--scramble:hover,
+  :global(.dark) .pulse-card--scramble:focus-visible {
+    background: rgb(39 39 42 / 0.7);
+  }
+
+  /* 스포트라이트 — 마우스를 따라다니는 은은한 빛 (카테고리 카드 전용, 각자 컬러) */
   .pulse-spotlight {
     position: absolute;
     inset: 0;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
-    background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgb(70 107 143 / 0.18), transparent 70%);
   }
 
-  :global(.dark) .pulse-spotlight {
-    background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgb(143 173 199 / 0.16), transparent 70%);
-  }
-
-  .pulse-card--spotlight:hover .pulse-spotlight,
-  .pulse-card--spotlight:focus-visible .pulse-spotlight,
   .pulse-card--cat:hover .pulse-spotlight,
   .pulse-card--cat:focus-visible .pulse-spotlight {
     opacity: 1;
@@ -155,7 +200,7 @@ const categoryData = categories
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // easeOutExpo 곡선으로 0 -> target까지 숫자를 채운다.
+  // easeOutExpo 곡선으로 0 -> target까지 숫자를 채운다 (카테고리 카드용).
   function countUp(el: Element, target: number, duration = 900) {
     if (prefersReducedMotion || target === 0) {
       el.textContent = String(target);
@@ -171,11 +216,36 @@ const categoryData = categories
     requestAnimationFrame(tick);
   }
 
+  // 랜덤 숫자로 깜빡이다가 왼쪽 자리부터 순서대로 정답에 고정된다 (통계 카드용).
+  function scrambleTo(el: HTMLElement, target: number, duration = 900) {
+    const targetStr = String(target);
+    if (prefersReducedMotion) {
+      el.textContent = targetStr;
+      return;
+    }
+    const start = performance.now();
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / duration);
+      const lockCount = Math.floor(t * targetStr.length);
+      let out = '';
+      for (let i = 0; i < targetStr.length; i++) {
+        out += i < lockCount ? targetStr[i] : String(Math.floor(Math.random() * 10));
+      }
+      el.textContent = out;
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = targetStr;
+    }
+    requestAnimationFrame(tick);
+  }
+
   let played = false;
   function playIntro() {
     if (played) return;
     played = true;
-    countUp(daysEl, days);
+    scrambleTo(daysEl, days);
+    root
+      .querySelectorAll<HTMLElement>('.pulse-scramble[data-target]')
+      .forEach((el) => scrambleTo(el, Number(el.dataset.target ?? '0')));
     root
       .querySelectorAll<HTMLElement>('.pulse-cat-count')
       .forEach((el) => countUp(el, Number(el.dataset.target ?? '0'), 700));
@@ -192,8 +262,18 @@ const categoryData = categories
   );
   observer.observe(root);
 
+  // hover/focus로 다시 스크램블을 재생할 수 있게 (한 번 보고 끝나는 게 아니라 계속 만져볼 수 있도록)
+  root.querySelectorAll<HTMLElement>('.pulse-card--scramble').forEach((card) => {
+    const numberEl = card.querySelector<HTMLElement>('.pulse-scramble');
+    if (!numberEl) return;
+    const target = numberEl === daysEl ? days : Number(numberEl.dataset.target ?? '0');
+    const replay = () => scrambleTo(numberEl, target);
+    card.addEventListener('mouseenter', replay);
+    card.addEventListener('focus', replay);
+  });
+
   if (!prefersReducedMotion) {
-    root.querySelectorAll<HTMLElement>('.pulse-card--spotlight, .pulse-card--cat').forEach((card) => {
+    root.querySelectorAll<HTMLElement>('.pulse-card--cat').forEach((card) => {
       card.addEventListener('pointermove', (e: PointerEvent) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
