@@ -62,7 +62,7 @@ git merge add-search               # 빠르게 다시 main으로 병합
 
 ### 이 리포는 어떤 전략에 가까운가
 
-`CONVENTIONS.md` 5장의 워크플로우(작업 단위로 브랜치를 분리해서 매번 짧게 PR을 올리고 바로 merge)를 보면 Trunk-based Development에 더 가깝다. 다만 별도의 `release`/`hotfix` 브랜치는 안 쓰고, 대신 `draft: true`/`false`로 콘텐츠 노출 시점을 조절한다 — 이건 Trunk-based에서 말하는 "feature flag"와 비슷한 역할이다. main에는 이미 merge됐지만, 실제로 사이트에 노출할지는 이 플래그로 따로 제어하는 셈이다.
+`CONVENTIONS.md` 5장의 워크플로우(작업 단위로 브랜치를 분리해서 매번 짧게 PR을 올리고 바로 merge)를 보면 Trunk-based Development에 더 가깝다. 다만 별도의 `release`/`hotfix` 브랜치는 안 쓰고, 대신 `draft: true`/`false`라는 frontmatter 메타데이터로 콘텐츠의 빌드·공개 시점을 조절한다. 이건 애플리케이션 코드의 동작을 런타임에 켜고 끄는 feature flag와 정확히 같은 개념은 아니지만, "merge는 됐지만 아직 실제로 노출은 안 된 상태를 별도로 관리한다"는 점에서는 비슷한 역할을 한다.
 
 ## 예제
 

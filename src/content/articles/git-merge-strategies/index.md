@@ -25,16 +25,18 @@ draft: true
 
 | 방식 | 히스토리 모양 | 원본 커밋 | 대표 명령어 |
 |---|---|---|---|
-| Merge Commit | 브랜치가 갈라지고 합류한 지점이 그래프로 남음 | 그대로 보존 | `git merge feature` |
+| Merge Commit | 브랜치가 갈라지고 합류한 지점이 그래프로 남음 | 그대로 보존 | `git merge --no-ff feature` |
 | Rebase | 일직선(linear)으로 재배치 | 커밋이 재작성됨(해시 변경) | `git rebase main` |
-| Squash | 브랜치의 모든 커밋을 하나로 합침 | 개별 커밋은 사라짐 | `git merge --squash feature` |
+| Squash | 브랜치의 모든 커밋을 하나로 합침 | main에는 개별 커밋으로 기록되지 않음 | `git merge --squash feature` |
 
 ### Merge Commit
 
 ```bash
 git checkout main
-git merge feature/login   # 병합 커밋이 하나 생기고, 두 브랜치의 이력이 그래프로 남는다
+git merge --no-ff feature/login   # 병합 커밋이 하나 생기고, 두 브랜치의 이력이 그래프로 남는다
 ```
+
+`--no-ff`(no fast-forward)를 꼭 붙여야 한다 — main이 feature를 분기한 뒤로 다른 커밋이 없었다면, `--no-ff` 없이는 그냥 fast-forward되면서 병합 커밋 자체가 안 생긴다.
 
 실제 작업 흐름(언제 브랜치가 갈라지고 합쳐졌는지)이 그대로 보존된다. 대신 feature 브랜치가 많아지면 `git log --graph`가 금방 복잡해진다.
 
@@ -57,7 +59,7 @@ git merge --squash feature/login
 git commit -m "feat: 로그인 기능 추가"   # feature의 모든 커밋이 하나로 합쳐짐
 ```
 
-main 히스토리가 "기능 단위 커밋 하나"로 깔끔해진다. 대신 feature 브랜치 안에서의 중간 작업 이력(어떤 순서로 무엇을 고쳤는지)은 사라진다.
+main 히스토리가 "기능 단위 커밋 하나"로 깔끔해진다. 대신 feature 브랜치 안에서의 중간 작업 이력(어떤 순서로 무엇을 고쳤는지)은 main에 개별 커밋으로 남지 않는다 (feature 브랜치 자체를 지우지 않았다면 그 브랜치에서는 여전히 확인할 수 있다).
 
 ### 직접 살펴보기 — 같은 feature 브랜치, 다른 병합 방식
 
@@ -121,7 +123,7 @@ main 히스토리가 "기능 단위 커밋 하나"로 깔끔해진다. 대신 fe
   function renderSquash() {
     graphEl.innerHTML = `
       <div class="row"><span class="rowlabel">main</span>${commitEl('A', 'main')}<span class="arrow">→</span>${commitEl('B', 'main')}<span class="arrow">→</span>${commitEl('S', 'feature')}</div>
-      <div class="note">feature의 커밋 3개(A′, B′, C′)가 전부 사라지고, 그 변경을 담은 커밋 <b>S</b> 하나만 main에 추가된다.</div>
+      <div class="note">feature의 커밋 3개(A′, B′, C′)는 main에 개별 커밋으로 남지 않고, 그 변경을 담은 커밋 <b>S</b> 하나만 main에 추가된다.</div>
     `;
   }
   function select(which) {
@@ -148,18 +150,18 @@ GitHub PR의 "Merge" 버튼도 이 세 가지를 그대로 지원한다: "Create
 
 ### 이 리포는 어떤 전략을 쓰나
 
-`git log --merges`로 확인해보면 `Merge pull request #30 from ...`처럼 부모 커밋이 둘인 병합 커밋이 남아있다 — 즉 GitHub의 기본값인 **Merge Commit** 방식을 쓰고 있다. [브랜치 전략 글](../git-branching-strategies/)에서 짚었듯 브랜치 자체는 Trunk-based에 가깝게 짧게 쓰는데, 병합 방식은 Squash가 아니라 Merge Commit이라 각 PR이 그래프에 그대로 남는다.
+`git log --merges`로 확인해보면 `Merge pull request #30 from ...`처럼 부모 커밋이 둘인 병합 커밋이 여러 개 남아있다 — 적어도 그 PR들은 **Merge Commit** 방식으로 합쳐졌다는 뜻이다. 다만 `git log --merges`는 조회 범위 안에서 부모가 2개 이상인 커밋을 보여주는 것일 뿐, 저장소 전체의 "기본 병합 방식"을 증명해주지는 않는다 — 과거에 Merge Commit으로 합친 기록은 이후 다른 PR이 Rebase나 Squash로 합쳐지더라도 그대로 남아있기 때문이다. 실제로 리포에 설정된 기본 병합 방식은 GitHub 저장소의 **Settings → General → Pull Requests**에서 "Allow merge commits/Allow squash merging/Allow rebase merging" 항목을 직접 확인해야 정확하다. [브랜치 전략 글](../git-branching-strategies/)에서 짚었듯 브랜치 자체는 Trunk-based에 가깝게 짧게 쓰는데, 적어도 지금까지의 PR들은 Merge Commit으로 합쳐져서 각 PR이 그래프에 그대로 남아있다.
 
 ## 예제
 
-실제로 어떤 병합 커밋이 남았는지는 `git log`로 바로 확인할 수 있다.
+특정 범위의 커밋 중 어떤 게 병합 커밋인지는 `git log`로 확인할 수 있다.
 
 ```bash
-git log --oneline --graph --all   # 브랜치까지 포함해서 그래프로 확인
-git log --merges --oneline        # 병합 커밋(부모가 2개인 커밋)만 골라서 확인
+git log --oneline --graph --all                          # 브랜치까지 포함해서 그래프로 확인
+git log --all --merges --format='%H %P %s'                # 조회 범위(전체 브랜치)를 명시하고, 병합 커밋의 해시·부모·메시지를 함께 확인
 ```
 
-Merge Commit 방식이면 `git log --merges`에 병합 커밋이 그대로 남고, Rebase/Squash 방식이면 애초에 병합 커밋 자체가 안 생기므로 이 목록이 비어 있다.
+부모(`%P`)가 2개 이상 찍히는 커밋이 병합 커밋이다. 다만 이 결과는 "그 커밋이 병합 커밋이었다"는 사실만 알려줄 뿐, 저장소의 기본 병합 정책까지 알려주지는 않는다.
 
 ## 주의사항
 
