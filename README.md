@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 dev-archive
+# dev-archive
 
 **몇 년 뒤에도 다시 찾아볼 수 있는 개발 지식 저장소**
 
@@ -16,16 +16,16 @@
 
 ---
 
-- [미리보기](#-미리보기)
-- [소개](#-소개)
-- [주요 기능](#-주요-기능)
-- [기술 스택](#-기술-스택)
+- [미리보기](#미리보기)
+- [소개](#소개)
+- [주요 기능](#주요-기능)
+- [기술 스택](#기술-스택)
 - [폴더 구조](#folder-structure)
 - [SEO / 방문자 분석 설정](#seo-analytics-setup)
 
 ---
 
-## 🖼 미리보기
+## 미리보기
 
 <div align="center">
 <img src=".github/assets/preview.png" alt="dev-archive 홈 화면 미리보기" width="480" />
@@ -33,7 +33,7 @@
 
 ---
 
-## 🧭 소개
+## 소개
 
 공부하거나 삽질한 내용을 정리해두는 개인 블로그입니다. 다만 "오늘 뭐 썼지" 하고 최신순으로 훑어보는 타임라인보다는, 나중에 비슷한 문제를 또 만났을 때 검색 한 번으로 바로 찾아 쓸 수 있는 위키에 가깝게 만들고 싶었습니다.
 
@@ -51,7 +51,7 @@
 
 ---
 
-## ✨ 주요 기능
+## 주요 기능
 
 **콘텐츠는 성격에 따라 4가지로 나눠서 관리합니다.** 일반 글(Articles), 프로젝트 회고(Projects), 계속 업데이트되는 참고 문서(References), 30초 안에 찾아 쓰는 명령어/코드 조각(Snippets)입니다. 다뤄야 할 기술 디테일이 많은 프로젝트는 비공개 원본(`{slug}-archive`)과 공개용 정리본(`{slug}`)으로 나눠서, 자세히 보고 싶은 사람과 요약만 필요한 사람 모두를 챙깁니다.
 
@@ -63,7 +63,7 @@
 
 ---
 
-## 🛠 기술 스택
+## 기술 스택
 
 <div align="center">
 <img src="https://skillicons.dev/icons?i=astro,tailwind,github,githubactions" alt="tech stack icons" />
@@ -81,7 +81,7 @@
 ---
 
 <details>
-<summary><h2 id="folder-structure" style="display: inline;">📂 폴더 구조</h2></summary>
+<summary><h2 id="folder-structure" style="display: inline;">폴더 구조</h2></summary>
 
 ```
 src/
@@ -107,7 +107,7 @@ templates/               # 새 글/프로젝트/레퍼런스/스니펫 작성 �
 ---
 
 <details>
-<summary><h2 id="seo-analytics-setup" style="display: inline;">📈 SEO / 방문자 분석 설정</h2></summary>
+<summary><h2 id="seo-analytics-setup" style="display: inline;">SEO / 방문자 분석 설정</h2></summary>
 
 Google Search Console(검색 유입 분석)과 GoatCounter(방문자 분석) 연동을 지원합니다. 둘 다 선택 사항이며, 값을 설정하지 않으면 관련 스크립트/메타태그는 렌더링되지 않습니다.
 
