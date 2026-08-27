@@ -18,10 +18,11 @@ const firstDate = articles.length
   : null;
 const firstDateStr = firstDate ? firstDate.toISOString().slice(0, 10) : null;
 
-// 최근 7일 이내 발행된 글 수
-const recentCount = articles.filter(
-  (a) => Date.now() - a.data.date.valueOf() <= 7 * 86_400_000
-).length;
+// 최근 7일 이내 발행된 글 수 (미래로 예약된 글은 제외)
+const recentCount = articles.filter((a) => {
+  const ageMs = Date.now() - a.data.date.valueOf();
+  return ageMs >= 0 && ageMs <= 7 * 86_400_000;
+}).length;
 
 // 연속 기록일 — 글이 있는 날짜를 모아 가장 최근 날짜부터 며칠 연속인지 계산
 const postedDateStrs = [...new Set(articles.map((a) => a.data.date.toISOString().slice(0, 10)))].sort();

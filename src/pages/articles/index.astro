@@ -74,6 +74,11 @@ const categories = [{ key: 'all', label: '전체' }, ...categoryList];
       btn.classList.toggle('text-white', selected);
       btn.classList.toggle('dark:bg-gray-100', selected);
       btn.classList.toggle('dark:text-gray-900', selected);
+      // 선택 상태의 배경을 hover 배경이 덮어쓰지 않도록 기본/hover 배경 클래스도 함께 뗀다
+      btn.classList.toggle('bg-gray-100', !selected);
+      btn.classList.toggle('hover:bg-gray-200', !selected);
+      btn.classList.toggle('dark:bg-gray-800', !selected);
+      btn.classList.toggle('dark:hover:bg-gray-700', !selected);
     });
   }
 
