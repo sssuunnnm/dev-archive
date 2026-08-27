@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ArchivePulse from '../components/ArchivePulse.astro';
 ---
 
 <BaseLayout title="About" description="dev-archive 소개" ogType="website">
@@ -15,7 +16,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       블로그처럼 최신 글이 위에 쌓이는 구조보다, 필요한 내용을 카테고리·기술·태그로
       바로 찾아볼 수 있는 위키에 가까운 형태를 목표로 합니다.
     </p>
+  </div>
 
+  <div class="not-prose my-8">
+    <ArchivePulse />
+  </div>
+
+  <div class="prose prose-gray dark:prose-invert max-w-none">
     <h2>연락처</h2>
     <ul>
       <li>GitHub: <a href="https://github.com/sssuunnnm">github.com/sssuunnnm</a></li>
