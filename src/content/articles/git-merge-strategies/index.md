@@ -59,11 +59,90 @@ git commit -m "feat: 로그인 기능 추가"   # feature의 모든 커밋이 �
 
 main 히스토리가 "기능 단위 커밋 하나"로 깔끔해진다. 대신 feature 브랜치 안에서의 중간 작업 이력(어떤 순서로 무엇을 고쳤는지)은 사라진다.
 
+### 직접 살펴보기 — 같은 feature 브랜치, 다른 병합 방식
+
+3개 커밋짜리 `feature` 브랜치를 각 방식으로 합쳤을 때 `main`의 히스토리가 어떻게 달라지는지 비교한다.
+
+<div class="mergedemo">
+<style>
+.mergedemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --feat: #2f7d4f;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .mergedemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; --feat: #6fbf8b; }
+.mergedemo .toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+.mergedemo .togbtn {
+  flex: 1; background: var(--card2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 10px; font-family: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer;
+}
+.mergedemo .togbtn[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
+.mergedemo .row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; min-height: 30px; }
+.mergedemo .rowlabel { width: 52px; flex: none; font-size: 11px; color: var(--sub); }
+.mergedemo .commit { border-radius: 6px; padding: 6px 9px; font-size: 12px; font-family: 'Fira Code', monospace; border: 1px solid var(--line); background: var(--card2); }
+.mergedemo .commit.main { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.mergedemo .commit.feature { border-color: var(--feat); color: var(--feat); font-weight: 700; }
+.mergedemo .arrow { color: var(--sub); font-size: 12px; }
+.mergedemo .note { margin-top: 10px; font-size: 12.5px; color: var(--sub); }
+.mergedemo .note b { color: var(--ink); }
+</style>
+
+<div class="toggle">
+  <button class="togbtn" id="md_merge" aria-pressed="true">Merge Commit</button>
+  <button class="togbtn" id="md_rebase" aria-pressed="false">Rebase</button>
+  <button class="togbtn" id="md_squash" aria-pressed="false">Squash</button>
+</div>
+<div id="md_graph" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('mergedemo')) return;
+  const btns = { merge: root.querySelector('#md_merge'), rebase: root.querySelector('#md_rebase'), squash: root.querySelector('#md_squash') };
+  const graphEl = root.querySelector('#md_graph');
+
+  function commitEl(label, cls) { return `<span class="commit ${cls || ''}">${label}</span>`; }
+
+  function renderMerge() {
+    graphEl.innerHTML = `
+      <div class="row"><span class="rowlabel">main</span>${commitEl('A', 'main')}<span class="arrow">→</span>${commitEl('B', 'main')}<span class="arrow">─────→</span>${commitEl('M(병합)', 'main')}</div>
+      <div class="row"><span class="rowlabel">feature</span>${commitEl("A'", 'feature')}<span class="arrow">→</span>${commitEl("B'", 'feature')}<span class="arrow">→</span>${commitEl("C'", 'feature')}<span class="arrow">↗</span></div>
+      <div class="note">feature 커밋(<b>A′, B′, C′</b>)이 원본 그대로 남고, 이를 합치는 병합 커밋(<b>M</b>) 하나가 main에 추가된다.</div>
+    `;
+  }
+  function renderRebase() {
+    graphEl.innerHTML = `
+      <div class="row"><span class="rowlabel">main</span>${commitEl('A', 'main')}<span class="arrow">→</span>${commitEl('B', 'main')}<span class="arrow">→</span>${commitEl("A''", 'feature')}<span class="arrow">→</span>${commitEl("B''", 'feature')}<span class="arrow">→</span>${commitEl("C''", 'feature')}</div>
+      <div class="note">feature 커밋들이 main 최신 위로 재배치되며 <b>새 해시(A″~C″)</b>를 받아 일직선으로 이어붙는다 — 별도 브랜치 줄이 남지 않는다.</div>
+    `;
+  }
+  function renderSquash() {
+    graphEl.innerHTML = `
+      <div class="row"><span class="rowlabel">main</span>${commitEl('A', 'main')}<span class="arrow">→</span>${commitEl('B', 'main')}<span class="arrow">→</span>${commitEl('S', 'feature')}</div>
+      <div class="note">feature의 커밋 3개(A′, B′, C′)가 전부 사라지고, 그 변경을 담은 커밋 <b>S</b> 하나만 main에 추가된다.</div>
+    `;
+  }
+  function select(which) {
+    Object.entries(btns).forEach(([k, b]) => b.setAttribute('aria-pressed', String(k === which)));
+    ({ merge: renderMerge, rebase: renderRebase, squash: renderSquash })[which]();
+  }
+  btns.merge.addEventListener('click', () => select('merge'));
+  btns.rebase.addEventListener('click', () => select('rebase'));
+  btns.squash.addEventListener('click', () => select('squash'));
+  select('merge');
+})();
+</script>
+
 ### 무엇을 고를까
 
-- 작은 팀·개인 프로젝트에서 PR 단위로 깔끔한 히스토리를 원한다면 Squash가 흔한 선택이다.
-- 큰 팀에서 각 커밋의 리뷰 이력이나 작성자별 작업 단위를 그대로 남기고 싶다면 Merge Commit.
-- 히스토리를 일직선으로 유지하면서도 개별 커밋은 보존하고 싶다면 Rebase (단, 이미 공유된 브랜치엔 신중히).
+정답이 정해진 문제는 아니고, 히스토리를 어떻게 읽고 싶은지에 대한 팀·개인의 취향에 가깝다. 실제로 고려되는 기준을 몇 가지 꼽으면:
+
+- 커밋 하나하나의 리뷰 이력보다 "PR 단위로 깔끔한 로그"가 더 중요하다면 Squash를 선호할 수 있다.
+- feature 브랜치 안에서 어떤 순서로 작업했는지 그 과정 자체를 남기고 싶다면 Merge Commit이 맞을 수 있다.
+- 히스토리를 일직선으로 유지하면서도 개별 커밋은 보존하고 싶다면 Rebase를 고려할 수 있다 (단, 이미 공유된 브랜치엔 신중히).
+- 이 외에도 팀 인원 수, 코드 리뷰 방식, `git bisect`/롤백을 얼마나 자주 하는지 등도 선택에 영향을 줄 수 있다 — 여기 나열한 게 전부는 아니다.
 
 GitHub PR의 "Merge" 버튼도 이 세 가지를 그대로 지원한다: "Create a merge commit", "Squash and merge", "Rebase and merge".
 
@@ -73,16 +152,14 @@ GitHub PR의 "Merge" 버튼도 이 세 가지를 그대로 지원한다: "Create
 
 ## 예제
 
-같은 3개 커밋짜리 feature 브랜치를 각각 다른 방식으로 합치면 `main`의 히스토리 모양이 이렇게 달라진다.
+실제로 어떤 병합 커밋이 남았는지는 `git log`로 바로 확인할 수 있다.
 
-```text
-Merge Commit:  main --- M(병합 커밋, 부모 2개)
-                          \___ A - B - C (feature, 그대로 보존)
-
-Rebase:        main --- A' - B' - C'   (재배치된 커밋, 일직선)
-
-Squash:        main --- S(커밋 1개: "feat: 로그인 기능 추가")
+```bash
+git log --oneline --graph --all   # 브랜치까지 포함해서 그래프로 확인
+git log --merges --oneline        # 병합 커밋(부모가 2개인 커밋)만 골라서 확인
 ```
+
+Merge Commit 방식이면 `git log --merges`에 병합 커밋이 그대로 남고, Rebase/Squash 방식이면 애초에 병합 커밋 자체가 안 생기므로 이 목록이 비어 있다.
 
 ## 주의사항
 
