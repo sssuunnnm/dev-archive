@@ -50,7 +50,7 @@ const articles = defineCollection({
     technology: z.array(technologyEnum),
     tags: z.array(z.string()),
     type: z.enum([
-      'study', 'tutorial', 'troubleshooting', 'review', 'tips',
+      'study', 'tutorial', 'troubleshooting', 'review', 'tips', 'reference',
     ]),
     status: z.enum(['evergreen', 'archive']),
 
