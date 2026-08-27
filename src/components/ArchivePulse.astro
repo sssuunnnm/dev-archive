@@ -1,15 +1,15 @@
 ---
 // About 페이지용 인터랙티브 통계 위젯.
-// 통계 카드(일째/총 글 수)는 둘 다 마우스 스포트라이트, 카테고리 카드는 다음 줄에
-// 별도 섹션으로 분리해 hover 시 바가 채워짐. 새 의존성 없이 vanilla JS/CSS로 구현
-// (CONVENTIONS 3-7과 같은 정신).
+// "지금까지 쓴 글 수"는 홈 화면 하단 archiveStats와 내용이 겹쳐서 제외하고,
+// "N일째 기록 중"만 스포트라이트 카드로 남긴다.
+// 카테고리 카드는 진행률 막대(고정된 max 개념) 대신, 카테고리 고유 색상의
+// 스포트라이트로 표현 — 카테고리 개수만큼 한 줄에 꽉 채운다.
+// 새 의존성 없이 vanilla JS/CSS로 구현 (CONVENTIONS 3-7과 같은 정신).
 import { getCollection } from 'astro:content';
 import { isVisible } from '../lib/content-visibility';
 import { categories } from '../lib/categories';
 
 const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
-
-const total = articles.length;
 
 const firstDate = articles.length
   ? new Date(Math.min(...articles.map((a) => a.data.date.valueOf())))
@@ -24,56 +24,49 @@ const categoryData = categories
   .map((c) => ({ key: c.key, label: c.label, count: categoryCounts[c.key] ?? 0 }))
   .filter((c) => c.count > 0)
   .sort((a, b) => b.count - a.count);
-const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
 ---
 
-<div id="archive-pulse" data-first-date={firstDateStr} data-total={total}>
-  <div class="pulse-stats-row">
-    <div class="pulse-card pulse-card--spotlight" tabindex="0">
-      <div class="pulse-spotlight" aria-hidden="true"></div>
-      <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-days">0</p>
-      <p class="pulse-caption">일째 기록 중</p>
-    </div>
-
-    <div class="pulse-card pulse-card--spotlight" tabindex="0">
-      <div class="pulse-spotlight" aria-hidden="true"></div>
-      <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-total">0</p>
-      <p class="pulse-caption">지금까지 쓴 글</p>
-    </div>
+<div id="archive-pulse" data-first-date={firstDateStr}>
+  <div class="pulse-card pulse-card--spotlight pulse-days-card" tabindex="0">
+    <div class="pulse-spotlight" aria-hidden="true"></div>
+    <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-days">0</p>
+    <p class="pulse-caption">일째 기록 중</p>
   </div>
 
-  <div class="pulse-category-row">
+  <div class="pulse-category-row" style={`--cat-count: ${categoryData.length}`}>
     {categoryData.map((c) => (
-      <div class="pulse-card pulse-card--bar" tabindex="0">
+      <div class="pulse-card pulse-card--cat" tabindex="0">
+        <div class="pulse-spotlight pulse-spotlight--cat" data-cat={c.key} aria-hidden="true"></div>
         <p class="pulse-cat-count" data-target={c.count}>0</p>
         <p class="pulse-caption">{c.label}</p>
-        <div class="pulse-cat-track">
-          <div class="pulse-cat-fill" data-cat={c.key} style={`--target-width: ${(c.count / maxCount) * 100}%`}></div>
-        </div>
       </div>
     ))}
   </div>
 </div>
 
 <style>
-  .pulse-stats-row {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+  .pulse-card.pulse-days-card {
+    padding: 1.5rem 1.25rem;
   }
 
   .pulse-category-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(var(--cat-count), minmax(0, 1fr));
+    gap: 0.5rem;
     margin-top: 0.75rem;
+  }
+
+  @media (max-width: 30rem) {
+    .pulse-category-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
   .pulse-card {
     position: relative;
     overflow: hidden;
     border-radius: 0.75rem;
-    padding: 1.25rem 1rem;
+    padding: 1rem 0.75rem;
     background: rgb(249 250 251);
     outline: none;
   }
@@ -95,11 +88,7 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
     color: rgb(156 163 175);
   }
 
-  /* 스포트라이트 카드 — 마우스를 따라다니는 은은한 빛 */
-  .pulse-card--spotlight {
-    transition: background 0.2s ease;
-  }
-
+  /* 스포트라이트 — 마우스를 따라다니는 은은한 빛 (일째 카드는 accent, 카테고리 카드는 각자 컬러) */
   .pulse-spotlight {
     position: absolute;
     inset: 0;
@@ -114,75 +103,52 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
   }
 
   .pulse-card--spotlight:hover .pulse-spotlight,
-  .pulse-card--spotlight:focus-visible .pulse-spotlight {
+  .pulse-card--spotlight:focus-visible .pulse-spotlight,
+  .pulse-card--cat:hover .pulse-spotlight,
+  .pulse-card--cat:focus-visible .pulse-spotlight {
     opacity: 1;
   }
 
-  /* 카테고리 바 카드 — hover 시 막대가 채워짐 */
   .pulse-cat-count {
+    position: relative;
     font-size: 1.5rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 
-  .pulse-cat-track {
-    margin-top: 0.625rem;
-    height: 0.3125rem;
-    border-radius: 999px;
-    background: rgb(229 231 235);
-    overflow: hidden;
+  .pulse-card--cat .pulse-caption {
+    position: relative;
   }
 
-  :global(.dark) .pulse-cat-track {
-    background: rgb(63 63 70);
-  }
+  .pulse-spotlight--cat[data-cat='development'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-development) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='infra'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-infra) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='cs'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-cs) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='ai'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-ai) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='study'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-study) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='certificates'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-certificates) 28%, transparent), transparent 70%); }
 
-  .pulse-cat-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .pulse-card--bar:hover .pulse-cat-fill,
-  .pulse-card--bar:focus-visible .pulse-cat-fill {
-    width: var(--target-width);
-  }
-
-  .pulse-cat-fill[data-cat='development'] { background: var(--color-cat-development); }
-  .pulse-cat-fill[data-cat='infra'] { background: var(--color-cat-infra); }
-  .pulse-cat-fill[data-cat='cs'] { background: var(--color-cat-cs); }
-  .pulse-cat-fill[data-cat='ai'] { background: var(--color-cat-ai); }
-  .pulse-cat-fill[data-cat='study'] { background: var(--color-cat-study); }
-  .pulse-cat-fill[data-cat='certificates'] { background: var(--color-cat-certificates); }
-
-  :global(.dark) .pulse-cat-fill[data-cat='development'] { background: var(--color-cat-development-dark); }
-  :global(.dark) .pulse-cat-fill[data-cat='infra'] { background: var(--color-cat-infra-dark); }
-  :global(.dark) .pulse-cat-fill[data-cat='cs'] { background: var(--color-cat-cs-dark); }
-  :global(.dark) .pulse-cat-fill[data-cat='ai'] { background: var(--color-cat-ai-dark); }
-  :global(.dark) .pulse-cat-fill[data-cat='study'] { background: var(--color-cat-study-dark); }
-  :global(.dark) .pulse-cat-fill[data-cat='certificates'] { background: var(--color-cat-certificates-dark); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='development'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-development-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='infra'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-infra-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='cs'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-cs-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='ai'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-ai-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='study'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-study-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='certificates'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-certificates-dark) 24%, transparent), transparent 70%); }
 
   @media (prefers-reduced-motion: reduce) {
     .pulse-spotlight {
       display: none;
     }
-    .pulse-cat-fill {
-      width: var(--target-width) !important;
-    }
   }
 </style>
 
 <script>
-  const grid = document.getElementById('archive-pulse');
-  if (!grid) throw new Error('ArchivePulse: root element not found');
+  const root = document.getElementById('archive-pulse');
+  if (!root) throw new Error('ArchivePulse: root element not found');
 
   const daysEl = document.getElementById('pulse-days');
-  const totalEl = document.getElementById('pulse-total');
-  if (!daysEl || !totalEl) throw new Error('ArchivePulse: expected elements not found');
+  if (!daysEl) throw new Error('ArchivePulse: expected elements not found');
 
-  const firstDateStr = grid.dataset.firstDate;
-  const total = Number(grid.dataset.total ?? '0');
+  const firstDateStr = root.dataset.firstDate;
   const days = firstDateStr
     ? Math.max(0, Math.floor((Date.now() - new Date(firstDateStr).getTime()) / 86_400_000))
     : 0;
@@ -210,8 +176,7 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
     if (played) return;
     played = true;
     countUp(daysEl, days);
-    countUp(totalEl, total);
-    grid
+    root
       .querySelectorAll<HTMLElement>('.pulse-cat-count')
       .forEach((el) => countUp(el, Number(el.dataset.target ?? '0'), 700));
   }
@@ -225,10 +190,10 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
     },
     { threshold: 0.4 }
   );
-  observer.observe(grid);
+  observer.observe(root);
 
   if (!prefersReducedMotion) {
-    grid.querySelectorAll<HTMLElement>('.pulse-card--spotlight').forEach((card) => {
+    root.querySelectorAll<HTMLElement>('.pulse-card--spotlight, .pulse-card--cat').forEach((card) => {
       card.addEventListener('pointermove', (e: PointerEvent) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
