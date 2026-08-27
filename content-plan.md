@@ -4,6 +4,6 @@
 
 - [x] Docker 기초 개념과 자주 쓰는 명령어 | docker-basics | infra | [docker] | [container, cli] | tutorial | 컨테이너가 뭘 해결하는지와 자주 쓰는 docker 명령어를 정리한다
 - [x] Redis 자료구조와 캐싱 전략 | redis-basics | infra | [redis] | [caching, in-memory] | study | Redis의 주요 자료구조와 캐시로 쓸 때 고려할 점을 정리한다
-- [ ] Git 브랜치 전략 정리 (Git Flow vs Trunk-based) | git-branching-strategies | development | [git] | [branching, workflow] | reference | 대표적인 Git 브랜치 전략 두 가지를 비교해서 언제 어떤 걸 쓰면 좋을지 정리한다
+- [x] Git 브랜치 전략 정리 (Git Flow vs Trunk-based) | git-branching-strategies | development | [git] | [branching, workflow] | reference | 대표적인 Git 브랜치 전략 두 가지를 비교해서 언제 어떤 걸 쓰면 좋을지 정리한다
 - [ ] Kafka 기본 개념 - 토픽, 파티션, 컨슈머 그룹 | kafka-basics | infra | [kafka] | [messaging, event-driven] | study | Kafka의 핵심 개념(토픽/파티션/컨슈머 그룹)이 왜 그렇게 설계됐는지 정리한다
 - [ ] PostgreSQL과 MySQL 주요 차이점 | postgresql-vs-mysql | infra | [postgresql, mysql] | [rdbms, comparison] | reference | 두 RDBMS의 대표적인 차이(동시성 제어, 확장, 라이선스 등)를 비교 정리한다
