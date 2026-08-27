@@ -35,37 +35,31 @@
 
 ## 🧭 소개
 
-블로그처럼 최신 글이 위에 쌓이는 구조보다, 필요한 내용을 **카테고리 · 기술 · 태그**로 바로 찾아볼 수 있는 위키에 가까운 형태를 목표로 합니다.
+공부하거나 삽질한 내용을 정리해두는 개인 블로그입니다. 다만 "오늘 뭐 썼지" 하고 최신순으로 훑어보는 타임라인보다는, 나중에 비슷한 문제를 또 만났을 때 검색 한 번으로 바로 찾아 쓸 수 있는 위키에 가깝게 만들고 싶었습니다.
 
-> [!TIP]
-> 글을 많이 쓰는 것보다, 다시 찾기 쉬운 구조를 만드는 데 집중한다.
+그래서 글을 쓸 때마다 신경 쓰는 질문은 하나입니다. **"1년 뒤의 내가 이 글을 다시 찾을 수 있을까?"**
 
-폴더 구조는 최대한 단순하게 유지하고, 분류는 아래 3가지 메타데이터로만 관리합니다.
+이 질문에 답하려고 폴더 구조는 최대한 단순하게(flat) 유지하고, 분류는 아래 3가지 메타데이터로만 관리합니다.
 
 | 메타데이터 | 의미 |
 | :---: | :--- |
-| `category` | 이 글의 **목적** (development, infra, cs, ai, study, certificates) |
-| `technology` | 사용한 **기술** (spring, docker, redis 등) |
-| `tags` | 다루는 **주제/개념** (jwt, caching, ci-cd 등) |
+| `category` | 이 글의 목적 (development, infra, cs, ai, study, certificates) |
+| `technology` | 사용한 기술 (spring, docker, redis 등) |
+| `tags` | 다루는 주제/개념 (jwt, caching, ci-cd 등) |
 
-순서가 없는 콘텐츠(코딩테스트 문제 등)는 `series` 대신 `tags: [주제, level-N]` 조합으로 묶고, Related Posts 자동 추천이 알아서 연결해줍니다.
+순서가 딱히 없는 콘텐츠(코딩테스트 문제 등)는 `series` 대신 `tags: [주제, level-N]` 조합으로 묶어두면, 관련 글 추천이 알아서 비슷한 글들을 이어줍니다.
 
 ---
 
 ## ✨ 주요 기능
 
-| 기능 | 설명 |
-| --- | --- |
-| 4개 콘텐츠 타입 | Articles(일반 글) · Projects(프로젝트 허브) · References(계속 갱신되는 참고 문서) · Snippets(30초 조회용 명령어/코드) |
-| Category / Tag 정적 페이지 | 카테고리·태그별로 진짜 정적 페이지가 빌드 타임에 생성됨 |
-| Related Posts 자동 추천 | category·technology·tags 겹침 기반 점수로 관련 글 자동 노출 (수동 `related` 지정도 가능) |
-| Project ↔ Article 양방향 연결 | `projects` 필드 하나로 프로젝트 페이지 ↔ 관련 글이 서로 자동 연결 |
-| Archive vs Portfolio 패턴 | 기술 디테일이 방대한 프로젝트는 `{slug}-archive`(비공개 원본)와 `{slug}`(공개용 정리본)로 분리 |
-| 검색 | [Pagefind](https://pagefind.app) 기반 전문(full-text) 검색 |
-| 다크모드 | 시스템 설정 감지 + 수동 토글, `localStorage`에 저장 |
-| SEO | Sitemap, RSS, canonical/OG/Twitter Card 메타태그 자동 생성, Google Search Console 연동 |
-| 방문자 분석 | [GoatCounter](https://goatcounter.com) 연동 (선택, 무료) |
-| draft 워크플로우 | `draft: true`는 `npm run dev`에서만 보이고 배포에서는 제외 |
+**콘텐츠는 성격에 따라 4가지로 나눠서 관리합니다.** 일반 글(Articles), 프로젝트 회고(Projects), 계속 업데이트되는 참고 문서(References), 30초 안에 찾아 쓰는 명령어/코드 조각(Snippets)입니다. 다뤄야 할 기술 디테일이 많은 프로젝트는 비공개 원본(`{slug}-archive`)과 공개용 정리본(`{slug}`)으로 나눠서, 자세히 보고 싶은 사람과 요약만 필요한 사람 모두를 챙깁니다.
+
+**카테고리나 태그를 누르면 빌드 타임에 미리 만들어진 진짜 정적 페이지로 이동합니다.** 그 안에서는 `category`·`technology`·`tags`가 얼마나 겹치는지 점수를 매겨 관련 글을 자동으로 보여주고, 프로젝트 문서에 `projects` 필드 하나만 적어두면 프로젝트 페이지와 관련 글이 서로 양방향으로 연결됩니다.
+
+**찾고 싶은 내용을 바로 찾을 수 있도록** [Pagefind](https://pagefind.app) 기반 전문 검색을 붙였고, 다크모드는 시스템 설정을 따라가면서 수동으로도 바꿀 수 있습니다. Sitemap·RSS·OG/Twitter Card 메타태그는 자동으로 생성되며, Google Search Console과 [GoatCounter](https://goatcounter.com) 방문자 분석도 원할 때만 연결하면 됩니다.
+
+쓰다 만 초안은 `draft: true`만 붙이면 로컬(`npm run dev`)에서만 보이고, 배포에는 올라가지 않습니다.
 
 ---
 
