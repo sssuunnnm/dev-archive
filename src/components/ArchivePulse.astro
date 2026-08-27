@@ -1,0 +1,259 @@
+---
+// About 페이지용 인터랙티브 통계 위젯.
+// 통계 카드(일째/총 글 수/최근 7일/연속 기록일)는 마우스 스포트라이트 대신
+// 숫자가 랜덤하게 스크램블되다가 왼쪽부터 자리를 잡는 타이포그래피 효과로 표현.
+// 카테고리 카드는 진행률 막대(고정된 max 개념) 대신, 카테고리 고유 색상의
+// 스포트라이트로 표현 — 카테고리 개수만큼 한 줄에 꽉 채운다.
+// 새 의존성 없이 vanilla JS/CSS로 구현 (CONVENTIONS 3-7과 같은 정신).
+import { getCollection } from 'astro:content';
+import { isVisible } from '../lib/content-visibility';
+import { categories } from '../lib/categories';
+
+const articles = await getCollection('articles', ({ data }) => isVisible(data.draft));
+
+const total = articles.length;
+
+const firstDate = articles.length
+  ? new Date(Math.min(...articles.map((a) => a.data.date.valueOf())))
+  : null;
+const firstDateStr = firstDate ? firstDate.toISOString().slice(0, 10) : null;
+
+// 최근 7일 이내 발행된 글 수 (미래로 예약된 글은 제외)
+const recentCount = articles.filter((a) => {
+  const ageMs = Date.now() - a.data.date.valueOf();
+  return ageMs >= 0 && ageMs <= 7 * 86_400_000;
+}).length;
+
+// 연속 기록일 — 글이 있는 날짜를 모아 가장 최근 날짜부터 며칠 연속인지 계산
+const postedDateStrs = [...new Set(articles.map((a) => a.data.date.toISOString().slice(0, 10)))].sort();
+let streak = postedDateStrs.length ? 1 : 0;
+for (let i = postedDateStrs.length - 1; i > 0; i--) {
+  const gapDays = Math.round(
+    (new Date(postedDateStrs[i]).valueOf() - new Date(postedDateStrs[i - 1]).valueOf()) / 86_400_000
+  );
+  if (gapDays === 1) streak++;
+  else break;
+}
+
+const categoryCounts: Record<string, number> = {};
+for (const a of articles) {
+  categoryCounts[a.data.category] = (categoryCounts[a.data.category] ?? 0) + 1;
+}
+const categoryData = categories
+  .map((c) => ({ key: c.key, label: c.label, count: categoryCounts[c.key] ?? 0 }))
+  .filter((c) => c.count > 0)
+  .sort((a, b) => b.count - a.count);
+---
+
+<div id="archive-pulse" data-first-date={firstDateStr}>
+  <div class="pulse-stats-row">
+    <div class="pulse-card pulse-card--scramble">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" id="pulse-days">0</p>
+      <p class="pulse-caption">일째 기록 중</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={total}>0</p>
+      <p class="pulse-caption">지금까지 쓴 글</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={recentCount}>0</p>
+      <p class="pulse-caption">최근 7일간 쓴 글</p>
+    </div>
+
+    <div class="pulse-card pulse-card--scramble">
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={streak}>0</p>
+      <p class="pulse-caption">일 연속 기록</p>
+    </div>
+  </div>
+
+  <div class="pulse-category-row" style={`--cat-count: ${categoryData.length}`}>
+    {categoryData.map((c) => (
+      <div class="pulse-card pulse-card--cat" tabindex="0">
+        <div class="pulse-spotlight pulse-spotlight--cat" data-cat={c.key} aria-hidden="true"></div>
+        <p class="pulse-cat-count pulse-countup" data-target={c.count}>0</p>
+        <p class="pulse-caption">{c.label}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .pulse-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  .pulse-category-row {
+    display: grid;
+    grid-template-columns: repeat(var(--cat-count), minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  @media (max-width: 30rem) {
+    .pulse-category-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .pulse-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    padding: 1rem 0.75rem;
+    background: rgb(249 250 251);
+    outline: none;
+  }
+
+  :global(.dark) .pulse-card {
+    background: rgb(24 24 27 / 0.6);
+  }
+
+  .pulse-number {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pulse-caption {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: rgb(156 163 175);
+  }
+
+  /* 스포트라이트 — 마우스를 따라다니는 은은한 빛 (카테고리 카드 전용, 각자 컬러) */
+  .pulse-spotlight {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .pulse-card--cat:hover .pulse-spotlight,
+  .pulse-card--cat:focus-visible .pulse-spotlight {
+    opacity: 1;
+  }
+
+  .pulse-cat-count {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pulse-card--cat .pulse-caption {
+    position: relative;
+  }
+
+  .pulse-spotlight--cat[data-cat='development'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-development) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='infra'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-infra) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='cs'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-cs) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='ai'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-ai) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='study'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-study) 28%, transparent), transparent 70%); }
+  .pulse-spotlight--cat[data-cat='certificates'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-certificates) 28%, transparent), transparent 70%); }
+
+  :global(.dark) .pulse-spotlight--cat[data-cat='development'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-development-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='infra'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-infra-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='cs'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-cs-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='ai'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-ai-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='study'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-study-dark) 24%, transparent), transparent 70%); }
+  :global(.dark) .pulse-spotlight--cat[data-cat='certificates'] { background: radial-gradient(120px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-cat-certificates-dark) 24%, transparent), transparent 70%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-spotlight {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.getElementById('archive-pulse');
+  if (!root) throw new Error('ArchivePulse: root element not found');
+
+  const daysEl = document.getElementById('pulse-days');
+  if (!daysEl) throw new Error('ArchivePulse: expected elements not found');
+
+  const firstDateStr = root.dataset.firstDate;
+  const days = firstDateStr
+    ? Math.max(0, Math.floor((Date.now() - new Date(firstDateStr).getTime()) / 86_400_000))
+    : 0;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // easeOutExpo 곡선으로 0 -> target까지 숫자를 채운다 (카테고리 카드용).
+  function countUp(el: Element, target: number, duration = 900) {
+    if (prefersReducedMotion || target === 0) {
+      el.textContent = String(target);
+      return;
+    }
+    const start = performance.now();
+    const ease = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = String(Math.round(target * ease(t)));
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // 랜덤 숫자로 깜빡이다가 왼쪽 자리부터 순서대로 정답에 고정된다 (통계 카드용).
+  function scrambleTo(el: HTMLElement, target: number, duration = 900) {
+    const targetStr = String(target);
+    if (prefersReducedMotion) {
+      el.textContent = targetStr;
+      return;
+    }
+    const start = performance.now();
+    function tick(now: number) {
+      const t = Math.min(1, (now - start) / duration);
+      const lockCount = Math.floor(t * targetStr.length);
+      let out = '';
+      for (let i = 0; i < targetStr.length; i++) {
+        out += i < lockCount ? targetStr[i] : String(Math.floor(Math.random() * 10));
+      }
+      el.textContent = out;
+      if (t < 1) requestAnimationFrame(tick);
+      else el.textContent = targetStr;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  let played = false;
+  function playIntro() {
+    if (played) return;
+    played = true;
+    scrambleTo(daysEl, days);
+    root
+      .querySelectorAll<HTMLElement>('.pulse-scramble[data-target]')
+      .forEach((el) => scrambleTo(el, Number(el.dataset.target ?? '0')));
+    root
+      .querySelectorAll<HTMLElement>('.pulse-cat-count')
+      .forEach((el) => countUp(el, Number(el.dataset.target ?? '0'), 700));
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        playIntro();
+        observer.disconnect();
+      }
+    },
+    { threshold: 0.4 }
+  );
+  observer.observe(root);
+
+  if (!prefersReducedMotion) {
+    root.querySelectorAll<HTMLElement>('.pulse-card--cat').forEach((card) => {
+      card.addEventListener('pointermove', (e: PointerEvent) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+        card.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+      });
+    });
+  }
+</script>
