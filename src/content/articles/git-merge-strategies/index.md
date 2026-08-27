@@ -12,7 +12,7 @@ series:
 projects:
 related: [git-branching-strategies]
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
