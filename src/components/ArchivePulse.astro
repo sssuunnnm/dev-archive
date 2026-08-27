@@ -1,7 +1,8 @@
 ---
 // About 페이지용 인터랙티브 통계 위젯.
-// 효과를 한 카드에 몰아넣지 않고 카드별로 하나씩 분산: 스포트라이트 카드, 틸트 카드,
-// 카테고리별 바 카드. 새 의존성 없이 vanilla JS/CSS로 구현 (CONVENTIONS 3-7과 같은 정신).
+// 통계 카드(일째/총 글 수)는 둘 다 마우스 스포트라이트, 카테고리 카드는 다음 줄에
+// 별도 섹션으로 분리해 hover 시 바가 채워짐. 새 의존성 없이 vanilla JS/CSS로 구현
+// (CONVENTIONS 3-7과 같은 정신).
 import { getCollection } from 'astro:content';
 import { isVisible } from '../lib/content-visibility';
 import { categories } from '../lib/categories';
@@ -26,34 +27,46 @@ const categoryData = categories
 const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
 ---
 
-<div class="pulse-grid" id="archive-pulse" data-first-date={firstDateStr} data-total={total}>
-  <div class="pulse-card pulse-card--spotlight" tabindex="0">
-    <div class="pulse-spotlight" aria-hidden="true"></div>
-    <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-days">0</p>
-    <p class="pulse-caption">일째 기록 중</p>
-  </div>
-
-  <div class="pulse-card pulse-card--tilt" tabindex="0">
-    <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-total">0</p>
-    <p class="pulse-caption">지금까지 쓴 글</p>
-  </div>
-
-  {categoryData.map((c) => (
-    <div class="pulse-card pulse-card--bar" tabindex="0">
-      <p class="pulse-cat-count" data-target={c.count}>0</p>
-      <p class="pulse-caption">{c.label}</p>
-      <div class="pulse-cat-track">
-        <div class="pulse-cat-fill" data-cat={c.key} style={`--target-width: ${(c.count / maxCount) * 100}%`}></div>
-      </div>
+<div id="archive-pulse" data-first-date={firstDateStr} data-total={total}>
+  <div class="pulse-stats-row">
+    <div class="pulse-card pulse-card--spotlight" tabindex="0">
+      <div class="pulse-spotlight" aria-hidden="true"></div>
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-days">0</p>
+      <p class="pulse-caption">일째 기록 중</p>
     </div>
-  ))}
+
+    <div class="pulse-card pulse-card--spotlight" tabindex="0">
+      <div class="pulse-spotlight" aria-hidden="true"></div>
+      <p class="pulse-number font-accent text-accent dark:text-accent-dark" id="pulse-total">0</p>
+      <p class="pulse-caption">지금까지 쓴 글</p>
+    </div>
+  </div>
+
+  <div class="pulse-category-row">
+    {categoryData.map((c) => (
+      <div class="pulse-card pulse-card--bar" tabindex="0">
+        <p class="pulse-cat-count" data-target={c.count}>0</p>
+        <p class="pulse-caption">{c.label}</p>
+        <div class="pulse-cat-track">
+          <div class="pulse-cat-fill" data-cat={c.key} style={`--target-width: ${(c.count / maxCount) * 100}%`}></div>
+        </div>
+      </div>
+    ))}
+  </div>
 </div>
 
 <style>
-  .pulse-grid {
+  .pulse-stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+  }
+
+  .pulse-category-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
   }
 
   .pulse-card {
@@ -105,12 +118,6 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
     opacity: 1;
   }
 
-  /* 틸트 카드 — 마우스 위치에 따라 살짝 3D로 기울어짐 */
-  .pulse-card--tilt {
-    transform: perspective(600px) rotateX(0deg) rotateY(0deg);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
   /* 카테고리 바 카드 — hover 시 막대가 채워짐 */
   .pulse-cat-count {
     font-size: 1.5rem;
@@ -157,10 +164,6 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
   :global(.dark) .pulse-cat-fill[data-cat='certificates'] { background: var(--color-cat-certificates-dark); }
 
   @media (prefers-reduced-motion: reduce) {
-    .pulse-card--tilt {
-      transition: none;
-      transform: none !important;
-    }
     .pulse-spotlight {
       display: none;
     }
@@ -225,25 +228,12 @@ const maxCount = Math.max(1, ...categoryData.map((c) => c.count));
   observer.observe(grid);
 
   if (!prefersReducedMotion) {
-    const spotlightCard = grid.querySelector<HTMLElement>('.pulse-card--spotlight');
-    spotlightCard?.addEventListener('pointermove', (e: PointerEvent) => {
-      const rect = spotlightCard.getBoundingClientRect();
-      spotlightCard.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-      spotlightCard.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
-    });
-
-    const tiltCard = grid.querySelector<HTMLElement>('.pulse-card--tilt');
-    tiltCard?.addEventListener('pointermove', (e: PointerEvent) => {
-      const rect = tiltCard.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      const tiltRange = 8; // deg
-      const rotateY = (x - 0.5) * tiltRange * 2;
-      const rotateX = (0.5 - y) * tiltRange * 2;
-      tiltCard.style.transform = `perspective(600px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
-    tiltCard?.addEventListener('pointerleave', () => {
-      tiltCard.style.transform = 'perspective(600px) rotateX(0deg) rotateY(0deg)';
+    grid.querySelectorAll<HTMLElement>('.pulse-card--spotlight').forEach((card) => {
+      card.addEventListener('pointermove', (e: PointerEvent) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+        card.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+      });
     });
   }
 </script>
