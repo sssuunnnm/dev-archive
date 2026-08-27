@@ -1,0 +1,113 @@
+---
+// About 페이지 비교용 — 프로젝트에서 실제로 쓴 기술 스택을 로고 3D 틸트 카드로.
+// 로고는 README에서도 쓰고 있는 skillicons.dev를 그대로 활용 (새 의존성 없음).
+import { getCollection } from 'astro:content';
+import { isVisible } from '../lib/content-visibility';
+import { getTechLabel, getTechIconSlug } from '../lib/tech-labels';
+
+const projects = await getCollection('projects', ({ data }) => isVisible(data.draft));
+
+const counts: Record<string, number> = {};
+for (const p of projects) {
+  for (const tech of p.data.stack) {
+    counts[tech] = (counts[tech] ?? 0) + 1;
+  }
+}
+
+const techs = Object.entries(counts)
+  .map(([key, count]) => ({ key, count, slug: getTechIconSlug(key), label: getTechLabel(key) }))
+  .filter((t) => t.slug !== null)
+  .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+---
+
+<div class="logo-grid" id="tech-logo-cards">
+  {techs.map((t) => (
+    <div class="logo-card" tabindex="0">
+      <img
+        class="logo-img"
+        src={`https://skillicons.dev/icons?i=${t.slug}`}
+        alt={t.label}
+        loading="lazy"
+        width="40"
+        height="40"
+      />
+      <span class="logo-label">{t.label}</span>
+    </div>
+  ))}
+</div>
+
+<style>
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+    gap: 0.625rem;
+  }
+
+  .logo-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+    border-radius: 0.875rem;
+    background: rgb(249 250 251);
+    transform: perspective(500px) rotateX(0deg) rotateY(0deg);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+    will-change: transform;
+    outline: none;
+  }
+
+  :global(.dark) .logo-card {
+    background: rgb(24 24 27 / 0.6);
+  }
+
+  .logo-card:hover,
+  .logo-card:focus-visible {
+    box-shadow: 0 14px 28px -18px rgb(0 0 0 / 0.4);
+  }
+
+  .logo-img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .logo-label {
+    font-size: 0.6875rem;
+    color: rgb(107 114 128);
+    text-align: center;
+  }
+
+  :global(.dark) .logo-label {
+    color: rgb(156 163 175);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-card {
+      transition: none;
+      transform: none !important;
+    }
+  }
+</style>
+
+<script>
+  const grid = document.getElementById('tech-logo-cards');
+  if (!grid) throw new Error('TechLogoTiltCards: root element not found');
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReducedMotion) {
+    grid.querySelectorAll<HTMLElement>('.logo-card').forEach((card) => {
+      const tiltRange = 10; // deg — 작은 카드라 좀 더 과감하게
+      card.addEventListener('pointermove', (e: PointerEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        const rotateY = (x - 0.5) * tiltRange * 2;
+        const rotateX = (0.5 - y) * tiltRange * 2;
+        card.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = 'perspective(500px) rotateX(0deg) rotateY(0deg)';
+      });
+    });
+  }
+</script>

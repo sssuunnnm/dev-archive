@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchivePulse from '../components/ArchivePulse.astro';
+import ProjectTiltCards from '../components/ProjectTiltCards.astro';
+import TechLogoTiltCards from '../components/TechLogoTiltCards.astro';
 ---
 
 <BaseLayout title="About" description="dev-archive 소개" ogType="website">
@@ -20,6 +22,16 @@ import ArchivePulse from '../components/ArchivePulse.astro';
 
   <div class="not-prose my-8">
     <ArchivePulse />
+  </div>
+
+  <div class="not-prose my-10 border-t border-dashed border-gray-300 dark:border-gray-700 pt-8">
+    <p class="text-xs text-gray-400 mb-4">⚠ 비교 테스트용 섹션 — 둘 중 하나만 남길 예정</p>
+
+    <p class="text-sm font-semibold mb-3">A. 대표 프로젝트 미리보기 카드</p>
+    <ProjectTiltCards />
+
+    <p class="text-sm font-semibold mt-8 mb-3">B. 기술 스택 로고 카드</p>
+    <TechLogoTiltCards />
   </div>
 
   <div class="prose prose-gray dark:prose-invert max-w-none">
