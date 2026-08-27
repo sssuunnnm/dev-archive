@@ -10,7 +10,7 @@ type: reference
 status: evergreen
 series:
 projects:
-related:
+related: [git-merge-strategies]
 aliases:
 draft: true
 ---
@@ -78,6 +78,7 @@ Trunk-based:   main → add-a (짧게 작업, 1~2일) → main (바로 병합, �
 - Git Flow는 브랜치가 많아서, 팀 전체가 규칙을 지키지 않으면 금방 복잡해진다. 소규모 팀이나 개인 프로젝트에는 과할 수 있다.
 - Trunk-based는 짧은 주기로 계속 merge하는 걸 전제로 하므로, CI가 빠르고 안정적이지 않으면(테스트가 느리거나 자주 깨지면) 오히려 `main`이 불안정해질 위험이 있다.
 - 둘 다 "정답"이 아니라, 팀의 배포 주기·버전 지원 정책·CI/CD 성숙도에 따라 갈리는 트레이드오프다.
+- 브랜치를 어떻게 나누는지(이 글)와, 합칠 때 히스토리를 어떻게 남기는지(merge commit/rebase/squash)는 서로 다른 결정이다. 후자는 [Git 병합 전략 글](../git-merge-strategies/)에서 따로 다룬다.
 
 ## 참고자료
 
