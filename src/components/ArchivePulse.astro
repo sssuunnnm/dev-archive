@@ -46,22 +46,22 @@ const categoryData = categories
 
 <div id="archive-pulse" data-first-date={firstDateStr}>
   <div class="pulse-stats-row">
-    <div class="pulse-card pulse-card--scramble" tabindex="0">
+    <div class="pulse-card pulse-card--scramble">
       <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" id="pulse-days">0</p>
       <p class="pulse-caption">일째 기록 중</p>
     </div>
 
-    <div class="pulse-card pulse-card--scramble" tabindex="0">
+    <div class="pulse-card pulse-card--scramble">
       <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={total}>0</p>
       <p class="pulse-caption">지금까지 쓴 글</p>
     </div>
 
-    <div class="pulse-card pulse-card--scramble" tabindex="0">
+    <div class="pulse-card pulse-card--scramble">
       <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={recentCount}>0</p>
       <p class="pulse-caption">최근 7일간 쓴 글</p>
     </div>
 
-    <div class="pulse-card pulse-card--scramble" tabindex="0">
+    <div class="pulse-card pulse-card--scramble">
       <p class="pulse-number font-accent text-accent dark:text-accent-dark pulse-scramble" data-target={streak}>0</p>
       <p class="pulse-caption">일 연속 기록</p>
     </div>
@@ -122,22 +122,6 @@ const categoryData = categories
     margin-top: 0.375rem;
     font-size: 0.75rem;
     color: rgb(156 163 175);
-  }
-
-  /* 스크램블 카드 — hover하면 다시 스크램블 재생 (커서로는 은은한 배경 반응만) */
-  .pulse-card--scramble {
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-
-  .pulse-card--scramble:hover,
-  .pulse-card--scramble:focus-visible {
-    background: rgb(243 244 246);
-  }
-
-  :global(.dark) .pulse-card--scramble:hover,
-  :global(.dark) .pulse-card--scramble:focus-visible {
-    background: rgb(39 39 42 / 0.7);
   }
 
   /* 스포트라이트 — 마우스를 따라다니는 은은한 빛 (카테고리 카드 전용, 각자 컬러) */
@@ -261,16 +245,6 @@ const categoryData = categories
     { threshold: 0.4 }
   );
   observer.observe(root);
-
-  // hover/focus로 다시 스크램블을 재생할 수 있게 (한 번 보고 끝나는 게 아니라 계속 만져볼 수 있도록)
-  root.querySelectorAll<HTMLElement>('.pulse-card--scramble').forEach((card) => {
-    const numberEl = card.querySelector<HTMLElement>('.pulse-scramble');
-    if (!numberEl) return;
-    const target = numberEl === daysEl ? days : Number(numberEl.dataset.target ?? '0');
-    const replay = () => scrambleTo(numberEl, target);
-    card.addEventListener('mouseenter', replay);
-    card.addEventListener('focus', replay);
-  });
 
   if (!prefersReducedMotion) {
     root.querySelectorAll<HTMLElement>('.pulse-card--cat').forEach((card) => {
