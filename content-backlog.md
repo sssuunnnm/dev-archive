@@ -4,4 +4,3 @@
 
 형식: `- [ ] 주제/제목 후보 — 메모 (출처: <원래 글 slug>, YYYY-MM-DD)`
 
-- [ ] Docker 심화 용어 정리 (Registry/Repository/Tag, ENTRYPOINT vs CMD, EXPOSE vs -p, bind mount vs volume, multi-stage build, dockerd, .dockerignore 등) — docker-basics 글에는 너무 자세해서 별도 글로 미룸 (출처: docker-basics, 2026-08-25)
