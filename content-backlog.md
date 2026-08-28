@@ -5,4 +5,3 @@
 형식: `- [ ] 주제/제목 후보 — 메모 (출처: <원래 글 slug>, YYYY-MM-DD)`
 
 - [ ] Docker 심화 용어 정리 (Registry/Repository/Tag, ENTRYPOINT vs CMD, EXPOSE vs -p, bind mount vs volume, multi-stage build, dockerd, .dockerignore 등) — docker-basics 글에는 너무 자세해서 별도 글로 미룸 (출처: docker-basics, 2026-08-25)
-- [ ] Redis의 캐시 외 다른 역할 정리 (세션 스토어, Pub/Sub, 레이트 리미터, RDB/AOF로 영속화해서 주 DB로 쓰는 경우 등) — redis-basics 글은 캐시 용도에 집중해서 별도 글로 미룸 (출처: redis-basics, 2026-08-26)
