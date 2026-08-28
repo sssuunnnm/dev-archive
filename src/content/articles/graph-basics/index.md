@@ -3,7 +3,7 @@ title: 그래프/노드 기초 개념
 description: 정점과 간선이 뭔지부터, 코드로 어떻게 표현하고 DFS/BFS로 어떻게 도는지까지 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [graph, dfs, bfs, adjacency-list]
 type: study

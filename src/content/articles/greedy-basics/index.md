@@ -3,7 +3,7 @@ title: 그리디 개념과 문제 패턴
 description: 그리디가 통하는 문제인지 판단하는 법과, 자주 나오는 그리디 선택 기준 패턴을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [greedy, pattern-recognition]
 type: study

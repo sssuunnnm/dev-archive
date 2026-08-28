@@ -3,7 +3,7 @@ title: 완전탐색 개념과 문제 패턴
 description: 순열/조합/백트래킹 중 뭘 써야 하는지, 완전탐색이 통할지 시간복잡도로 미리 가늠하는 법을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [brute-force, backtracking, permutation, pattern-recognition]
 type: study

@@ -3,7 +3,7 @@ title: 올바른 괄호
 description: 스택으로 괄호 짝을 맞추는 문제, 두 가지 예외상황(빈 스택에서 pop, 순회 후 잔여값)을 정리한다
 date: 2026-08-07
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [stack, level-2]
 type: troubleshooting

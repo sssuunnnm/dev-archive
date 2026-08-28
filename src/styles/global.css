@@ -41,8 +41,8 @@
   --color-cat-cs-dark: hsl(27 33% 67%);
   --color-cat-ai: hsl(267 34% 42%);
   --color-cat-ai-dark: hsl(267 33% 67%);
-  --color-cat-study: hsl(327 34% 42%);
-  --color-cat-study-dark: hsl(327 33% 67%);
+  --color-cat-coding-test: hsl(327 34% 42%);
+  --color-cat-coding-test-dark: hsl(327 33% 67%);
   --color-cat-certificates: hsl(87 34% 42%);
   --color-cat-certificates-dark: hsl(87 33% 67%);
 }

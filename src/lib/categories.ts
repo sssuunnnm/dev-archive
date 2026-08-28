@@ -7,7 +7,7 @@ export const categoryKeys = [
   'infra',
   'cs',
   'ai',
-  'study',
+  'coding-test',
   'certificates',
 ] as const;
 
@@ -18,7 +18,7 @@ const labels: Record<CategoryKey, string> = {
   infra: 'Infra',
   cs: 'CS',
   ai: 'AI',
-  study: 'Study',
+  'coding-test': 'Coding Test',
   certificates: 'Certificates',
 };
 
@@ -36,7 +36,7 @@ const textColorClasses: Record<CategoryKey, string> = {
   infra: 'text-cat-infra dark:text-cat-infra-dark',
   cs: 'text-cat-cs dark:text-cat-cs-dark',
   ai: 'text-cat-ai dark:text-cat-ai-dark',
-  study: 'text-cat-study dark:text-cat-study-dark',
+  'coding-test': 'text-cat-coding-test dark:text-cat-coding-test-dark',
   certificates: 'text-cat-certificates dark:text-cat-certificates-dark',
 };
 
@@ -45,7 +45,7 @@ const pillClasses: Record<CategoryKey, string> = {
   infra: 'bg-cat-infra/10 text-cat-infra dark:bg-cat-infra-dark/10 dark:text-cat-infra-dark',
   cs: 'bg-cat-cs/10 text-cat-cs dark:bg-cat-cs-dark/10 dark:text-cat-cs-dark',
   ai: 'bg-cat-ai/10 text-cat-ai dark:bg-cat-ai-dark/10 dark:text-cat-ai-dark',
-  study: 'bg-cat-study/10 text-cat-study dark:bg-cat-study-dark/10 dark:text-cat-study-dark',
+  'coding-test': 'bg-cat-coding-test/10 text-cat-coding-test dark:bg-cat-coding-test-dark/10 dark:text-cat-coding-test-dark',
   certificates: 'bg-cat-certificates/10 text-cat-certificates dark:bg-cat-certificates-dark/10 dark:text-cat-certificates-dark',
 };
 
@@ -65,7 +65,7 @@ const listItemHoverClasses: Record<CategoryKey, string> = {
   infra: 'hover:bg-cat-infra/8 dark:hover:bg-cat-infra-dark/15',
   cs: 'hover:bg-cat-cs/8 dark:hover:bg-cat-cs-dark/15',
   ai: 'hover:bg-cat-ai/8 dark:hover:bg-cat-ai-dark/15',
-  study: 'hover:bg-cat-study/8 dark:hover:bg-cat-study-dark/15',
+  'coding-test': 'hover:bg-cat-coding-test/8 dark:hover:bg-cat-coding-test-dark/15',
   certificates: 'hover:bg-cat-certificates/8 dark:hover:bg-cat-certificates-dark/15',
 };
 

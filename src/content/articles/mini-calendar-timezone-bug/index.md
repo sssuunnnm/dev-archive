@@ -8,7 +8,6 @@ technology: [astro, typescript, github-actions]
 tags: [timezone, static-site]
 type: troubleshooting
 status: archive
-related: [why-i-started-this-blog]
 draft: false
 ---
 

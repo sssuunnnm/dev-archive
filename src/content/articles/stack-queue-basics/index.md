@@ -3,7 +3,7 @@ title: 스택/큐 개념과 문제 패턴
 description: 스택과 큐를 언제 골라 써야 하는지, 괄호 매칭/시뮬레이션 문제에서 반복되는 패턴을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [stack, queue, pattern-recognition]
 type: study
