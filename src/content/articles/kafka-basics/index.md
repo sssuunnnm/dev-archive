@@ -48,7 +48,7 @@ Topic: order-created
 └── Partition 2: [msg3, msg6, msg9, ...]
 ```
 
-같은 파티션 안에서는 메시지 순서가 보장되지만, 파티션이 여러 개면 파티션 간 순서는 보장되지 않는다. 메시지를 어느 파티션에 보낼지는 보통 key의 해시로 정하는데, 같은 key는 항상 같은 파티션으로 가기 때문에 "그 key에 대해서는" 순서가 보장된다 (예: 같은 주문 ID의 이벤트들은 항상 같은 파티션에 순서대로 쌓인다).
+같은 파티션 안에서는 메시지 순서가 보장되지만, 파티션이 여러 개면 파티션 간 순서는 보장되지 않는다. 메시지를 어느 파티션에 보낼지는 보통 `hash(key) % 파티션 수`로 정하는데, 파티션 수와 파티셔너 설정이 그대로 유지되는 동안에는 같은 key가 항상 같은 파티션으로 가기 때문에 "그 key에 대해서는" 순서가 보장된다 (예: 같은 주문 ID의 이벤트들은 파티션 수가 안 바뀌는 한 항상 같은 파티션에 순서대로 쌓인다). 반대로 파티션 수를 늘리면 `% 파티션 수` 계산 결과가 달라져서, 같은 key라도 그 시점 이후의 메시지는 다른 파티션으로 갈 수 있다.
 
 파티션 수를 늘리면 병렬로 처리할 수 있는 컨슈머 수도 늘어나지만, 한번 늘린 파티션 수는 줄이기 어렵고 key 기반 순서 보장 범위도 달라지므로 신중히 정해야 한다.
 
@@ -57,11 +57,11 @@ Topic: order-created
 컨슈머 그룹은 "같은 그룹 안의 컨슈머들이 파티션을 나눠 갖는다"는 규칙 하나로 두 가지 문제를 동시에 푼다.
 
 - **병렬 처리**: 파티션이 3개, 컨슈머가 3개면 각자 파티션 하나씩 맡아 동시에 처리한다.
-- **다중 소비자**: 그룹을 다르게 두면, 같은 토픽을 완전히 독립적으로 여러 그룹이 각자 처음부터 끝까지 읽을 수 있다 (예: "재고 차감" 그룹과 "알림 발송" 그룹이 같은 `order-created` 토픽을 각자 소비).
+- **다중 소비자**: 그룹을 다르게 두면, 같은 토픽을 완전히 독립적으로 여러 그룹이 각자 소비할 수 있다 (예: "재고 차감" 그룹과 "알림 발송" 그룹이 같은 `order-created` 토픽을 각자 소비). 다만 새 그룹이라고 무조건 맨 처음부터 읽는 건 아니다 — 커밋된 오프셋이 없을 때 어디서부터 읽을지는 `auto.offset.reset` 설정(`earliest`면 보존된 가장 오래된 메시지부터, `latest`면 그 시점 이후 새 메시지부터)에 따라 달라진다.
 
 ### 직접 살펴보기 — 컨슈머 수에 따라 파티션이 어떻게 배분되나
 
-파티션 3개짜리 토픽에 같은 그룹의 컨슈머 수를 바꿔가며, 파티션이 어떻게 나뉘는지 비교한다.
+파티션 3개짜리 토픽에 같은 그룹의 컨슈머 수를 바꿔가며, 파티션이 어떻게 나뉘는지 비교한다. 아래 데모는 이해를 돕기 위해 **라운드로빈(RoundRobinAssignor) 방식으로 단순화**한 것이고, 실제 배분 결과는 `partition.assignment.strategy` 설정에 따라 달라진다 — 예를 들어 기본값인 RangeAssignor는 컨슈머가 2개일 때 라운드로빈과 다른 결과를 낼 수 있다.
 
 <div class="kafkademo">
 <style>
@@ -141,7 +141,7 @@ Topic: order-created
 
 ### 오프셋과 재처리
 
-Kafka는 메시지를 소비해도 큐처럼 바로 지우지 않고, 설정된 보존 기간(retention) 동안 로그에 남겨둔다. 컨슈머는 "내가 어디까지 읽었는지"를 오프셋으로 따로 기록(commit)하기 때문에, 오프셋을 되돌리면 이미 처리한 메시지도 다시 읽을 수 있다 — 장애로 처리에 실패했을 때 재처리가 가능한 이유다.
+Kafka는 메시지를 소비해도 큐처럼 바로 지우지 않고, 설정된 보존 기간(retention) 동안 로그에 남겨둔다. 컨슈머는 "내가 어디까지 읽었는지"를 오프셋으로 따로 기록(commit)하기 때문에, 오프셋을 되돌리면 이미 처리한 메시지도 다시 읽을 수 있다 — 단, 그 메시지가 아직 로그에 남아있는 경우에만 가능하다. `cleanup.policy=delete`(기본값)에서는 `retention.ms`/`retention.bytes` 한도를 넘긴 오래된 레코드가 삭제되고, `compact`가 포함된 정책이면 같은 key의 이전 레코드가 정리될 수 있다. 재처리는 "오프셋을 되돌리면 항상 가능"한 게 아니라 "대상 레코드가 아직 보존되어 있어야" 가능한 것이다.
 
 ## 예제
 
@@ -154,12 +154,12 @@ producer.send('order-created', key=order.user_id, value=order.to_json())
 # Consumer A (재고 서비스, group='inventory-service')
 for message in consumer.poll('order-created', group='inventory-service'):
     reduce_stock(message.value)
-    consumer.commit(message.offset)
+    consumer.commit(message.offset + 1)  # 커밋 오프셋은 "다음에 읽을 위치" — 현재 레코드 offset을 그대로 쓰면 재시작 후 같은 메시지를 다시 읽는다
 
-# Consumer B (알림 서비스, group='notification-service') — 완전히 별도로 같은 토픽을 처음부터 소비
+# Consumer B (알림 서비스, group='notification-service') — 별도 그룹이라 자기만의 오프셋으로 독립적으로 소비
 for message in consumer.poll('order-created', group='notification-service'):
     send_notification(message.value)
-    consumer.commit(message.offset)
+    consumer.commit(message.offset + 1)
 ```
 
 ## 주의사항
