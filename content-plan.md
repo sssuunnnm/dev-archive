@@ -6,4 +6,4 @@
 - [x] Redis 자료구조와 캐싱 전략 | redis-basics | infra | [redis] | [caching, in-memory] | study | Redis의 주요 자료구조와 캐시로 쓸 때 고려할 점을 정리한다
 - [x] Git 브랜치 전략 정리 (Git Flow vs Trunk-based) | git-branching-strategies | development | [git] | [branching, workflow] | reference | 대표적인 Git 브랜치 전략 두 가지를 비교해서 언제 어떤 걸 쓰면 좋을지 정리한다
 - [x] Kafka 기본 개념 - 토픽, 파티션, 컨슈머 그룹 | kafka-basics | infra | [kafka] | [messaging, event-driven] | study | Kafka의 핵심 개념(토픽/파티션/컨슈머 그룹)이 왜 그렇게 설계됐는지 정리한다
-- [ ] Redis의 캐시 외 다른 역할 정리 (세션 스토어, Pub/Sub, 레이트 리미터 등) | redis-beyond-caching | infra | [redis] | [session-store, rate-limiting] | study | Redis가 캐시 외에 세션 스토어, Pub/Sub, 레이트 리미터, 드물게는 주 DB로도 쓰이는 경우를 정리한다 (redis-basics 후속, PostgreSQL vs MySQL은 database-types-basics와 겹쳐서 교체)
+- [x] Redis의 캐시 외 다른 역할 정리 (세션 스토어, Pub/Sub, 레이트 리미터 등) | redis-beyond-caching | infra | [redis] | [session-store, rate-limiting] | study | Redis가 캐시 외에 세션 스토어, Pub/Sub, 레이트 리미터, 드물게는 주 DB로도 쓰이는 경우를 정리한다 (redis-basics 후속, PostgreSQL vs MySQL은 database-types-basics와 겹쳐서 교체)
