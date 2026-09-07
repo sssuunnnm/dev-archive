@@ -80,5 +80,5 @@ string solution(string s) {
 
 ## 참고자료
 
-- [문자열 split](../../snippets/string-split-cpp/) — 토큰화 스니펫
-- [문자열 숫자 변환](../../snippets/string-number-conversion/) — stoi/to_string 스니펫
+- [문자열 split](/snippets/string-split-cpp/) — 토큰화 스니펫
+- [문자열 숫자 변환](/snippets/string-number-conversion/) — stoi/to_string 스니펫

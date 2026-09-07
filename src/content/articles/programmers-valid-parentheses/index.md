@@ -62,4 +62,4 @@ bool solution(string s) {
 
 ## 참고자료
 
-- [스택/큐 개념과 문제 패턴](../stack-queue-basics/) — 괄호 매칭 패턴 원본
+- [스택/큐 개념과 문제 패턴](/coding-test/stack-queue-basics/) — 괄호 매칭 패턴 원본

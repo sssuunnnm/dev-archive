@@ -88,5 +88,5 @@ vector<int> solution(vector<string> genres, vector<int> plays) {
 
 ## 참고자료
 
-- [해시 개념과 문제 패턴](../hash-basics/) — 빈도수 세기(장르별 총 재생수 집계)
-- [정렬 개념과 문제 패턴](../sort-basics/) — 다중 조건 정렬 패턴
+- [해시 개념과 문제 패턴](/coding-test/hash-basics/) — 빈도수 세기(장르별 총 재생수 집계)
+- [정렬 개념과 문제 패턴](/coding-test/sort-basics/) — 다중 조건 정렬 패턴

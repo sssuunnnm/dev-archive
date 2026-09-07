@@ -56,4 +56,4 @@ int solution(vector<vector<string>> clothes) {
 
 ## 참고자료
 
-- [해시 개념과 문제 패턴](../hash-basics/) — 빈도수 세기 패턴 원본
+- [해시 개념과 문제 패턴](/coding-test/hash-basics/) — 빈도수 세기 패턴 원본

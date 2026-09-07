@@ -135,4 +135,4 @@ int countGroups(int n, vector<vector<int>>& graph) {
 
 ## 참고자료
 
-- [그래프/노드 기초 개념](../graph-basics/) — 인접리스트 만드는 법, DFS/BFS 기본 코드
+- [그래프/노드 기초 개념](/coding-test/graph-basics/) — 인접리스트 만드는 법, DFS/BFS 기본 코드
