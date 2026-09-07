@@ -10,7 +10,7 @@ type: tutorial
 status: evergreen
 series:
 projects:
-related:
+related: [docker-advanced-terms]
 aliases:
 draft: false
 ---
@@ -124,3 +124,4 @@ docker logs -f <container_id>        # 4. 로그로 정상 기동 확인
 ## 참고자료
 
 - Docker 공식 문서(docs.docker.com)
+- [Docker 심화 용어 정리](../docker-advanced-terms/) — Registry/Repository/Tag, ENTRYPOINT vs CMD, bind mount vs volume 등
