@@ -24,4 +24,4 @@ FROM (
 WHERE rn <= 2;
 ```
 
-이 예제에서 `ROW_NUMBER` + 바깥 `WHERE`로 우회한 이유는 그룹별 순위 자체가 `LIMIT`만으로는 표현 불가능하기 때문이다. 참고로 MySQL은 서브쿼리 자체에 `LIMIT`를 아예 못 쓰는 게 아니라, `FROM` 절의 파생 테이블(derived table) 등에서는 `LIMIT`를 쓸 수 있다. `LIMIT`가 막히는 대표적인 경우는 `IN`/`ALL`/`ANY`/`SOME` 연산자의 서브쿼리 안에 직접 쓸 때다 (관련 내용은 [서브쿼리 LIMIT 우회](../sql-subquery-limit/) 참고).
+이 예제에서 `ROW_NUMBER` + 바깥 `WHERE`로 우회한 이유는 그룹별 순위 자체가 `LIMIT`만으로는 표현 불가능하기 때문이다. 참고로 MySQL은 서브쿼리 자체에 `LIMIT`를 아예 못 쓰는 게 아니라, `FROM` 절의 파생 테이블(derived table) 등에서는 `LIMIT`를 쓸 수 있다. `LIMIT`가 막히는 대표적인 경우는 `IN`/`ALL`/`ANY`/`SOME` 연산자의 서브쿼리 안에 직접 쓸 때다 (관련 내용은 [서브쿼리 LIMIT 우회](/snippets/sql-subquery-limit/) 참고).

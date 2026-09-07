@@ -238,5 +238,5 @@ for (int i = 1; i < triangle.size(); i++) {
 ## 참고자료
 
 - 프로그래머스 "정수 삼각형", "등굣길", "타일 채우기" 유형
-- [완전탐색 개념과 문제 패턴](../brute-force-basics/) — 선택/비선택 재귀 구조 참고
-- [그리디 개념과 문제 패턴](../greedy-basics/) — DP와 그리디를 가르는 조건 참고
+- [완전탐색 개념과 문제 패턴](/coding-test/brute-force-basics/) — 선택/비선택 재귀 구조 참고
+- [그리디 개념과 문제 패턴](/coding-test/greedy-basics/) — DP와 그리디를 가르는 조건 참고

@@ -73,5 +73,5 @@ A에서 `a1 ≤ a2`, B에서 `b1 ≤ b2` 두 쌍이 있을 때, 짝짓는 방법
 
 ## 참고자료
 
-- [그리디 개념과 문제 패턴](../greedy-basics/) — 그리디 판단법, 반례 검증 습관
-- [정렬 개념과 문제 패턴](../sort-basics/) — rbegin/rend로 내림차순 정렬하는 법
+- [그리디 개념과 문제 패턴](/coding-test/greedy-basics/) — 그리디 판단법, 반례 검증 습관
+- [정렬 개념과 문제 패턴](/coding-test/sort-basics/) — rbegin/rend로 내림차순 정렬하는 법

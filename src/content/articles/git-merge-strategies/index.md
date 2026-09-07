@@ -17,7 +17,7 @@ draft: false
 
 ## 한 줄 요약
 
-브랜치를 합칠 때 히스토리를 그래프로 그대로 남길지(Merge Commit), 일직선으로 펼지(Rebase), 커밋 하나로 뭉칠지(Squash)가 병합 전략이고, 이건 [브랜치 전략](../git-branching-strategies/)(Git Flow/Trunk-based)과는 별개의 선택이라 자유롭게 조합할 수 있다.
+브랜치를 합칠 때 히스토리를 그래프로 그대로 남길지(Merge Commit), 일직선으로 펼지(Rebase), 커밋 하나로 뭉칠지(Squash)가 병합 전략이고, 이건 [브랜치 전략](/development/git-branching-strategies/)(Git Flow/Trunk-based)과는 별개의 선택이라 자유롭게 조합할 수 있다.
 
 ## 본문
 
@@ -150,7 +150,7 @@ GitHub PR의 "Merge" 버튼도 이 세 가지를 그대로 지원한다: "Create
 
 ### 이 리포는 어떤 전략을 쓰나
 
-`git log --merges`로 확인해보면 `Merge pull request #30 from ...`처럼 부모 커밋이 둘인 병합 커밋이 여러 개 남아있다 — 적어도 그 PR들은 **Merge Commit** 방식으로 합쳐졌다는 뜻이다. 다만 `git log --merges`는 조회 범위 안에서 부모가 2개 이상인 커밋을 보여주는 것일 뿐, 저장소 전체의 "기본 병합 방식"을 증명해주지는 않는다 — 과거에 Merge Commit으로 합친 기록은 이후 다른 PR이 Rebase나 Squash로 합쳐지더라도 그대로 남아있기 때문이다. 실제로 리포에 설정된 기본 병합 방식은 GitHub 저장소의 **Settings → General → Pull Requests**에서 "Allow merge commits/Allow squash merging/Allow rebase merging" 항목을 직접 확인해야 정확하다. [브랜치 전략 글](../git-branching-strategies/)에서 짚었듯 브랜치 자체는 Trunk-based에 가깝게 짧게 쓰는데, 적어도 지금까지의 PR들은 Merge Commit으로 합쳐져서 각 PR이 그래프에 그대로 남아있다.
+`git log --merges`로 확인해보면 `Merge pull request #30 from ...`처럼 부모 커밋이 둘인 병합 커밋이 여러 개 남아있다 — 적어도 그 PR들은 **Merge Commit** 방식으로 합쳐졌다는 뜻이다. 다만 `git log --merges`는 조회 범위 안에서 부모가 2개 이상인 커밋을 보여주는 것일 뿐, 저장소 전체의 "기본 병합 방식"을 증명해주지는 않는다 — 과거에 Merge Commit으로 합친 기록은 이후 다른 PR이 Rebase나 Squash로 합쳐지더라도 그대로 남아있기 때문이다. 실제로 리포에 설정된 기본 병합 방식은 GitHub 저장소의 **Settings → General → Pull Requests**에서 "Allow merge commits/Allow squash merging/Allow rebase merging" 항목을 직접 확인해야 정확하다. [브랜치 전략 글](/development/git-branching-strategies/)에서 짚었듯 브랜치 자체는 Trunk-based에 가깝게 짧게 쓰는데, 적어도 지금까지의 PR들은 Merge Commit으로 합쳐져서 각 PR이 그래프에 그대로 남아있다.
 
 ## 예제
 
@@ -172,4 +172,4 @@ git log --all --merges --format='%H %P %s'                # 조회 범위(전체
 ## 참고자료
 
 - git-scm.com (Git 공식 문서)
-- [Git 브랜치 전략 정리 (Git Flow vs Trunk-based)](../git-branching-strategies/)
+- [Git 브랜치 전략 정리 (Git Flow vs Trunk-based)](/development/git-branching-strategies/)

@@ -54,4 +54,4 @@ int solution(vector<int> nums) {
 
 ## 참고자료
 
-- [해시 개념과 문제 패턴](../hash-basics/) — 존재 여부 체크 패턴 원본
+- [해시 개념과 문제 패턴](/coding-test/hash-basics/) — 존재 여부 체크 패턴 원본

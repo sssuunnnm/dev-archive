@@ -77,9 +77,9 @@ Articles / Projects / Reference / Snippets / About
 ```text
 development       # 코드/구현 관련
 infra             # 인프라, 배포, 서버, CI/CD
-cs                # 전공지식 (OS, Network, DB, Algorithm)
+cs                # 전공지식 (OS, Network, DB)
 ai                # LLM, ML, 데이터 분석
-study             # 개발 습관, 환경설정, 생산성 등 잡학
+coding-test       # 알고리즘 문제풀이, 코딩테스트 패턴 정리
 certificates      # 자격증 후기/정리
 projects          # 프로젝트 (별도 collection과 연동)
 ```
@@ -439,7 +439,7 @@ Public GitHub 레포 특성상 `draft: true`여도 `.md` 원본 파일은 레포
 | infra | 147° | |
 | cs | 27° | |
 | ai | 267° | |
-| study | 327° | |
+| coding-test | 327° | |
 | certificates | 87° | infra(147°)와 같은 "녹색 계열"로 보일 수 있는 걸 인지하고 있음 — 라벨 텍스트가 항상 같이 있어 실사용상 문제는 없다고 판단, 현재는 그대로 둠 |
 
 카테고리를 새로 추가/변경할 일은 거의 없지만(2-1 참고), 하게 되면 60° 간격 회전 공식을 그대로 따르고 이 표를 갱신한다.
