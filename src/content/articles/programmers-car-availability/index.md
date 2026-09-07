@@ -3,7 +3,7 @@ title: 자동차 대여중 / 대여 가능 여부 구분하기
 description: WITH로 조건을 미리 추려두고 CASE WHEN으로 전체 목록에 상태를 라벨링하는 흐름을 정리한다
 date: 2026-08-05
 updated:
-category: cs
+category: coding-test
 technology: [mysql]
 tags: [case, cte, level-3]
 type: troubleshooting

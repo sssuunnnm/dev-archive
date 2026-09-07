@@ -3,7 +3,7 @@ title: 최솟값 만들기
 description: 한쪽은 오름차순, 한쪽은 내림차순으로 정렬해 짝지으면 곱의 합이 최소가 됨을 교환 논증으로 증명한다
 date: 2026-08-07
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [greedy, sort, level-1]
 type: troubleshooting

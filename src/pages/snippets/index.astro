@@ -43,8 +43,20 @@ const sortedGroups = Array.from(groups.entries())
     <p class="text-gray-600 dark:text-gray-400 text-sm">아직 등록된 snippet이 없습니다.</p>
   ) : (
     <div class="space-y-3">
+      <nav class="flex flex-wrap gap-2 mb-2" aria-label="폴더 목록">
+        {sortedGroups.map((group) => (
+          <a
+            href={`#snippet-group-${group.tech}`}
+            data-snippet-jump={group.tech}
+            class="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            {group.label} <span class="text-gray-400">({group.items.length})</span>
+          </a>
+        ))}
+      </nav>
+
       {sortedGroups.map((group, i) => (
-        <details open={i === 0} class="group rounded-xl bg-gray-50 dark:bg-gray-900/40">
+        <details open={i === 0} id={`snippet-group-${group.tech}`} class="group rounded-xl bg-gray-50 dark:bg-gray-900/40">
           <summary class="cursor-pointer select-none px-4 py-3 font-medium flex items-center gap-2">
             <Folder size={16} class="group-open:hidden" />
             <FolderOpen size={16} class="hidden group-open:inline" />
@@ -75,3 +87,13 @@ const sortedGroups = Array.from(groups.entries())
     </div>
   )}
 </BaseLayout>
+
+<script>
+  // 폴더 칩을 클릭했을 때 접혀 있는 목적지 details를 펼쳐서 이동
+  document.querySelectorAll<HTMLAnchorElement>('[data-snippet-jump]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const target = document.getElementById(`snippet-group-${link.dataset.snippetJump}`);
+      if (target instanceof HTMLDetailsElement) target.open = true;
+    });
+  });
+</script>

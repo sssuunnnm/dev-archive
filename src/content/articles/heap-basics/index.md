@@ -3,7 +3,7 @@ title: 힙(우선순위 큐) 개념과 문제 패턴
 description: 힙을 언제 써야 하는지, "가장 크거나 작은 것을 계속 꺼내야 하는" 문제 패턴을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [heap, priority-queue, pattern-recognition]
 type: study

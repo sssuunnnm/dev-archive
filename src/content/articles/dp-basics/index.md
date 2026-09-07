@@ -3,7 +3,7 @@ title: 동적계획법(DP) 개념과 문제 패턴
 description: DP인지 아닌지 알아채는 법, 점화식을 세우는 순서, 1차원/2차원 테이블 패턴을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [dynamic-programming, pattern-recognition]
 type: study

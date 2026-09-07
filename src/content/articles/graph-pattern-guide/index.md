@@ -3,7 +3,7 @@ title: 그래프 문제 패턴 판별 가이드
 description: 문제 설명과 입력 형태만 보고 인접리스트/인접행렬, BFS/DFS 중 뭘 써야 할지 빠르게 판단하는 법
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [graph, dfs, bfs, pattern-recognition]
 type: tips

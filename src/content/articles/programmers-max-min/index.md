@@ -3,7 +3,7 @@ title: 최댓값과 최솟값
 description: 공백 구분 문자열을 split+stoi로 숫자화한 뒤 최댓값/최솟값을 찾아 문자열로 합치는 문제를 정리한다
 date: 2026-08-07
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [string, level-1]
 type: troubleshooting

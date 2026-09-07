@@ -3,7 +3,7 @@ title: 폰켓몬
 description: unordered_set으로 중복 없는 종류 수를 세고, 상한선 비교로 답을 구하는 문제를 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, level-1]
 type: troubleshooting
