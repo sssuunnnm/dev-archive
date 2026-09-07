@@ -170,4 +170,4 @@ for message in consumer.poll('order-created', group='notification-service'):
 
 ## 참고자료
 
-- kafka.apache.org (Apache Kafka 공식 문서)
+- [Apache Kafka 공식 문서](https://kafka.apache.org/documentation/)

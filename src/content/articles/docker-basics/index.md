@@ -123,4 +123,4 @@ docker logs -f <container_id>        # 4. 로그로 정상 기동 확인
 
 ## 참고자료
 
-- Docker 공식 문서(docs.docker.com)
+- [Docker 공식 문서](https://docs.docker.com/)
