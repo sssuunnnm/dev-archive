@@ -3,7 +3,7 @@ title: 완주하지 못한 선수
 description: 참가자/완주자 명단을 해시로 비교해 완주 못한 선수를 찾는 문제, unordered_map 카운팅 원리를 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, level-1]
 type: troubleshooting

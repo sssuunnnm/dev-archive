@@ -3,7 +3,7 @@ title: 이분탐색 개념과 문제 패턴
 description: 값을 찾는 이분탐색 말고, "정답 자체를 이분탐색"하는 파라메트릭 서치 패턴을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [binary-search, parametric-search, pattern-recognition]
 type: study

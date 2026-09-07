@@ -3,7 +3,7 @@ title: 자동차 평균 대여 기간 구하기
 description: 날짜 뺄셈과 AVG/SUM 중첩 실수를 통해 DATEDIFF 보정과 HAVING의 역할을 정리한다
 date: 2026-08-03
 updated:
-category: cs
+category: coding-test
 technology: [mysql]
 tags: [group-by, level-2]
 type: troubleshooting

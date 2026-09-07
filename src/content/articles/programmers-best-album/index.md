@@ -3,7 +3,7 @@ title: 베스트앨범
 description: 해시로 장르별 집계를 하고, 다중 조건 정렬로 최종 답을 구하는 해시+정렬 복합 문제를 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, sort, level-3]
 type: troubleshooting

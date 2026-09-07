@@ -3,7 +3,7 @@ title: 정렬 개념과 문제 패턴
 description: 기본 정렬 말고 comparator를 커스텀해야 하는 문제, 정렬이 다른 알고리즘의 전처리로 쓰이는 패턴을 정리한다
 date: 2026-07-31
 updated: 2026-08-22
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [sort, comparator, pattern-recognition]
 type: study

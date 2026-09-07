@@ -3,7 +3,7 @@ title: 전화번호 목록
 description: 접두어 관계를 해시로 판별하는 문제, substr 인덱스 실수와 vector/unordered_set 순회 성능을 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, string, level-1]
 type: troubleshooting

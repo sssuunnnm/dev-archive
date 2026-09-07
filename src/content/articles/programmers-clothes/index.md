@@ -3,7 +3,7 @@ title: 의상
 description: 종류별 빈도수를 세고 (개수+1)을 곱해 조합 수를 구하는 문제를 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, level-2]
 type: troubleshooting

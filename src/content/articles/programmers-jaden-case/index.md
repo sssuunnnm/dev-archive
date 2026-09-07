@@ -3,7 +3,7 @@ title: JadenCase 문자열 만들기
 description: 각 글자가 단어의 시작인지 스스로 판단해 대소문자를 바꾸는 문자열 처리 문제를 정리한다
 date: 2026-08-07
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [string, level-2]
 type: troubleshooting

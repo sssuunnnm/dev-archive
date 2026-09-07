@@ -3,7 +3,7 @@ title: 해시 개념과 문제 패턴
 description: 해시가 뭔지, 어떤 문제에서 해시를 써야 하는지, 자주 나오는 패턴 세 가지를 정리한다
 date: 2026-07-31
 updated:
-category: cs
+category: coding-test
 technology: [cpp]
 tags: [hash, map, pattern-recognition]
 type: study
