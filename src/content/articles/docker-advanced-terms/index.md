@@ -135,4 +135,4 @@ node_modules
 ## 참고자료
 
 - Docker 공식 문서(docs.docker.com)
-- [Docker 기초 개념과 자주 쓰는 명령어](../docker-basics/)
+- [Docker 기초 개념과 자주 쓰는 명령어](/infra/docker-basics/)
