@@ -178,4 +178,4 @@ async function getUser(userId) {
 
 ## 참고자료
 
-- Redis 공식 문서(redis.io)
+- [Redis 공식 문서](https://redis.io/docs/latest/)
