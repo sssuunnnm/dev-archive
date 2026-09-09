@@ -10,7 +10,7 @@ type: study
 status: evergreen
 series:
 projects:
-related:
+related: [kubernetes-core-objects]
 aliases:
 draft: false
 ---
@@ -154,7 +154,7 @@ Docker 하나로 다 되는 것처럼 보이지만, 내부는 여러 계층으�
 - **Node**: Pod가 실제로 실행되는 서버(물리 머신 또는 VM).
 - **Control Plane**: 클러스터 전체의 원하는 상태를 관리하고, 실제 상태가 거기서 벗어나면 조정하는 역할.
 
-Kubernetes 오브젝트(Deployment, Service 등)나 실제 운영 디테일은 이 글의 범위를 벗어나서, 필요하면 별도 글로 다룰 만하다.
+Kubernetes 오브젝트(Deployment, Service 등)나 실제 운영 디테일은 이 글의 범위를 벗어나서, [별도 글](/infra/kubernetes-core-objects/)에서 다룬다.
 
 ## 예제
 
@@ -175,5 +175,5 @@ VM은 앱까지 도달하기 전에 완전한 OS(Guest OS) 하나를 더 거치�
 
 ## 참고자료
 
-- Docker 공식 문서(docs.docker.com), Kubernetes 공식 문서(kubernetes.io) — 개념 정의 확인용
+- [Docker 공식 문서](https://docs.docker.com/), [Kubernetes 공식 문서](https://kubernetes.io/docs/home/) — 개념 정의 확인용
 - [Docker 기초 개념과 자주 쓰는 명령어](/infra/docker-basics/)
