@@ -11,6 +11,7 @@ tags:
   - deployment
 type: study
 status: evergreen
+related: [github-actions-workflow-basics]
 draft: false
 ---
 
@@ -82,7 +83,7 @@ jobs:
 
 `needs: ci`로 CD job이 CI job의 성공 여부에 의존하게 만드는 것이 핵심이다.
 
-> 위 예시는 개념 설명을 위한 의사 코드(pseudo-code)다. 실제로는 `ci` job에서 만든 빌드 결과물을 `cd` job에서 그대로 쓰려면 `actions/upload-artifact`로 업로드하고 `actions/download-artifact`로 내려받는 과정이 추가로 필요하다 (job이 서로 다른 러너에서 실행되기 때문에 파일 시스템이 공유되지 않는다).
+> 위 예시는 개념 설명을 위한 의사 코드(pseudo-code)다. 실제로는 `ci` job에서 만든 빌드 결과물을 `cd` job에서 그대로 쓰려면 `actions/upload-artifact`로 업로드하고 `actions/download-artifact`로 내려받는 과정이 추가로 필요하다 (job이 서로 다른 러너에서 실행되기 때문에 파일 시스템이 공유되지 않는다). 트리거 종류, 매트릭스, 아티팩트 전달 같은 워크플로우 문법은 [별도 글](/infra/github-actions-workflow-basics/)에서 다룬다.
 
 ## 주의사항
 
