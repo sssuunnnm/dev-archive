@@ -62,6 +62,84 @@ System.out.println(ref.x);   // "Parent"
 | 필드 (하이딩) | 선언 타입 (등호 왼쪽) | `ref.x` → `Parent`의 `x` |
 | `static` 메서드 | 선언 타입 (등호 왼쪽) | `ref.id()` → `Parent`의 `id()` |
 
+같은 `ref`(`Parent ref = new Child();`)를 두고 필드에 접근할 때와 메서드를 호출할 때 어느 쪽 타입을 보는지 직접 토글해보면 차이가 더 분명해진다.
+
+<div class="bindingdemo">
+<style>
+.bindingdemo {
+  --ink: #1c1917; --sub: #6b7280; --line: #e5e7eb; --card: #fafafa; --card2: #f4f4f5;
+  --accent: #466b8f; --dim: #f4f4f5;
+  font-family: 'Pretendard', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px; padding: 20px; background: var(--card); margin: 24px 0;
+}
+.dark .bindingdemo { --ink: #e5e7eb; --sub: #9ca3af; --line: #374151; --card: #18181b; --card2: #27272a; --accent: #8fadc7; --dim: #27272a; }
+.bindingdemo .toggle { display: flex; gap: 8px; margin-bottom: 16px; }
+.bindingdemo .togbtn {
+  flex: 1; background: var(--card2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+}
+.bindingdemo .togbtn[aria-pressed="true"] { background: var(--accent); color: var(--card); border-color: var(--accent); }
+.bindingdemo .refline { text-align: center; font-family: monospace; font-size: 13px; color: var(--sub); margin-bottom: 14px; }
+.bindingdemo .candidates { display: flex; gap: 10px; margin-bottom: 14px; }
+.bindingdemo .cand { flex: 1; border-radius: 8px; padding: 10px; text-align: center; border: 2px solid var(--line); background: var(--card2); transition: all 0.15s; }
+.bindingdemo .cand.picked { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--card)); }
+.bindingdemo .cand.ignored { opacity: 0.4; }
+.bindingdemo .cand .label { font-size: 11.5px; color: var(--sub); margin-bottom: 4px; }
+.bindingdemo .cand .type { font-weight: 700; font-size: 14px; }
+.bindingdemo .verdict { font-size: 11px; margin-top: 6px; color: var(--accent); font-weight: 700; }
+.bindingdemo .result { border-radius: 8px; padding: 10px 12px; background: var(--card2); font-size: 13px; }
+.bindingdemo .result b { color: var(--accent); }
+</style>
+
+<div class="toggle">
+  <button class="togbtn" id="bd_field" aria-pressed="true">필드 접근 (ref.x)</button>
+  <button class="togbtn" id="bd_method" aria-pressed="false">메서드 호출 (ref.method())</button>
+</div>
+<div class="refline">Parent ref = new Child();</div>
+<div id="bd_diagram" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  const root = document.currentScript.previousElementSibling;
+  if (!root || !root.classList.contains('bindingdemo')) return;
+  const fieldBtn = root.querySelector('#bd_field');
+  const methodBtn = root.querySelector('#bd_method');
+  const diagramEl = root.querySelector('#bd_diagram');
+
+  function render(which) {
+    const fieldPicked = which === 'field';
+    diagramEl.innerHTML = `
+      <div class="candidates">
+        <div class="cand ${fieldPicked ? 'picked' : 'ignored'}">
+          <div class="label">선언 타입 (등호 왼쪽)</div>
+          <div class="type">Parent</div>
+          ${fieldPicked ? '<div class="verdict">여기서 결정 (정적 바인딩)</div>' : ''}
+        </div>
+        <div class="cand ${fieldPicked ? 'ignored' : 'picked'}">
+          <div class="label">실제 객체 (등호 오른쪽)</div>
+          <div class="type">Child</div>
+          ${fieldPicked ? '' : '<div class="verdict">여기서 결정 (동적 바인딩)</div>'}
+        </div>
+      </div>
+      <div class="result">
+        ${fieldPicked
+          ? '<code>ref.x</code> → <b>"Parent"</b> — 필드는 선언 타입만 보고 컴파일 시점에 정해진다.'
+          : '<code>ref.method()</code> → <b>Child의 method() 실행</b> — 인스턴스 메서드는 실행 시점에 실제 객체를 확인한다 (오버라이딩 적용).'}
+      </div>
+    `;
+  }
+  function select(which) {
+    fieldBtn.setAttribute('aria-pressed', String(which === 'field'));
+    methodBtn.setAttribute('aria-pressed', String(which === 'method'));
+    render(which);
+  }
+  fieldBtn.addEventListener('click', () => select('field'));
+  methodBtn.addEventListener('click', () => select('method'));
+  select('field');
+})();
+</script>
+
 이렇게 갈리는 이유는 **"객체에 소속된 것만 실제 객체를 따른다"**는 기준 때문이다.
 
 - **인스턴스 메서드**: 객체에 소속 → 실행할 때 실제 객체를 확인해서 호출(동적 바인딩) → 오버라이딩 적용
