@@ -12,7 +12,7 @@ series:
 projects:
 related: [java-field-hiding-binding]
 aliases:
-draft: true
+draft: false
 ---
 
 ## 한 줄 요약
