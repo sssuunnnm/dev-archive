@@ -272,6 +272,7 @@ git push origin --delete feat/spring-security-jwt   # 원격 브랜치 삭제 (G
 
 ### 5-4. CodeRabbit 리뷰 반영 방법
 
+- AI(Claude Code)가 PR을 직접 구독해서 리뷰 이벤트를 자동으로 받아오지 않는다. 리뷰 코멘트는 사용자가 직접 보고 텍스트를 복사해서 전달한다 — PR 이벤트 구독은 GitHub API의 raw 메타데이터(diff hunk, 커밋 SHA, 작성자 정보 등)까지 통째로 딸려와서, 필요한 내용만 추려 전달하는 것보다 토큰이 더 많이 든다.
 - 리뷰 코멘트가 단순 수정(오탈자, 짧은 코드 교정) 수준이면 **로컬 브랜치 전환 없이 GitHub 웹에서 바로 처리**한다.
   - 코멘트의 "Commit suggestion" 버튼 클릭 → 커밋 메시지 입력 → 현재 PR 브랜치에 바로 커밋
   - 또는 CodeRabbit의 **Autofix**(베타) 기능으로 자동 수정 요청 가능 — 처리에 몇 분 소요될 수 있음
